@@ -32,8 +32,8 @@
   "scripts": {
     "test": "uvu test test.webauthn.js",
     "test:coverage": "c8 --include=src npm test",
-    "test:lint": "eslint ./**/*.js",
-    "test:lint:fix": "eslint --fix  ./**/*.js",
+    "test:lint": "eslint src/**/*.js test/**/*.js",
+    "test:lint:fix": "eslint --fix src/**/*.js test/**/*.js",
     "build": "npm update && npm run build:precleanup && npm run test:lint && npm run build:typings && npm run test:coverage",
     "build:ci": "npm run test:lint && npm run build:typings && npm run test:coverage",
     "build:precleanup": "(rm -rf types/* || rd /S /Q types)",
