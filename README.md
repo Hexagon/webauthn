@@ -11,6 +11,8 @@ Slim Webauthn library with ES6, Node and Deno support. Heavily based on fido2-li
 [![npm version](https://badge.fury.io/js/@hexagon%2Fwebauthn.svg)](https://badge.fury.io/js/@hexagon%2Fwebauthn) [![NPM Downloads](https://img.shields.io/npm/dm/@hexagon/webauthn.svg)](https://www.npmjs.org/package/@hexagon/webauthn) 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Hexagon/webauthn/blob/master/LICENSE) [![jsdelivr](https://data.jsdelivr.com/v1/package/gh/hexagon/webauthn/badge?style=rounded)](https://www.jsdelivr.com/package/gh/hexagon/webauthn)
 
+Demo/Example for both Deno and Node available at [github.com/Hexagon/webauthn-skeleton/tree/server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno)
+
 Pros, compared to fido2-lib
 
 *   Supports both Node and Deno with the same code base
@@ -75,8 +77,10 @@ Full documentation available at [hexagon.github.io/webauthn](https://hexagon.git
 Assuming you have imported webauthn as described under 'Installation'.
 
 ```javascript
-
+// ToDo: ...
 ```
+
+Demo/Example for both Deno and Node available at [github.com/Hexagon/webauthn-skeleton/tree/server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno)
 
 ### Full API
 
