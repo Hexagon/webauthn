@@ -16,7 +16,7 @@ import {
 	base64
 } from "../common/utils.js";
 
-import { webcrypto, subtleCrypto } from "../common/crypto.js";
+import { subtleCrypto } from "../common/crypto.js";
 
 import { jwkToPem } from "./tools/jwk-to-pem.js";
 

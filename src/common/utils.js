@@ -177,8 +177,8 @@ function identify (o, ref) {
 	let res = "Object in '" +ref + "' is: ",
 		resAdd = "";
 
-	if (typeof o === "unknown") {
-		resAdd += "Unknown";
+	if (typeof o === "undefined") {
+		resAdd += "Undefined";
 	}
 
 	if (typeof Buffer !== "undefined" && o instanceof Buffer) {
@@ -226,7 +226,7 @@ function coerceToArrayBuffer(buf, name) {
 
 	// Handle undefined
 	if(typeof buf === "undefined") {
-		let ab = new ArrayBuffer(0);
+		buf = new ArrayBuffer(0);
 	}
 
 	// Extract typed array from Array

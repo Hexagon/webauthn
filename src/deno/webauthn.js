@@ -38,7 +38,9 @@ import {
 } from "../common/webauthn.js";
 import {
 	randomValues,
-	coerceToArrayBuffer
+	coerceToArrayBuffer,
+	hashDigest,
+	abToBuf
 } from "../common/utils.js";
 
 /**

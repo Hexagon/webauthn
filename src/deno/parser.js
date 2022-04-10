@@ -282,7 +282,7 @@ async function parseAuthnrAssertionResponse(msg) {
 	let userHandle;
 	if (msg.response.userHandle !== undefined) {
 		if (userHandle === "") {
-			huserHandle = undefined;
+			userHandle = undefined;
 		} else {
 			userHandle = coerceToArrayBuffer(msg.response.userHandle, "response.userHandle");
 			if (userHandle.byteLength === 0) {

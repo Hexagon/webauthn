@@ -38,7 +38,9 @@ import {
 } from "../common/webauthn.js";
 import {
 	randomValues,
-	coerceToArrayBuffer
+	coerceToArrayBuffer,
+	hashDigest,
+	abToBuf
 } from "../common/utils.js";
 /**
  * The main FIDO2 server class
@@ -118,7 +120,7 @@ class Webauthn extends WebauthnCommon {
      * SHA256(rawChallenge + extraData) and the `rawChallenge` will be returned as part of PublicKeyCredentialCreationOptions.
      * @returns {Promise<PublicKeyCredentialCreationOptions>} The options for creating calling `navigator.credentials.create()`
      */
-	 async attestationOptions(opts) {
+	async attestationOptions(opts) {
 		opts = opts || {};
 
 		// The object being returned is described here:
@@ -216,7 +218,7 @@ class Webauthn extends WebauthnCommon {
      * SHA256(rawChallenge + extraData) and the `rawChallenge` will be returned as part of PublicKeyCredentialCreationOptions.
      * @returns {Promise<PublicKeyCredentialRequestOptions>} The options to be passed to `navigator.credentials.get()`
      */
-	 async assertionOptions(opts) {
+	async assertionOptions(opts) {
 		opts = opts || {};
 
 		// https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptions

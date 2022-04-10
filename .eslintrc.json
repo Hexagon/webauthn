@@ -23,11 +23,12 @@
         "sourceType": "module",
         "ecmaVersion": 8
     },
-    "ignorePatterns": ["docs/*"],
+    "ignorePatterns": ["docs/*","src/common/tools/*","src/common/crypto.js"],
     "globals": {
         "define": false,
         "describe": false,
-        "it": false
+        "it": false,
+        "Deno": false
     },
     "env": {
         "es6": true,

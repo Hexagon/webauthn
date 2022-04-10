@@ -12,7 +12,7 @@
 
 "use strict";
 
-import { coerceToArrayBuffer, coerceToBase64, coerceToBase64Url } from "../../../common/utils.js";
+import { coerceToArrayBuffer, coerceToBase64Url } from "../../../common/utils.js";
 import * as cbor from "../cbor/decode.js";
 
 // main COSE labels

@@ -30,4 +30,3 @@ import { testUtils } from "./src/utils.js";
 testResponse(Webauthn);
 testParse(Webauthn);
 testUtils(Webauthn);
-

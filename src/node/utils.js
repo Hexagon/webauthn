@@ -159,6 +159,7 @@ function coerceToBase64Url(thing, name) {
 }
 
 export {
+	coerceToBase64,
 	coerceToBase64Url,
 	checkRpId,
 	ab2str,

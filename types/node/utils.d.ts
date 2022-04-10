@@ -1,0 +1,17 @@
+export function coerceToBase64(thing: any, name: any): string;
+export function coerceToBase64Url(thing: any, name: any): any;
+export function checkRpId(rpId: any): string;
+import { ab2str } from "../common/utils.js";
+import { coerceToArrayBuffer } from "../common/utils.js";
+import { abToBuf } from "../common/utils.js";
+import { randomValues } from "../common/utils.js";
+import { isBase64Url } from "../common/utils.js";
+export function checkOrigin(str: any): string;
+import { abEqual } from "../common/utils.js";
+import { isPem } from "../common/utils.js";
+import { isPositiveInteger } from "../common/utils.js";
+import { hashDigest } from "../common/utils.js";
+export function verifySignature(publicKey: any, expectedSignature: any, data: any): boolean;
+import { appendBuffer } from "../common/utils.js";
+import { identify } from "../common/utils.js";
+export { ab2str, coerceToArrayBuffer, abToBuf, randomValues, isBase64Url, abEqual, isPem, isPositiveInteger, hashDigest, appendBuffer, identify };

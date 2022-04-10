@@ -9,8 +9,7 @@ import {
 	coerceToArrayBuffer,
 	checkOrigin,
 	checkRpId,
-	ab2str,
-	identify
+	ab2str
 } from "./utils.js";
 
 import { Webauthn } from "./webauthn.js";
