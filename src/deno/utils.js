@@ -4,23 +4,20 @@ import {
 	isBase64Url,
 	abEqual,
 	isPem,
-	pemToBase64,
 	isPositiveInteger,
 	appendBuffer,
 	hashDigest,
 	randomValues,
-	identify,
 	coerceToArrayBuffer,
 	coerceToBase64,
 	coerceToBase64Url,
-	base64
+	base64,
+	pemToBase64
 } from "../common/utils.js";
 
 import { subtleCrypto } from "../common/crypto.js";
 
-import { jwkToPem } from "./tools/jwk-to-pem.js";
-
-import { URL } from "./deps.js";
+import { URL, importJWK, exportSPKI, importSPKI } from "./deps.js";
 
 function checkOrigin(str) {
 
@@ -115,31 +112,76 @@ function checkRpId(rpId) {
 	return checkDomainOrUrl(rpId, "rpId");
 }
 
-async function importRsaKey(pem) {
-	// fetch the part of the PEM string between header and footer
-	const pemContents = pemToBase64(pem);
-	// base64 decode the string to get the binary data
-	const binaryDerString = base64.toArrayBuffer(pemContents);
-	// convert from a binary string to an ArrayBuffer
-	const result = await subtleCrypto.importKey(
-		"spki",
-		binaryDerString,
-		{
-			name: "RSASSA-PKCS1-v1_5",
-			hash: "SHA-256"
-		},
-		false,
-		["verify"]
-	);
+async function verifySignature(publicKey, expectedSignature, data) {
+	try {
+		const 
+			importedKey = await importSPKIHelper(publicKey);
+		
+		let
+			uSignature = new Uint8Array(expectedSignature);
+		
+		// Copy algorithm and default hash
+		let alg = importedKey.algorithm;
+		if (!alg.hash) {
+			alg.hash = { name: "SHA-256"};
+		}
+		
+		// Convert signature
+		if (alg.name === "ECDSA") {
+			uSignature = await derToRaw(uSignature);
+		}
 
-	return result;
+		return await subtleCrypto.verify(alg, importedKey, new Uint8Array(uSignature), new Uint8Array(data));
+	} catch (_e) {
+		return;
+	}
 }
 
+async function jwkToPem(jwk) {
 
-async function verifySignature(publicKey, expectedSignature, data) {
-	const importedKey = await importRsaKey(publicKey);
-	const result = await subtleCrypto.verify("RSASSA-PKCS1-v1_5", importedKey, expectedSignature, data);
-	return result;
+	// Set key as extractable
+	jwk.ext = true;
+
+	// Help JOSE find the correct path
+	const algMap = {
+		"RSASSA-PKCS1-v1_5_w_SHA256": "RS256",
+		"ECDSA_w_SHA256": "ES256"
+	};
+	let alg = algMap[jwk.alg] || jwk.alg;
+	const pubCryptoKey = await importJWK(jwk, alg);
+	const pubSPKI = await exportSPKI(pubCryptoKey);
+
+	return pubSPKI;
+}
+// ToDo: Actually identify key
+async function importSPKIHelper(raw) {
+	let importSPKIResult;
+	try {
+		importSPKIResult = await importSPKI(raw, 'ES256');
+	} catch (_e) {}
+		if (!importSPKIResult) {
+			try {
+				importSPKIResult = await importSPKI(raw, 'RS256');
+			} catch (_e) {
+				throw new Error("Unsupported key format");
+			}
+		}
+	return importSPKIResult;
+}
+
+/* 
+    Convert signature from DER to raw
+    Expects Uint8Array 
+*/
+function derToRaw(signature) {
+    const 
+        rStart = signature[4] === 0 ? 5 : 4,
+        rEnd = rStart + 32,
+        sStart = signature[rEnd + 2] === 0 ? rEnd + 3 : rEnd + 2;
+    return new Uint8Array([
+        ...signature.slice(rStart, rEnd),
+        ...signature.slice(sStart)
+    ]);
 }
 
 export {
@@ -158,7 +200,6 @@ export {
 	hashDigest,
 	verifySignature,
 	appendBuffer,
-	identify,
 	base64,
 	jwkToPem
 };

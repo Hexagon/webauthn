@@ -38,6 +38,7 @@ import {
 import { Webauthn } from "./webauthn.js";
 
 import { URL } from "./deps.js";
+import { parseAuthenticatorData } from "./parser.js";
 
 async function validateRpIdHash() {
 	let rpIdHash = this.authnrData.get("rpIdHash");
@@ -222,7 +223,7 @@ async function validateAssertionSignature() {
 
 	let clientDataHashBuf = await hashDigest(rawClientData);
 	let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
-
+	
 	let res = await verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData,clientDataHash));
 	if (!res) {
 		throw new Error("signature validation failed");

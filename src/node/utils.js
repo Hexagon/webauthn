@@ -9,7 +9,9 @@ import {
 	hashDigest,
 	randomValues,
 	coerceToArrayBuffer,
-	identify
+	coerceToBase64,
+	coerceToBase64Url,
+	base64
 } from "../common/utils.js";
 
 import psl from "psl";
@@ -114,49 +116,6 @@ function verifySignature(publicKey, expectedSignature, data) {
 	verify.end();
 	return verify.verify(publicKey, abToBuf(expectedSignature));
 }
-function coerceToBase64(thing, name) {
-	if (!name) {
-		throw new TypeError("name not specified in coerceToBase64");
-	}
-
-	// Array to Uint8Array
-	if (Array.isArray(thing)) {
-		thing = Uint8Array.from(thing);
-	}
-
-	// Uint8Array, etc. to ArrayBuffer
-	if (typeof thing === "object" &&
-		thing.buffer instanceof ArrayBuffer &&
-		!(thing instanceof Buffer)) {
-		thing = thing.buffer;
-	}
-
-	// ArrayBuffer to Buffer
-	if (thing instanceof ArrayBuffer && !(thing instanceof Buffer)) {
-		thing = Buffer.from(thing);
-	}
-
-	// Buffer to base64 string
-	if (thing instanceof Buffer) {
-		thing = thing.toString("base64");
-	}
-
-	if (typeof thing !== "string") {
-		throw new Error(`could not coerce '${name}' to string`);
-	}
-
-	return thing;
-}
-
-function coerceToBase64Url(thing, name) {
-	thing = coerceToBase64(thing, name);
-
-	// base64 to base64url
-	// NOTE: "=" at the end of challenge is optional, strip it off here so that it's compatible with client
-	thing = thing.replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/g, "");
-
-	return thing;
-}
 
 export {
 	coerceToBase64,
@@ -174,5 +133,5 @@ export {
 	hashDigest,
 	verifySignature,
 	appendBuffer,
-	identify
+	base64
 };

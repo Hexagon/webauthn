@@ -173,39 +173,6 @@ let appendBuffer = function(buffer1, buffer2) {
 	return tmp.buffer;
 };
 
-function identify (o, ref) {
-	let res = "Object in '" +ref + "' is: ",
-		resAdd = "";
-
-	if (typeof o === "undefined") {
-		resAdd += "Undefined";
-	}
-
-	if (typeof Buffer !== "undefined" && o instanceof Buffer) {
-		resAdd += "Node-Buffer";
-	}
-
-	if (Array.isArray(o)) {
-		resAdd += "Array";
-	}
-
-	if (o instanceof ArrayBuffer) {
-		resAdd += "ArrayBuffer-instance";
-		
-		resAdd += "-" + o.byteLength + "-bytes";
-	}
-
-	if (o instanceof Uint8Array) {
-		resAdd += "Uint8Array";
-	}
-
-	if (o instanceof DataView) {
-		resAdd += "Uint8Array";
-	}
-
-	return res + resAdd;
-}
-
 function coerceToArrayBuffer(buf, name) {
 	
 	if (!name) {
@@ -302,7 +269,6 @@ export {
 	abEqual,
 	isPem,
 	pemToBase64,
-	identify,
 	isPositiveInteger,
 	hashDigest,
 	randomValues,
