@@ -1,5 +1,5 @@
-export function coerceToBase64(thing: any, name: any): string;
-export function coerceToBase64Url(thing: any, name: any): any;
+import { coerceToBase64 } from "../common/utils.js";
+import { coerceToBase64Url } from "../common/utils.js";
 export function checkRpId(rpId: any): string;
 import { ab2str } from "../common/utils.js";
 import { coerceToArrayBuffer } from "../common/utils.js";
@@ -13,5 +13,5 @@ import { isPositiveInteger } from "../common/utils.js";
 import { hashDigest } from "../common/utils.js";
 export function verifySignature(publicKey: any, expectedSignature: any, data: any): boolean;
 import { appendBuffer } from "../common/utils.js";
-import { identify } from "../common/utils.js";
-export { ab2str, coerceToArrayBuffer, abToBuf, randomValues, isBase64Url, abEqual, isPem, isPositiveInteger, hashDigest, appendBuffer, identify };
+import { base64 } from "../common/utils.js";
+export { coerceToBase64, coerceToBase64Url, ab2str, coerceToArrayBuffer, abToBuf, randomValues, isBase64Url, abEqual, isPem, isPositiveInteger, hashDigest, appendBuffer, base64 };

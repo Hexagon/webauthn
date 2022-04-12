@@ -4,7 +4,6 @@ export function isBase64Url(str: any): boolean;
 export function abEqual(a: any, b: any): boolean;
 export function isPem(pem: any): boolean;
 export function pemToBase64(pem: any): any;
-export function identify(o: any, ref: any): string;
 export function isPositiveInteger(n: any): boolean;
 export function hashDigest(o: any): Promise<any>;
 export function randomValues(n: any): Uint8Array;

@@ -38,7 +38,6 @@ import {
 import { Webauthn } from "./webauthn.js";
 
 import { URL } from "./deps.js";
-import { parseAuthenticatorData } from "./parser.js";
 
 async function validateRpIdHash() {
 	let rpIdHash = this.authnrData.get("rpIdHash");

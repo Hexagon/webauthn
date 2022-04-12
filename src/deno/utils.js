@@ -11,8 +11,7 @@ import {
 	coerceToArrayBuffer,
 	coerceToBase64,
 	coerceToBase64Url,
-	base64,
-	pemToBase64
+	base64
 } from "../common/utils.js";
 
 import { subtleCrypto } from "../common/crypto.js";
@@ -157,15 +156,16 @@ async function jwkToPem(jwk) {
 async function importSPKIHelper(raw) {
 	let importSPKIResult;
 	try {
-		importSPKIResult = await importSPKI(raw, 'ES256');
-	} catch (_e) {}
+		importSPKIResult = await importSPKI(raw, "ES256");
+	} catch (_e) {
 		if (!importSPKIResult) {
 			try {
-				importSPKIResult = await importSPKI(raw, 'RS256');
+				importSPKIResult = await importSPKI(raw, "RS256");
 			} catch (_e) {
 				throw new Error("Unsupported key format");
 			}
 		}
+	}
 	return importSPKIResult;
 }
 
@@ -174,14 +174,14 @@ async function importSPKIHelper(raw) {
     Expects Uint8Array 
 */
 function derToRaw(signature) {
-    const 
-        rStart = signature[4] === 0 ? 5 : 4,
-        rEnd = rStart + 32,
-        sStart = signature[rEnd + 2] === 0 ? rEnd + 3 : rEnd + 2;
-    return new Uint8Array([
-        ...signature.slice(rStart, rEnd),
-        ...signature.slice(sStart)
-    ]);
+	const 
+		rStart = signature[4] === 0 ? 5 : 4,
+		rEnd = rStart + 32,
+		sStart = signature[rEnd + 2] === 0 ? rEnd + 3 : rEnd + 2;
+	return new Uint8Array([
+		...signature.slice(rStart, rEnd),
+		...signature.slice(sStart)
+	]);
 }
 
 export {
