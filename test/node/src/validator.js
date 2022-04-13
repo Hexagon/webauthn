@@ -6,7 +6,7 @@ import * as parser from "../../../src/node/parser.js";
 import * as h from "../../helpers/fido2-helpers.js";
 
 const before = (run) => {
-
+	console.log(run.functionName);
 	const attResp = {
 		request: {},
 		requiredExpectations: new Set([
@@ -42,21 +42,6 @@ const before = (run) => {
 };
 // Actual tests
 const testValidator = function () {
-	
-	test("Dummy test", async () => {
-		const { attResp } = before({functionName: "parseAttestationObject"});
-		let ret = await attResp.validateExpectations();
-		assert.equal(ret, true);
-		assert.equal(attResp.audit.validExpectations, true);
-	});
-	
-	test("Dummy test", async () => {
-		const { attResp } = before({functionName: "parseAttestationObject"});
-		attResp.expectations.set("allowCredentials", null);
-		let ret = await attResp.validateExpectations();
-		assert.ok(ret);
-		assert.ok(attResp.audit.validExpectations);
-	});
 
 	test("Dummy test", async () => {
 		const { attResp } = before({functionName: "parseAuthnrAttestationResponse"});

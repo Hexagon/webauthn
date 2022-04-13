@@ -42,6 +42,7 @@ import {
 	hashDigest,
 	abToBuf
 } from "../common/utils.js";
+
 /**
  * The main FIDO2 server class
  */

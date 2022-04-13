@@ -58,6 +58,7 @@ class Fido2Result {
 		if (typeof exp !== "object") {
 			throw new TypeError("expected 'expectations' to be object, got: " + typeof exp);
 		}
+		
 		this.expectations = parseExpectations(exp);
 		this.request = req;
 

@@ -214,6 +214,27 @@ async function validateExpectations() {
 	return true;
 }
 
+async function validateUserHandle() {
+	let userHandle = this.authnrData.get("userHandle");
+
+	if (userHandle === undefined ||
+		userHandle === null ||
+		userHandle === "") {
+		this.audit.journal.add("userHandle");
+		return true;
+	}
+
+	userHandle = coerceToBase64Url(userHandle, "userHandle");
+	let expUserHandle = this.expectations.get("userHandle");
+	if (typeof userHandle === "string" &&
+		userHandle === expUserHandle) {
+		this.audit.journal.add("userHandle");
+		return true;
+	}
+
+	throw new Error("unable to validate userHandle");
+}
+
 async function validateAssertionSignature() {
 	let expectedSignature = this.authnrData.get("sig");
 	let publicKey = this.expectations.get("publicKey");
@@ -248,29 +269,6 @@ async function validateOrigin() {
 	return true;
 }
 
-
-async function validateUserHandle() {
-	let userHandle = this.authnrData.get("userHandle");
-
-	if (userHandle === undefined ||
-		userHandle === null ||
-		userHandle === "") {
-		this.audit.journal.add("userHandle");
-		return true;
-	}
-
-	userHandle = coerceToBase64Url(userHandle, "userHandle");
-	let expUserHandle = this.expectations.get("userHandle");
-	if (typeof userHandle === "string" &&
-		userHandle === expUserHandle) {
-		this.audit.journal.add("userHandle");
-		return true;
-	}
-
-	throw new Error("unable to validate userHandle");
-}
-
-
 function attach(o) {
 	let mixins = {
 		validateExpectations,
@@ -280,7 +278,6 @@ function attach(o) {
 		validateOrigin,
 		validateId,
 		validateCreateType,
-		validateUserHandle,
 		validateGetType,
 		validateChallenge,
 		validateTokenBinding,
@@ -294,6 +291,7 @@ function attach(o) {
 		validateCredId,
 		validatePublicKey,
 		validateFlags,
+		validateUserHandle,
 		validateCounter,
 		validateInitialCounter,
 		validateAssertionResponse,

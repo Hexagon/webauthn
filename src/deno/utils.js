@@ -11,7 +11,9 @@ import {
 	coerceToArrayBuffer,
 	coerceToBase64,
 	coerceToBase64Url,
-	base64
+	base64,
+	cbor,
+	coseToJwk
 } from "../common/utils.js";
 
 import { subtleCrypto } from "../common/crypto.js";
@@ -201,5 +203,7 @@ export {
 	verifySignature,
 	appendBuffer,
 	base64,
-	jwkToPem
+	jwkToPem,
+	cbor,
+	coseToJwk
 };

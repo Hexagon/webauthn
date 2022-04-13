@@ -245,7 +245,6 @@ async function validateAssertionSignature() {
 	let rawAuthnrData = this.authnrData.get("rawAuthnrData");
 	let rawClientData = this.clientData.get("rawClientDataJson");
 
-
 	let clientDataHashBuf = await hashDigest(rawClientData);
 	let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
 

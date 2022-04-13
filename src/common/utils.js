@@ -1,5 +1,6 @@
 import { base64 } from "./tools/base64/base64.js";
-
+import * as cbor from "../common/tools/cbor/decode.js";
+import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
 import { webcrypto, subtleCrypto } from "./crypto.js";
 
 function ab2str(buf) {
@@ -276,5 +277,7 @@ export {
 	coerceToArrayBuffer,
 	base64,
 	coerceToBase64Url,
-	coerceToBase64
+	coerceToBase64,
+	cbor,
+	coseToJwk
 };

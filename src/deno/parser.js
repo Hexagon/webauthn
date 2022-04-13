@@ -1,16 +1,12 @@
-"use strict";
-
-import * as cbor from "../common/tools/cbor/decode.js";
-//import { jwkToPem } from "./deps.js"; // CommonJS, should be converted to a native Deno module
-import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
-
 import {
 	coerceToBase64Url,
 	coerceToArrayBuffer,
 	checkOrigin,
 	checkRpId,
 	ab2str,
-	jwkToPem
+	jwkToPem,
+	cbor,
+	coseToJwk 
 } from "./utils.js";
 
 import { Webauthn } from "./webauthn.js";
@@ -47,9 +43,7 @@ function parseExpectations(exp) {
 	// challenge
 	if (exp.challenge) {
 		let challenge = exp.challenge;
-		
 		challenge = coerceToBase64Url(challenge, "expected challenge");
-
 		ret.set("challenge", challenge);
 	}
 
@@ -113,55 +107,6 @@ function parseExpectations(exp) {
 
 	return ret;
 }
-/**
- * @deprecated
- * Parses the CBOR attestation statement
- * @param  {ArrayBuffer} attestationObject The CBOR byte array representing the attestation statement
- * @return {Object}                   The Object containing all the attestation information
- * @see https://w3c.github.io/webauthn/#generating-an-attestation-object
- * @see  https://w3c.github.io/webauthn/#defined-attestation-formats
- */
-/*function parseAttestationObject(attestationObject) {
-	// update docs to say ArrayBuffer-ish object
-	attestationObject = coerceToArrayBuffer(attestationObject, "attestationObject");
-	
-	// parse attestation
-	let parsed;
-	try {
-		parsed = cbor.decode(new Uint8Array(attestationObject));
-	} catch (err) {
-		throw new TypeError("couldn't parse attestationObject CBOR");
-	}
-
-	if (!Array.isArray(parsed) || typeof parsed[0] !== "object") {
-		throw new TypeError("invalid parsing of attestationObject CBOR");
-	}
-	parsed = parsed[0];
-
-	if (typeof parsed.fmt !== "string") {
-		throw new Error("expected attestation CBOR to contain a 'fmt' string");
-	}
-
-	if (typeof parsed.attStmt !== "object") {
-		throw new Error("expected attestation CBOR to contain a 'attStmt' object");
-	}
-
-	if (!(parsed.authData instanceof Buffer)) {
-		throw new Error("expected attestation CBOR to contain a 'authData' byte sequence");
-	}
-
-	let ret = new Map([
-		...Webauthn.parseAttestation(parsed.fmt, parsed.attStmt),
-		// return raw buffer for future signature verification
-		["rawAuthnrData", coerceToArrayBuffer(parsed.authData, "authData")],
-		// Added for compatibility with parseAuthnrAttestationResponse
-		["transports", undefined],
-		// parse authData
-		...await parseAuthenticatorData(parsed.authData),
-	]);
-
-	return ret;
-}*/
 
 async function parseAuthnrAttestationResponse(msg) {
 
@@ -209,7 +154,7 @@ async function parseAuthnrAttestationResponse(msg) {
 	let ret = new Map([
 		...Webauthn.parseAttestation(parsed.fmt, parsed.attStmt),
 		// return raw buffer for future signature verification
-		["rawAuthnrData", coerceToArrayBuffer(parsed.authData,"parseAuthnrAttestationResponse")],
+		["rawAuthnrData", coerceToArrayBuffer(parsed.authData, "authData")],
 		["transports", msg.transports],
 		// parse authData
 		...await parseAuthenticatorData(parsed.authData),
@@ -220,7 +165,6 @@ async function parseAuthnrAttestationResponse(msg) {
 
 async function parseAuthenticatorData(authnrDataArrayBuffer) {
 
-	// convert to ArrayBuffer
 	authnrDataArrayBuffer = coerceToArrayBuffer(authnrDataArrayBuffer, "authnrDataArrayBuffer");
 	let ret = new Map();
 	let authnrDataBuf = new DataView(authnrDataArrayBuffer);
@@ -281,13 +225,9 @@ async function parseAuthnrAssertionResponse(msg) {
 
 	let userHandle;
 	if (msg.response.userHandle !== undefined) {
-		if (userHandle === "") {
+		userHandle = coerceToArrayBuffer(msg.response.userHandle, "response.userHandle");
+		if (userHandle.byteLength === 0) {
 			userHandle = undefined;
-		} else {
-			userHandle = coerceToArrayBuffer(msg.response.userHandle, "response.userHandle");
-			if (userHandle.byteLength === 0) {
-				userHandle = undefined;
-			}
 		}
 	}
 
@@ -295,7 +235,7 @@ async function parseAuthnrAssertionResponse(msg) {
 	let ret = new Map([
 		["sig", sigAb],
 		["userHandle", userHandle],
-		["rawAuthnrData", coerceToArrayBuffer(msg.response.authenticatorData,"parseAuthnrAssertionResponse")],
+		["rawAuthnrData", coerceToArrayBuffer(msg.response.authenticatorData, "response.authenticatorData")],
 		...await parseAuthenticatorData(msg.response.authenticatorData),
 	]);
 

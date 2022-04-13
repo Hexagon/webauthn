@@ -11,12 +11,15 @@ import {
 	coerceToArrayBuffer,
 	coerceToBase64,
 	coerceToBase64Url,
-	base64
+	base64,
+	cbor,
+	coseToJwk
 } from "../common/utils.js";
 
 import psl from "psl";
 import * as crypto from "crypto";
 import { URL } from "url";
+import jwkToPem from "jwk-to-pem"; // CommonJS
 
 function checkOrigin(str) {
 
@@ -133,5 +136,8 @@ export {
 	hashDigest,
 	verifySignature,
 	appendBuffer,
-	base64
+	base64,
+	jwkToPem,
+	cbor,
+	coseToJwk
 };

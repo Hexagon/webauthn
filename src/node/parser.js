@@ -1,15 +1,12 @@
-"use strict";
-
-import * as cbor from "../common/tools/cbor/decode.js";
-import jwkToPem from "jwk-to-pem"; // CommonJS
-import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
-
 import {
 	coerceToBase64Url,
 	coerceToArrayBuffer,
 	checkOrigin,
 	checkRpId,
-	ab2str
+	ab2str,
+	jwkToPem,
+	cbor,
+	coseToJwk 
 } from "./utils.js";
 
 import { Webauthn } from "./webauthn.js";
@@ -110,54 +107,6 @@ function parseExpectations(exp) {
 
 	return ret;
 }
-/**
- * @deprecated
- * Parses the CBOR attestation statement
- * @param  {ArrayBuffer} attestationObject The CBOR byte array representing the attestation statement
- * @return {Object}                   The Object containing all the attestation information
- * @see https://w3c.github.io/webauthn/#generating-an-attestation-object
- * @see  https://w3c.github.io/webauthn/#defined-attestation-formats
- */
-function parseAttestationObject(attestationObject) {
-	// update docs to say ArrayBuffer-ish object
-	attestationObject = coerceToArrayBuffer(attestationObject, "attestationObject");
-
-	// parse attestation
-	let parsed;
-	try {
-		parsed = cbor.decode(new Uint8Array(attestationObject));
-	} catch (err) {
-		throw new TypeError("couldn't parse attestationObject CBOR");
-	}
-
-	if (typeof parsed !== "object") {
-		throw new TypeError("invalid parsing of attestationObject CBOR");
-	}
-
-	if (typeof parsed.fmt !== "string") {
-		throw new Error("expected attestation CBOR to contain a 'fmt' string");
-	}
-
-	if (typeof parsed.attStmt !== "object") {
-		throw new Error("expected attestation CBOR to contain a 'attStmt' object");
-	}
-
-	if (!(parsed.authData instanceof Uint8Array)) {
-		throw new Error("expected attestation CBOR to contain a 'authData' byte sequence");
-	}
-
-	let ret = new Map([
-		...Webauthn.parseAttestation(parsed.fmt, parsed.attStmt),
-		// return raw buffer for future signature verification
-		["rawAuthnrData", coerceToArrayBuffer(parsed.authData, "authData")],
-		// Added for compatibility with parseAuthnrAttestationResponse
-		["transports", undefined],
-		// parse authData
-		...parseAuthenticatorData(parsed.authData),
-	]);
-
-	return ret;
-}
 
 function parseAuthnrAttestationResponse(msg) {
 
@@ -174,7 +123,6 @@ function parseAuthnrAttestationResponse(msg) {
 	// update docs to say ArrayBuffer-ish object
 	attestationObject = coerceToArrayBuffer(attestationObject, "attestationObject");
 
-	// parse attestation
 	let parsed;
 	try {
 		parsed = cbor.decode(new Uint8Array(attestationObject));
@@ -218,7 +166,6 @@ function parseAuthnrAttestationResponse(msg) {
 function parseAuthenticatorData(authnrDataArrayBuffer) {
 	
 	authnrDataArrayBuffer = coerceToArrayBuffer(authnrDataArrayBuffer, "authnrDataArrayBuffer");
-
 	let ret = new Map();
 	let authnrDataBuf = new DataView(authnrDataArrayBuffer);
 	let offset = 0;
@@ -238,7 +185,6 @@ function parseAuthenticatorData(authnrDataArrayBuffer) {
 	offset++;
 	ret.set("counter", authnrDataBuf.getUint32(offset, false));
 	offset += 4;
-
 
 	// see if there's more data to process
 	let attestation = flagsSet.has("AT");
@@ -346,7 +292,6 @@ function parseClientResponse(msg) {
 export {
 	parseExpectations,
 	parseClientResponse,
-	parseAttestationObject,
 	parseAuthenticatorData,
 	parseAuthnrAssertionResponse,
 	parseAuthnrAttestationResponse,

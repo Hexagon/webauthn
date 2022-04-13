@@ -94,7 +94,6 @@ class Fido2AttestationResult extends Fido2Result {
 		]);
 	}
 
-
 	parse() {
 		this.validateCreateRequest();
 		super.parse();
