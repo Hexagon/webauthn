@@ -1,19 +1,16 @@
 import {
 	coerceToBase64Url,
 	coerceToArrayBuffer,
-	checkOrigin,
-	checkRpId,
 	ab2str,
-	jwkToPem,
 	cbor,
 	coseToJwk 
 } from "./utils.js";
 
-import { Webauthn } from "./webauthn.js";
+import { Webauthn } from "./main.js";
 
 // NOTE: throws if origin is https and has port 443
 // use `new URL(originstr).origin` to create a properly formatted origin
-function parseExpectations(exp) {
+function parseExpectations(exp, tools) {
 	if (typeof exp !== "object") {
 		throw new TypeError("expected 'expectations' to be of type object, got " + typeof exp);
 	}
@@ -26,7 +23,7 @@ function parseExpectations(exp) {
 			throw new TypeError("expected 'origin' should be string, got " + typeof exp.origin);
 		}
 
-		let origin = checkOrigin(exp.origin);
+		let origin = tools.checkOrigin(exp.origin);
 		ret.set("origin", origin);
 	}
 
@@ -36,7 +33,7 @@ function parseExpectations(exp) {
 			throw new TypeError("expected 'rpId' should be string, got " + typeof exp.rpId);
 		}
 
-		let rpId = checkRpId(exp.rpId);
+		let rpId = tools.checkRpId(exp.rpId);
 		ret.set("rpId", rpId);
 	}
 
@@ -108,7 +105,7 @@ function parseExpectations(exp) {
 	return ret;
 }
 
-function parseAuthnrAttestationResponse(msg) {
+async function parseAuthnrAttestationResponse(msg, tools) {
 
 	if (typeof msg !== "object") {
 		throw new TypeError("expected msg to be Object");
@@ -157,13 +154,13 @@ function parseAuthnrAttestationResponse(msg) {
 		["rawAuthnrData", coerceToArrayBuffer(parsed.authData, "authData")],
 		["transports", msg.transports],
 		// parse authData
-		...parseAuthenticatorData(parsed.authData),
+		...await parseAuthenticatorData(parsed.authData, tools),
 	]);
 
 	return ret;
 }
 
-function parseAuthenticatorData(authnrDataArrayBuffer) {
+async function parseAuthenticatorData(authnrDataArrayBuffer, tools) {
 	
 	authnrDataArrayBuffer = coerceToArrayBuffer(authnrDataArrayBuffer, "authnrDataArrayBuffer");
 	let ret = new Map();
@@ -202,7 +199,7 @@ function parseAuthenticatorData(authnrDataArrayBuffer) {
 		ret.set("credentialPublicKeyCose", credentialPublicKeyCose);
 		let jwk = coseToJwk(credentialPublicKeyCose);
 		ret.set("credentialPublicKeyJwk", jwk);
-		ret.set("credentialPublicKeyPem", jwkToPem(jwk));
+		ret.set("credentialPublicKeyPem", await tools.jwkToPem(jwk));
 	}
 
 	// TODO: parse extensions
@@ -214,7 +211,7 @@ function parseAuthenticatorData(authnrDataArrayBuffer) {
 	return ret;
 }
 
-function parseAuthnrAssertionResponse(msg) {
+async function parseAuthnrAssertionResponse(msg, tools) {
 	if (typeof msg !== "object") {
 		throw new TypeError("expected msg to be Object");
 	}
@@ -236,7 +233,7 @@ function parseAuthnrAssertionResponse(msg) {
 		["sig", sigAb],
 		["userHandle", userHandle],
 		["rawAuthnrData", coerceToArrayBuffer(msg.response.authenticatorData, "response.authenticatorData")],
-		...parseAuthenticatorData(msg.response.authenticatorData),
+		...await parseAuthenticatorData(msg.response.authenticatorData, tools),
 	]);
 
 	return ret;

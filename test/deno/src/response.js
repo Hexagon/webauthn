@@ -1,13 +1,16 @@
-import {
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.128.0/testing/asserts.ts";
+// Testing lib
+import { assertEquals, assertThrows } from "../deps.js";
+
+// Helpers
+import { klon } from "../deps.js";
+import * as h from "../../helpers/fido2-helpers.js";
+import { ToolBox } from "../../../src/deno/toolbox.js";
+
+// Test subject
 import {
   Fido2AssertionResult,
   Fido2AttestationResult,
-} from "../../../src/deno/response.js";
-import { default as klon } from "https://esm.run/klon";
-import * as h from "../../helpers/fido2-helpers.js";
+} from "../../../src/common/response.js";
 
 // Actual tests
 const testResponse = function () {
@@ -34,7 +37,7 @@ const testResponse = function () {
       challenge:
         "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
       flags: ["UP", "AT"],
-    });
+    }, ToolBox);
   });
 
   Deno.test("Fido2AssertionResult is function", function () {
@@ -55,7 +58,7 @@ const testResponse = function () {
 			prevCounter: 362,
 			publicKey: h.lib.assnPublicKey,
 			userHandle: null,
-		});
+		}, ToolBox);
 		assert.ok(ret instanceof Fido2AssertionResult);
 	});*/
 
@@ -71,6 +74,7 @@ const testResponse = function () {
         publicKey: h.lib.assnPublicKeyWindowsHello,
         userHandle: "YWs",
       },
+      ToolBox,
     );
     assertEquals(ret instanceof Fido2AssertionResult, true);
   });

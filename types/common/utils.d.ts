@@ -1,12 +1,9 @@
 export function ab2str(buf: any): string;
-export function abToBuf(ab: any): Buffer;
+export function abToBuf(ab: any): ArrayBufferLike;
 export function isBase64Url(str: any): boolean;
 export function abEqual(a: any, b: any): boolean;
 export function isPem(pem: any): boolean;
-export function pemToBase64(pem: any): any;
 export function isPositiveInteger(n: any): boolean;
-export function hashDigest(o: any): Promise<any>;
-export function randomValues(n: any): Uint8Array;
 /**
  * Creates a new Uint8Array based on two different ArrayBuffers
  *
@@ -20,4 +17,7 @@ export function coerceToArrayBuffer(buf: any, name: any): ArrayBuffer;
 import { base64 } from "./tools/base64/base64.js";
 export function coerceToBase64Url(thing: any, name: any): string;
 export function coerceToBase64(thing: any, name: any): string;
-export { base64 };
+import * as cbor from "../common/tools/cbor/decode.js";
+import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
+export function arrayBufferEquals(b1: any, b2: any): boolean;
+export { base64, cbor, coseToJwk };

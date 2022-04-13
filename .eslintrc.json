@@ -23,7 +23,7 @@
         "sourceType": "module",
         "ecmaVersion": 8
     },
-    "ignorePatterns": ["docs/*","src/common/tools/*","src/common/crypto.js","test/deno/*","node_modules/*"],
+    "ignorePatterns": ["docs/*","src/common/tools/*","test/deno/*","src/deno/*","node_modules/*"],
     "globals": {
         "define": false,
         "describe": false,

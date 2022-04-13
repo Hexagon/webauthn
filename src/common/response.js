@@ -50,7 +50,7 @@ class Fido2Result {
 		await this.validateFlags();
 	}
 
-	async create(req, exp) {
+	async create(req, exp, tools) {
 		if (typeof req !== "object") {
 			throw new TypeError("expected 'request' to be object, got: " + typeof req);
 		}
@@ -58,10 +58,12 @@ class Fido2Result {
 		if (typeof exp !== "object") {
 			throw new TypeError("expected 'expectations' to be object, got: " + typeof exp);
 		}
-		
-		this.expectations = parseExpectations(exp);
-		this.request = req;
 
+		this.tools = tools;
+
+		this.expectations = parseExpectations(exp, this.tools);
+		this.request = req;
+		
 		// validate that input expectations and request are complete and in the right format
 		await this.validateExpectations();
 
@@ -97,7 +99,7 @@ class Fido2AttestationResult extends Fido2Result {
 	async parse() {
 		this.validateCreateRequest();
 		await super.parse();
-		this.authnrData = await parseAuthnrAttestationResponse(this.request);
+		this.authnrData = await parseAuthnrAttestationResponse(this.request, this.tools);
 	}
 
 	async validate() {
@@ -111,8 +113,8 @@ class Fido2AttestationResult extends Fido2Result {
 		await this.validateTransports();
 	}
 
-	static create(req, exp) {
-		return new Fido2AttestationResult(lockSym).create(req, exp);
+	static create(req, exp, tools) {
+		return new Fido2AttestationResult(lockSym).create(req, exp, tools);
 	}
 }
 
@@ -121,8 +123,8 @@ class Fido2AttestationResult extends Fido2Result {
  * @extends {Fido2Result}
  */
 class Fido2AssertionResult extends Fido2Result {
-	constructor(sym) {
-		super(sym);
+	constructor(sym, tools) {
+		super(sym, tools);
 		this.requiredExpectations = new Set([
 			"origin",
 			"challenge",
@@ -140,7 +142,7 @@ class Fido2AssertionResult extends Fido2Result {
 	async parse() {
 		this.validateAssertionResponse();
 		await super.parse();
-		this.authnrData = await parseAuthnrAssertionResponse(this.request);
+		this.authnrData = await parseAuthnrAssertionResponse(this.request, this.tools);
 	}
 
 	async validate() {
@@ -151,8 +153,8 @@ class Fido2AssertionResult extends Fido2Result {
 		await this.validateCounter();
 	}
 
-	static create(req, exp) {
-		return new Fido2AssertionResult(lockSym).create(req, exp);
+	static create(req, exp, tools) {
+		return new Fido2AssertionResult(lockSym).create(req, exp, tools);
 	}
 }
 

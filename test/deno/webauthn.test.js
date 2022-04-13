@@ -23,10 +23,14 @@ THE SOFTWARE.
 */
 import Webauthn from "../../src/deno/webauthn.js";
 
+import { testParseAssertion } from "./src/parseassertion.js";
 import { testResponse } from "./src/response.js";
 import { testParse } from "./src/parse.js";
 import { testUtils } from "./src/utils.js";
+import { testToolBox } from "./src/toolbox.js";
 
+testParseAssertion(Webauthn);
 testResponse(Webauthn);
 testParse(Webauthn);
 testUtils(Webauthn);
+testToolBox(Webauthn);

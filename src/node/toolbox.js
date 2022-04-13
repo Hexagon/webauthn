@@ -1,21 +1,3 @@
-import {
-	ab2str,
-	abToBuf,
-	isBase64Url,
-	abEqual,
-	isPem,
-	isPositiveInteger,
-	appendBuffer,
-	hashDigest,
-	randomValues,
-	coerceToArrayBuffer,
-	coerceToBase64,
-	coerceToBase64Url,
-	base64,
-	cbor,
-	coseToJwk
-} from "../common/utils.js";
-
 import psl from "psl";
 import * as crypto from "crypto";
 import { URL } from "url";
@@ -115,29 +97,38 @@ function checkRpId(rpId) {
 
 function verifySignature(publicKey, expectedSignature, data) {
 	const verify = crypto.createVerify("SHA256");
-	verify.write(abToBuf(data));
+	verify.write(new Uint8Array(data));
 	verify.end();
-	return verify.verify(publicKey, abToBuf(expectedSignature));
+	return verify.verify(publicKey, new Uint8Array(expectedSignature));
 }
 
-export {
-	coerceToBase64,
-	coerceToBase64Url,
-	checkRpId,
-	ab2str,
-	coerceToArrayBuffer,
-	abToBuf,
-	randomValues,
-	isBase64Url,
+async function hashDigest(o) {
+	if (typeof o === "string") {
+		o = new TextEncoder().encode(o);
+	}
+	let hash = crypto.createHash("sha256");
+	hash.update(new Uint8Array(o));
+	return new Uint8Array(hash.digest());
+}
+
+function randomValues(n) {
+	return crypto.randomBytes(n);
+}
+
+function getHostname(urlIn) {
+	return new URL(urlIn).hostname;
+}
+
+const ToolBox = {
 	checkOrigin,
-	abEqual,
-	isPem,
-	isPositiveInteger,
-	hashDigest,
+	checkRpId,
+	checkDomainOrUrl,
+	checkUrl,
 	verifySignature,
-	appendBuffer,
-	base64,
 	jwkToPem,
-	cbor,
-	coseToJwk
+	hashDigest,
+	randomValues,
+	getHostname
 };
+
+export { ToolBox };

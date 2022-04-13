@@ -17,7 +17,8 @@ export class Fido2Result {
     parse(): void;
     clientData: any;
     validate(): Promise<void>;
-    create(req: any, exp: any): Promise<Fido2Result>;
+    create(req: any, exp: any, tools: any): Promise<Fido2Result>;
+    tools: any;
     expectations: Map<any, any>;
     request: any;
 }
@@ -26,9 +27,10 @@ export class Fido2Result {
  * @extends {Fido2Result}
  */
 export class Fido2AttestationResult extends Fido2Result {
-    static create(req: any, exp: any): Promise<Fido2AttestationResult>;
+    static create(req: any, exp: any, tools: any): Promise<Fido2AttestationResult>;
     requiredExpectations: Set<string>;
     optionalExpectations: Set<string>;
+    parse(): Promise<void>;
     authnrData: Map<any, any>;
 }
 /**
@@ -36,8 +38,10 @@ export class Fido2AttestationResult extends Fido2Result {
  * @extends {Fido2Result}
  */
 export class Fido2AssertionResult extends Fido2Result {
-    static create(req: any, exp: any): Promise<Fido2AssertionResult>;
+    static create(req: any, exp: any, tools: any): Promise<Fido2AssertionResult>;
+    constructor(sym: any, tools: any);
     requiredExpectations: Set<string>;
     optionalExpectations: Set<string>;
+    parse(): Promise<void>;
     authnrData: Map<any, any>;
 }

@@ -1,5 +1,11 @@
-import { assertEquals } from "https://deno.land/std@0.128.0/testing/asserts.ts";
-import * as parser from "../../../src/deno/parser.js";
+// Testing lib
+import { assertEquals } from "../deps.js";
+
+// Helpers
+import { ToolBox } from "../../../src/deno/toolbox.js";
+
+// Test subject
+import * as parser from "../../../src/common/parser.js";
 
 // Actual tests
 const testParse = function () {
@@ -9,7 +15,7 @@ const testParse = function () {
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
-    let ret = parser.parseExpectations(exp);
+    let ret = parser.parseExpectations(exp, ToolBox);
     assertEquals(ret instanceof Map, true);
     assertEquals(ret.size, 2);
     assertEquals(ret.get("origin"), exp.origin);
@@ -87,7 +93,7 @@ const testParse = function () {
     };
     let base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-    let ret = parser.parseExpectations(exp);
+    let ret = parser.parseExpectations(exp, ToolBox);
     assertEquals(ret instanceof Map, true);
     assertEquals(ret.size, 2);
     assertEquals(ret.get("origin"), exp.origin);

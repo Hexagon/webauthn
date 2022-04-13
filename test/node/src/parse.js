@@ -1,6 +1,12 @@
+// Testing lib
 import { test } from "uvu";
 import * as assert from "uvu/assert";
-import * as parser from "../../../src/node/parser.js";
+
+// Helpers
+import { ToolBox } from "../../../src/node/toolbox.js";
+
+// Testing subjects
+import * as parser from "../../../src/common/parser.js";
 
 // Actual tests
 const testParse = function () {
@@ -10,7 +16,7 @@ const testParse = function () {
 			origin: "https://webauthn.bin.coffee",
 			challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
 		};
-		let ret = parser.parseExpectations(exp);
+		let ret = parser.parseExpectations(exp, ToolBox);
 		assert.ok( ret instanceof Map);
 		assert.equal(ret.size, 2);
 		assert.equal(ret.get("origin"), exp.origin);
@@ -27,7 +33,7 @@ const testParse = function () {
 			],
 		};
 		let base64UrlChallenge = "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-		let ret = parser.parseExpectations(exp);
+		let ret = parser.parseExpectations(exp, ToolBox);
 		assert.ok(ret instanceof Map);
 		assert.equal(ret.size, 2);
 		assert.equal(ret.get("origin"), exp.origin);

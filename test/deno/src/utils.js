@@ -1,15 +1,14 @@
-import { assertEquals } from "https://deno.land/std@0.128.0/testing/asserts.ts";
-import * as utils from "../../../src/deno/utils.js";
-import { default as klon } from "https://esm.run/klon";
+// Testing lib
+import { assertEquals } from "../deps.js";
+
+// Helpers
+import { klon } from "../deps.js";
 import * as h from "../../helpers/fido2-helpers.js";
 
-function testUtils() {
-  // Actual tests
-  Deno.test("randomValues", async () => {
-    const res32bytes = utils.randomValues(32);
-    assertEquals(res32bytes.length, 32);
-  });
+// Test subject
+import * as utils from "../../../src/common/utils.js";
 
+function testUtils() {
   Deno.test("coerceToArrayBuffer", () => {
     const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
     testReq.response.clientDataJSON = h.lib

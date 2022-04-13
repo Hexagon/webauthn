@@ -1,12 +1,17 @@
+// Testing lib
 import { test } from "uvu";
-import klon from "klon";
 import * as assert from "uvu/assert";
-import * as validator from "../../../src/node/validator.js";
-import * as parser from "../../../src/node/parser.js";
+
+// Helpers
+import klon from "klon";
 import * as h from "../../helpers/fido2-helpers.js";
+import { ToolBox } from "../../../src/node/toolbox.js";
+
+// Testing subjects
+import * as parser from "../../../src/common/parser.js";
+import * as validator from "../../../src/common/validator.js";
 
 const before = (run) => {
-	console.log(run.functionName);
 	const attResp = {
 		request: {},
 		requiredExpectations: new Set([
@@ -24,7 +29,7 @@ const before = (run) => {
 			["flags", ["UP", "AT"]],
 		]),
 		clientData: parser.parseClientResponse(h.lib.makeCredentialAttestationNoneResponse),
-		authnrData: run.functionName == "parseAuthnrAttestationResponse" ? parser[run.functionName](h.lib.makeCredentialAttestationNoneResponse) :  parser[run.functionName](h.lib.makeCredentialAttestationNoneResponse.response.attestationObject),
+		authnrData: run.functionName == "parseAuthnrAttestationResponse" ? parser[run.functionName](h.lib.makeCredentialAttestationNoneResponse, ToolBox) :  parser[run.functionName](h.lib.makeCredentialAttestationNoneResponse.response.attestationObject, ToolBox),
 	};
 	let testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
 	testReq.rawId = h.lib.makeCredentialAttestationNoneResponse.rawId;
@@ -40,11 +45,14 @@ const before = (run) => {
 	};
 
 };
+
 // Actual tests
 const testValidator = function () {
 
 	test("Dummy test", async () => {
 		const { attResp } = before({functionName: "parseAuthnrAttestationResponse"});
+		attResp.tools = ToolBox;
+
 		let ret = await attResp.validateExpectations();
 		assert.equal(ret, true);
 		assert.equal(attResp.audit.validExpectations, true);
@@ -52,6 +60,8 @@ const testValidator = function () {
 	
 	test("Dummy test", async () => {
 		const { attResp } = before({functionName: "parseAuthnrAttestationResponse"});
+		attResp.tools = ToolBox;
+
 		attResp.expectations.set("allowCredentials", null);
 		let ret = await attResp.validateExpectations();
 		assert.ok(ret);

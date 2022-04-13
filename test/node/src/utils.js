@@ -1,16 +1,21 @@
+// Testing lib
 import { test } from "uvu";
 import * as assert from "uvu/assert";
-import * as utils from "../../../src/node/utils.js";
-import { default as klon } from "klon";
+
+// Helpers
+import klon from "klon";
 import * as h from "../../helpers/fido2-helpers.js";
+
+// Testing subjects
+import * as utils from "../../../src/common/utils.js";
 
 // Actual tests
 const testUtils = function () {
 	
-	test("randomValues", async () => {
+	/*TOOLStest("randomValues", async () => {
 		const res32bytes = utils.randomValues(32);
 		assert.equal(res32bytes.length, 32);
-	});
+	});*/
 
 	test("coerceToBase64", () => {
 		const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);

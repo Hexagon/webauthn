@@ -1,7 +1,13 @@
+// Testing lib
 import { test } from "uvu";
 import * as assert from "uvu/assert";
-import { Fido2AttestationResult, Fido2AssertionResult } from "../../../src/node/response.js";
+
+// Helpers
+import { ToolBox } from "../../../src/node/toolbox.js";
 import * as h from "../../helpers/fido2-helpers.js";
+
+// Testing subjects
+import { Fido2AssertionResult, Fido2AttestationResult } from "../../../src/common/response.js";
 
 /*const before = () => {
 
@@ -31,7 +37,7 @@ const testResponse = function () {
 			origin: "https://localhost:8443",
 			challenge: "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
 			flags: ["UP", "AT"],
-		});
+		}, ToolBox);
 	});
 
 	test("Fido2AssertionResult is function", function() {
@@ -52,7 +58,7 @@ const testResponse = function () {
 			prevCounter: 362,
 			publicKey: h.lib.assnPublicKey,
 			userHandle: null,
-		});
+		}, ToolBox);
 		assert.ok(ret instanceof Fido2AssertionResult);
 	});
 
@@ -64,7 +70,7 @@ const testResponse = function () {
 			prevCounter: 0,
 			publicKey: h.lib.assnPublicKeyWindowsHello,
 			userHandle: "YWs",
-		});
+		}, ToolBox);
 		assert.ok(ret instanceof Fido2AssertionResult);
 	});
 
