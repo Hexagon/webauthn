@@ -38,11 +38,12 @@
     "build:ci": "npm run test:lint && npm run build:typings && npm run test:coverage",
     "build:precleanup": "(rm -rf types/* || rd /S /Q types)",
     "build:typings": "tsc",
-    "build:docs": "(rm -rf docs/* || rd /S /Q docs) && jsdoc -c .jsdoc.json",
+    "build:docs": "npm run build:docs:precleanup & jsdoc -c .jsdoc.json",
+    "build:docs:precleanup": "(rm -rf docs/* || rd /S /Q docs)",
     "test:lint:deno": "deno fmt --check test/deno src/deno",
     "test:lint:deno:fix": "deno fmt test/deno src/deno",
-    "test:deno": "deno test test/deno"
-    
+    "test:deno": "deno test test/deno",
+    "precommit": "npm run test && npm run test:deno && npm run test:lint && npm run test:lint:deno"
   },
   "type": "module",
   "main": "./src/node/webauthn.js",
@@ -66,6 +67,6 @@
   },
   "dependencies": {
     "jwk-to-pem": "^2.0.5",
-    "psl": "^1.8.0"
+    "tldts": "^5.7.75"
   }
 }

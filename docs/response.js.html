@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>
+      @hexagon/webauthn - Documentation
+  </title>
+
+  <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <link id="google-font" href="https://fonts.googleapis.com/css?family=Roboto+Mono|Cutive+Mono|Roboto:300,400,700" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="styles/highlight-themes/current.css">
+  <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+  <link type="text/css" rel="stylesheet" href="styles/collapsible.css">
+  <link type="text/css" rel="stylesheet" href="styles/style-switcher.css">
+  <link type="text/css" rel="stylesheet" href="styles/selectric.css">
+  
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  <script src="https://embed.runkit.com"></script>
+  <style id="style-switcher-styles">
+    nav {
+        background: #282c34;
+    }
+    .hljs {
+        background: #1d2027;
+    }
+    .nav-container > ul > li.active a {
+        color: #dcdcdc;
+    }
+    .nav-container > ul > li.active a:hover {
+        color: #f78200;
+    }
+    .nav-container > ul > li.active ul {
+        border-color: #f78200;
+    }
+    h4.name {
+        color: #f78200;
+    }
+    .params > div > code, .params > div > em {
+        color: #f78200;
+    }
+    a, a:active {
+        color: #f78200;
+    }
+    .hljs-doctag, .hljs-keyword, .hljs-formula {
+        color: #f78200;
+    }
+    nav ul a:hover, nav ul a:active {
+        color: #f78200;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header-fixed">
+      <h1>
+        <a href="index.html" title="modernTemplate.title">
+            
+                <img alt="@hexagon/webauthn" src="https://cdn.jsdelivr.net/gh/hexagon/webauthn@master/webauthn.png" />
+            
+            @hexagon/webauthn
+        </a>
+      </h1>
+      <div class="center-header">
+          <ul>
+            
+          </ul>
+      </div>
+      <div class="right-header">
+           
+                <a href="https://github.com/hexagon/webauthn" title="View it on Github" style="">
+                    <i class="fab fa-github-alt"></i>
+                </a>
+           
+                <a href="https://www.npmjs.com/package/@hexagon/webauthn" title="View it on NPM" style="font-size: 19px">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </a>
+           
+      </div>
+  </header>
+
+  <svg style="display: none;">
+    <defs>
+      <symbol id="linkIcon" fill="#706d77" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+  <label for="nav-trigger" class="navicon-button x">
+    <div class="navicon"></div>
+  </label>
+
+  <label for="nav-trigger" class="overlay"></label>
+
+  <nav>
+    <div id="menu-container" class="scrollbar-inner">
+        <div class="nav-container">
+            <h3>Classes</h3><ul><li id="Fido2AssertionResult-nav"><a href="Fido2AssertionResult.html">Fido2AssertionResult</a></li><li id="Fido2AttestationResult-nav"><a href="Fido2AttestationResult.html">Fido2AttestationResult</a></li><li id="Fido2Result-nav"><a href="Fido2Result.html">Fido2Result</a></li><li id="Webauthn-nav"><a href="Webauthn.html">Webauthn</a><ul class='methods'><li data-type="method" id="Webauthn-addAttestationFormat-nav"><a href="Webauthn.html#.addAttestationFormat">addAttestationFormat</a></li><li data-type="method" id="Webauthn-addExtension-nav"><a href="Webauthn.html#.addExtension">addExtension</a></li><li data-type="method" id="Webauthn-deleteAllAttestationFormats-nav"><a href="Webauthn.html#.deleteAllAttestationFormats">deleteAllAttestationFormats</a></li><li data-type="method" id="Webauthn-deleteAllExtensions-nav"><a href="Webauthn.html#.deleteAllExtensions">deleteAllExtensions</a></li><li data-type="method" id="Webauthn-assertionOptions-nav"><a href="Webauthn.html#assertionOptions">assertionOptions</a></li><li data-type="method" id="Webauthn-assertionResult-nav"><a href="Webauthn.html#assertionResult">assertionResult</a></li><li data-type="method" id="Webauthn-attestationOptions-nav"><a href="Webauthn.html#attestationOptions">attestationOptions</a></li><li data-type="method" id="Webauthn-attestationResult-nav"><a href="Webauthn.html#attestationResult">attestationResult</a></li><li data-type="method" id="Webauthn-disableExtension-nav"><a href="Webauthn.html#disableExtension">disableExtension</a></li><li data-type="method" id="Webauthn-enableExtension-nav"><a href="Webauthn.html#enableExtension">enableExtension</a></li><li data-type="method" id="Webauthn-setExtensionOptions-nav"><a href="Webauthn.html#setExtensionOptions">setExtensionOptions</a></li></ul></li></ul><h3 id="global-nav">Global</h3><ul><li><a href="global.html#parseClientResponse">parseClientResponse</a></li></ul>
+        </div>
+    </div>
+  </nav>
+
+  <div id="main">
+    
+      <h1 class="page-title">
+        response.js
+      </h1>
+    
+
+    
+      
+
+<section>
+  <article>
+    <pre class="prettyprint source linenums"><code>import * as validator  from "./validator.js";
+import {
+	parseExpectations,
+	parseClientResponse,
+	parseAuthnrAssertionResponse,
+	parseAuthnrAttestationResponse,
+} from "./parser.js";
+
+const lockSym = Symbol();
+
+/**
+ * The base class of {@link Fido2AttestationResult} and {@link Fido2AssertionResult}
+ * @property {Map} authnrData Authenticator data that was parsed and validated
+ * @property {Map} clientData Client data that was parsed and validated
+ * @property {Map} expectations The expectations that were used to validate the result
+ * @property {Object} request The request that was validated
+ * @property {Map} audit A collection of audit information, such as useful warnings and information. May be useful for risk engines or for debugging.
+ * @property {Boolean} audit.validExpectations Whether the expectations that were provided were complete and valid
+ * @property {Boolean} audit.validRequest Whether the request message was complete and valid
+ * @property {Boolean} audit.complete Whether all fields in the result have been validated
+ * @property {Set} audit.journal A list of the fields that were validated
+ * @property {Map} audit.warning A set of warnings that were generated while validating the result
+ * @property {Map} audit.info A set of informational fields that were generated while validating the result. Includes any x509 extensions of the attestation certificate during registration, and whether the key supports a rollback counter during authentication.
+ */
+class Fido2Result {
+	constructor(sym) {
+		if (sym !== lockSym) {
+			throw new Error("Do not create with 'new' operator. Call 'Fido2AttestationResult.create()' or 'Fido2AssertionResult.create()' instead.");
+		}
+
+		validator.attach(this);
+	}
+
+	parse() {
+		// TODO: id
+		this.clientData = parseClientResponse(this.request);
+	}
+
+	async validate() {
+		// clientData, except type
+		await this.validateRawClientDataJson();
+		await this.validateOrigin();
+		await this.validateChallenge();
+		await this.validateTokenBinding();
+		await this.validateId();
+
+		// authenticatorData, minus attestation
+		await this.validateRawAuthnrData();
+		await this.validateRpIdHash();
+		await this.validateFlags();
+	}
+
+	async create(req, exp, tools) {
+		if (typeof req !== "object") {
+			throw new TypeError("expected 'request' to be object, got: " + typeof req);
+		}
+
+		if (typeof exp !== "object") {
+			throw new TypeError("expected 'expectations' to be object, got: " + typeof exp);
+		}
+
+		this.tools = tools;
+
+		this.expectations = parseExpectations(exp, this.tools);
+		this.request = req;
+		
+		// validate that input expectations and request are complete and in the right format
+		await this.validateExpectations();
+
+		// parse and validate all the request fields (CBOR, etc.)
+		await this.parse();
+		await this.validate();
+
+		// ensure the parsing and validation went well
+		await this.validateAudit();
+
+		return this;
+	}
+}
+
+/**
+ * A validated attesetation result
+ * @extends {Fido2Result}
+ */
+class Fido2AttestationResult extends Fido2Result {
+	constructor(sym) {
+		super(sym);
+
+		this.requiredExpectations = new Set([
+			"origin",
+			"challenge",
+			"flags",
+		]);
+		this.optionalExpectations = new Set([
+			"rpId",
+		]);
+	}
+
+	async parse() {
+		this.validateCreateRequest();
+		await super.parse();
+		this.authnrData = await parseAuthnrAttestationResponse(this.request, this.tools);
+	}
+
+	async validate() {
+		await this.validateCreateType();
+		await this.validateAaguid();
+		await this.validatePublicKey();
+		await super.validate();
+		await this.validateAttestation();
+		await this.validateInitialCounter();
+		await this.validateCredId();
+		await this.validateTransports();
+	}
+
+	static create(req, exp, tools) {
+		return new Fido2AttestationResult(lockSym).create(req, exp, tools);
+	}
+}
+
+/**
+ * A validated assertion result
+ * @extends {Fido2Result}
+ */
+class Fido2AssertionResult extends Fido2Result {
+	constructor(sym, tools) {
+		super(sym, tools);
+		this.requiredExpectations = new Set([
+			"origin",
+			"challenge",
+			"flags",
+			"prevCounter",
+			"publicKey",
+			"userHandle",
+		]);
+		this.optionalExpectations = new Set([
+			"rpId",
+			"allowCredentials",
+		]);
+	}
+
+	async parse() {
+		this.validateAssertionResponse();
+		await super.parse();
+		this.authnrData = await parseAuthnrAssertionResponse(this.request, this.tools);
+	}
+
+	async validate() {
+		await this.validateGetType();
+		await super.validate();
+		await this.validateAssertionSignature();
+		await this.validateUserHandle();
+		await this.validateCounter();
+	}
+
+	static create(req, exp, tools) {
+		return new Fido2AssertionResult(lockSym).create(req, exp, tools);
+	}
+}
+
+export {
+	Fido2Result,
+	Fido2AttestationResult,
+	Fido2AssertionResult,
+};
+</code></pre>
+  </article>
+</section>
+
+    
+
+
+
+  <br class="clear">
+
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
+  </footer>
+
+    
+
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/pagelocation.js"></script>
+  <script src="scripts/scrollbar.js"></script>
+  <script src="scripts/collapsible.js"></script>
+  <script src="scripts/jquery.selectric.min.js"></script>
+  <script src="scripts/clipboard.min.js"></script>
+
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  
+  <script>
+      $(function () {
+          $('#menu-container').scrollbar();
+
+          
+      });
+    </script>
+</body>
+</html>

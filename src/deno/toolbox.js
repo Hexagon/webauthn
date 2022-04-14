@@ -1,6 +1,6 @@
 import { URL } from "https://deno.land/std@0.134.0/node/url.ts";
 
-//export * as psl from "psl";
+import { getPublicSuffix } from "https://cdn.jsdelivr.net/npm/tldts@5.7.75/dist/index.esm.min.js";
 
 import {
   exportSPKI,
@@ -57,10 +57,9 @@ function checkOrigin(str) {
     throw new Error("origin should be https");
   }
 
-  /* ToDo: Reenable PSL
-	if (!psl.isValid(originUrl.hostname) && !isLocalhost) {
-		throw new Error("origin is not a valid eTLD+1");
-	}*/
+  if (getPublicSuffix(originUrl.hostname) === null && !isLocalhost) {
+    throw new Error("origin is not a valid eTLD+1");
+  }
 
   return origin;
 }
@@ -118,7 +117,7 @@ function checkDomainOrUrl(value, name, rules = {}) {
     throw new Error(`${name} must be a string`);
   }
 
-  // ToDo: Reenable PSL if (psl.isValid(value)) return value; // if valid domain no need for futher checks
+  if (getPublicSuffix(value) !== null) return value; // if valid domain no need for futher checks
 
   return checkUrl(value, name, rules);
 }

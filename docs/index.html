@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>
+      @hexagon/webauthn - Documentation
+  </title>
+
+  <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <link id="google-font" href="https://fonts.googleapis.com/css?family=Roboto+Mono|Cutive+Mono|Roboto:300,400,700" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="styles/highlight-themes/current.css">
+  <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+  <link type="text/css" rel="stylesheet" href="styles/collapsible.css">
+  <link type="text/css" rel="stylesheet" href="styles/style-switcher.css">
+  <link type="text/css" rel="stylesheet" href="styles/selectric.css">
+  
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  <script src="https://embed.runkit.com"></script>
+  <style id="style-switcher-styles">
+    nav {
+        background: #282c34;
+    }
+    .hljs {
+        background: #1d2027;
+    }
+    .nav-container > ul > li.active a {
+        color: #dcdcdc;
+    }
+    .nav-container > ul > li.active a:hover {
+        color: #f78200;
+    }
+    .nav-container > ul > li.active ul {
+        border-color: #f78200;
+    }
+    h4.name {
+        color: #f78200;
+    }
+    .params > div > code, .params > div > em {
+        color: #f78200;
+    }
+    a, a:active {
+        color: #f78200;
+    }
+    .hljs-doctag, .hljs-keyword, .hljs-formula {
+        color: #f78200;
+    }
+    nav ul a:hover, nav ul a:active {
+        color: #f78200;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header-fixed">
+      <h1>
+        <a href="index.html" title="modernTemplate.title">
+            
+                <img alt="@hexagon/webauthn" src="https://cdn.jsdelivr.net/gh/hexagon/webauthn@master/webauthn.png" />
+            
+            @hexagon/webauthn
+        </a>
+      </h1>
+      <div class="center-header">
+          <ul>
+            
+          </ul>
+      </div>
+      <div class="right-header">
+           
+                <a href="https://github.com/hexagon/webauthn" title="View it on Github" style="">
+                    <i class="fab fa-github-alt"></i>
+                </a>
+           
+                <a href="https://www.npmjs.com/package/@hexagon/webauthn" title="View it on NPM" style="font-size: 19px">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </a>
+           
+      </div>
+  </header>
+
+  <svg style="display: none;">
+    <defs>
+      <symbol id="linkIcon" fill="#706d77" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+  <label for="nav-trigger" class="navicon-button x">
+    <div class="navicon"></div>
+  </label>
+
+  <label for="nav-trigger" class="overlay"></label>
+
+  <nav>
+    <div id="menu-container" class="scrollbar-inner">
+        <div class="nav-container">
+            <h3>Classes</h3><ul><li id="Fido2AssertionResult-nav"><a href="Fido2AssertionResult.html">Fido2AssertionResult</a></li><li id="Fido2AttestationResult-nav"><a href="Fido2AttestationResult.html">Fido2AttestationResult</a></li><li id="Fido2Result-nav"><a href="Fido2Result.html">Fido2Result</a></li><li id="Webauthn-nav"><a href="Webauthn.html">Webauthn</a><ul class='methods'><li data-type="method" id="Webauthn-addAttestationFormat-nav"><a href="Webauthn.html#.addAttestationFormat">addAttestationFormat</a></li><li data-type="method" id="Webauthn-addExtension-nav"><a href="Webauthn.html#.addExtension">addExtension</a></li><li data-type="method" id="Webauthn-deleteAllAttestationFormats-nav"><a href="Webauthn.html#.deleteAllAttestationFormats">deleteAllAttestationFormats</a></li><li data-type="method" id="Webauthn-deleteAllExtensions-nav"><a href="Webauthn.html#.deleteAllExtensions">deleteAllExtensions</a></li><li data-type="method" id="Webauthn-assertionOptions-nav"><a href="Webauthn.html#assertionOptions">assertionOptions</a></li><li data-type="method" id="Webauthn-assertionResult-nav"><a href="Webauthn.html#assertionResult">assertionResult</a></li><li data-type="method" id="Webauthn-attestationOptions-nav"><a href="Webauthn.html#attestationOptions">attestationOptions</a></li><li data-type="method" id="Webauthn-attestationResult-nav"><a href="Webauthn.html#attestationResult">attestationResult</a></li><li data-type="method" id="Webauthn-disableExtension-nav"><a href="Webauthn.html#disableExtension">disableExtension</a></li><li data-type="method" id="Webauthn-enableExtension-nav"><a href="Webauthn.html#enableExtension">enableExtension</a></li><li data-type="method" id="Webauthn-setExtensionOptions-nav"><a href="Webauthn.html#setExtensionOptions">setExtensionOptions</a></li></ul></li></ul><h3 id="global-nav">Global</h3><ul><li><a href="global.html#parseClientResponse">parseClientResponse</a></li></ul>
+        </div>
+    </div>
+  </nav>
+
+  <div id="main">
+    
+
+    
+      
+
+
+
+    
+
+      
+
+
+  <section class="readme">
+    <article>
+      <h1>webauthn</h1>
+<p>NPM: @hexagon\webauthn | Deno.land: webauthn</p>
+<p>Slim Webauthn library with ES6, Node and Deno support. Heavily based on fido2-lib, but with it's own set of pros (and cons).</p>
+<p><em>Currently in pre-release</em></p>
+<p><a href="https://github.com/Hexagon/webauthn/actions/workflows/node.js.yml"><img src="https://github.com/Hexagon/webauthn/actions/workflows/node.js.yml/badge.svg" alt="Node.js CI"></a>
+<a href="https://github.com/Hexagon/webauthn/actions/workflows/deno.yml"><img src="https://github.com/Hexagon/webauthn/actions/workflows/deno.yml/badge.svg" alt="Deno CI"></a>
+<a href="https://badge.fury.io/js/@hexagon%2Fwebauthn"><img src="https://badge.fury.io/js/@hexagon%2Fwebauthn.svg" alt="npm version"></a> <a href="https://www.npmjs.org/package/@hexagon/webauthn"><img src="https://img.shields.io/npm/dm/@hexagon/webauthn.svg" alt="NPM Downloads"></a>
+<a href="https://github.com/Hexagon/webauthn/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a> <a href="https://www.jsdelivr.com/package/gh/hexagon/webauthn"><img src="https://data.jsdelivr.com/v1/package/gh/hexagon/webauthn/badge?style=rounded" alt="jsdelivr"></a></p>
+<p>Demo/Example for both Deno and Node available at <a href="https://github.com/Hexagon/webauthn-skeleton/tree/server/deno">github.com/Hexagon/webauthn-skeleton/tree/server/deno</a></p>
+<p>Pros, compared to fido2-lib</p>
+<ul>
+<li>Supports both Node and Deno with the same code base</li>
+<li>Simplified dependency tree. Less duplicates, and less dependencies overall.</li>
+<li>ToDo: Make this list complete with explanations</li>
+</ul>
+<p>Cons, compared to fido2-lib</p>
+<ul>
+<li>Lacks all Attestation-modes except &quot;none&quot;</li>
+<li>Lacks MDS</li>
+<li>All automated tests of fido2-lib isn't implemented</li>
+<li>This library should be considered experimental, in comparison.</li>
+</ul>
+<h2>Installation</h2>
+<h3>Node.js</h3>
+<p><code>npm install @hexagon/webauthn --save</code></p>
+<p>JavaScript</p>
+<pre class="prettyprint source lang-javascript"><code>// ESM Import ...
+import webauthn from &quot;@hexagon/webauthn&quot;;
+
+// ... or CommonJS Require
+const webauthn = require(&quot;@hexagon/webauthn&quot;);
+</code></pre>
+<p>TypeScript</p>
+<pre class="prettyprint source lang-typescript"><code>import webauthn from &quot;@hexagon/webauthn&quot;;
+
+// ...
+</code></pre>
+<h3>Deno</h3>
+<p>JavaScript</p>
+<pre class="prettyprint source lang-javascript"><code>import webauthn from &quot;https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/src/deno/webauthn.js&quot;;
+
+// ...
+</code></pre>
+<p>TypeScript</p>
+<pre class="prettyprint source lang-typescript"><code>import { webauthn } from &quot;https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/src/deno/webauthn.js&quot;;
+
+// ...
+</code></pre>
+<h2>Documentation</h2>
+<p>Full documentation available at <a href="https://hexagon.github.io/webauthn/">hexagon.github.io/webauthn</a>.</p>
+<h3>Examples</h3>
+<p>Assuming you have imported webauthn as described under 'Installation'.</p>
+<p>@hexagon/webauthn uses the same interface as <code>fido2-lib</code></p>
+<p>Examples from <a href="https://github.com/webauthn-open-source/fido2-lib">github.com/webauthn-open-source/fido2-lib</a>:</p>
+<h4>Instantiate Library (Simple):</h4>
+<pre class="prettyprint source lang-js"><code>// create a new instance of the library
+var f2l = new Webauthn();
+</code></pre>
+<h4>Instantiate Library (Complex):</h4>
+<pre class="prettyprint source lang-js"><code>// could also use one or more of the options below,
+// which just makes the options calls easier later on:
+var f2l = new Fido2Lib({
+    timeout: 42,
+    rpId: &quot;example.com&quot;,
+    rpName: &quot;ACME&quot;,
+    rpIcon: &quot;https://example.com/logo.png&quot;,
+    challengeSize: 128,
+    attestation: &quot;none&quot;,
+    cryptoParams: [-7, -257],
+    authenticatorAttachment: &quot;platform&quot;,
+    authenticatorRequireResidentKey: false,
+    authenticatorUserVerification: &quot;required&quot;
+});
+</code></pre>
+<h4>Registration:</h4>
+<pre class="prettyprint source lang-js"><code>var registrationOptions = await f2l.attestationOptions();
+
+// make sure to add registrationOptions.user.id
+// save the challenge in the session information...
+// send registrationOptions to client and pass them in to `navigator.credentials.create()`...
+// get response back from client (clientAttestationResponse)
+
+var attestationExpectations = {
+    challenge: &quot;33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w&quot;,
+    origin: &quot;https://localhost:8443&quot;,
+    factor: &quot;either&quot;
+};
+var regResult = await f2l.attestationResult(clientAttestationResponse, attestationExpectations); // will throw on error
+
+// registration complete!
+// save publicKey and counter from regResult to user's info for future authentication calls
+</code></pre>
+<h4>Authentication:</h4>
+<pre class="prettyprint source lang-js"><code>var authnOptions = await f2l.assertionOptions();
+
+// add allowCredentials to limit the number of allowed credential for the authentication process. For further details refer to webauthn specs: (https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialrequestoptions-allowcredentials).
+// save the challenge in the session information...
+// send authnOptions to client and pass them in to `navigator.credentials.get()`...
+// get response back from client (clientAssertionResponse)
+
+var assertionExpectations = {
+    // Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
+    // allowCredentials: [{
+    //     id: &quot;lTqW8H/lHJ4yT0nLOvsvKgcyJCeO8LdUjG5vkXpgO2b0XfyjLMejRvW5oslZtA4B/GgkO/qhTgoBWSlDqCng4Q==&quot;,
+    //     type: &quot;public-key&quot;,
+    //     transports: [&quot;usb&quot;]
+    // }],
+    challenge: &quot;eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ&quot;,
+    origin: &quot;https://localhost:8443&quot;,
+    factor: &quot;either&quot;,
+    publicKey: &quot;-----BEGIN PUBLIC KEY-----\n&quot; +
+        &quot;MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERez9aO2wBAWO54MuGbEqSdWahSnG\n&quot; +
+        &quot;MAg35BCNkaE3j8Q+O/ZhhKqTeIKm7El70EG6ejt4sg1ZaoQ5ELg8k3ywTg==\n&quot; +
+        &quot;-----END PUBLIC KEY-----\n&quot;,
+    prevCounter: 362
+};
+var authnResult = await f2l.assertionResult(clientAssertionResponse, assertionExpectations); // will throw on error
+
+// authentication complete!
+</code></pre>
+<p>Full demo for both Deno and Node available at <a href="https://github.com/Hexagon/webauthn-skeleton/tree/server/deno">github.com/Hexagon/webauthn-skeleton/tree/server/deno</a></p>
+<h2>Contributing</h2>
+<p>See <a href="/CONTRIBUTING.md">Contribution Guide</a> for general guidelines.</p>
+<h3>Development</h3>
+<h4>Node commands</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npm run precommit</code></td>
+<td>Run both node and deno tests and linting, good before committing</td>
+</tr>
+<tr>
+<td><code>npm run build</code></td>
+<td>Run all sort of node checks and rebuilds documentation, good before releasing</td>
+</tr>
+<tr>
+<td><code>npm run build:docs</code></td>
+<td>Rebuild documentation, good before releasing</td>
+</tr>
+<tr>
+<td><code>npm run test</code></td>
+<td>Run Node tests, good after code changes</td>
+</tr>
+<tr>
+<td><code>npm run test:coverage</code></td>
+<td>Run Node tests with coverage (included in build)</td>
+</tr>
+<tr>
+<td><code>npm run test:lint</code></td>
+<td>Run eslint (included in build)</td>
+</tr>
+<tr>
+<td><code>npm run test:lint:fix</code></td>
+<td>Run eslint try to fix linting errors</td>
+</tr>
+</tbody>
+</table>
+<h4>Deno commands</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deno fmt --check test/deno src/deno</code></td>
+<td>Check linting of Deno files</td>
+</tr>
+<tr>
+<td><code>npm run test:lint</code></td>
+<td>Check linting of Deno files</td>
+</tr>
+<tr>
+<td><code>deno test test/deno</code></td>
+<td>Run deno tests</td>
+</tr>
+<tr>
+<td><code>npm run test:deno</code></td>
+<td>.. or Run deno tests</td>
+</tr>
+</tbody>
+</table>
+<h3>File structure</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/src/common</code></td>
+<td>Source code base folder</td>
+</tr>
+<tr>
+<td><code>/src/common/attestation</code></td>
+<td>Attestation plug-ins</td>
+</tr>
+<tr>
+<td><code>/src/common/tools</code></td>
+<td>Bundled dependencies</td>
+</tr>
+<tr>
+<td><code>/src/deno/webauthn.js</code></td>
+<td>Deno entrypoint</td>
+</tr>
+<tr>
+<td><code>/src/deno/toolbox.js</code></td>
+<td>Deno external dependencies and shims</td>
+</tr>
+<tr>
+<td><code>/src/node/webauthn.js</code></td>
+<td>Node entrypoint</td>
+</tr>
+<tr>
+<td><code>/src/node/toolbox.js</code></td>
+<td>Node external dependencies and shims</td>
+</tr>
+<tr>
+<td><code>/test/node</code></td>
+<td>Node tests</td>
+</tr>
+<tr>
+<td><code>/test/deno</code></td>
+<td>Deno tests</td>
+</tr>
+<tr>
+<td><code>/docs</code></td>
+<td>Documentation</td>
+</tr>
+</tbody>
+</table>
+<h3>Contributors</h3>
+<p>The underlying code is heavily based on <a href="https://github.com/webauthn-open-source/fido2-lib">github.com/webauthn-open-source/fido2-lib</a></p>
+<h2>License</h2>
+<p>MIT</p>
+    </article>
+  </section>
+
+
+    
+
+
+
+  <br class="clear">
+
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
+  </footer>
+
+    
+
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/pagelocation.js"></script>
+  <script src="scripts/scrollbar.js"></script>
+  <script src="scripts/collapsible.js"></script>
+  <script src="scripts/jquery.selectric.min.js"></script>
+  <script src="scripts/clipboard.min.js"></script>
+
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  
+  <script>
+      $(function () {
+          $('#menu-container').scrollbar();
+
+          
+      });
+    </script>
+</body>
+</html>

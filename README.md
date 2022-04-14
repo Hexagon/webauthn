@@ -166,12 +166,12 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 
 | Command  | Description                              |
 |-------|------------------------------------------|
-| `npm run build` | Run all sort of node checks, good before comitting |
+| `npm run precommit` | Run both node and deno tests and linting, good before committing |
+| `npm run build` | Run all sort of node checks and rebuilds documentation, good before releasing |
 | `npm run build:docs` | Rebuild documentation, good before releasing |
 | `npm run test` | Run Node tests, good after code changes |
 | `npm run test:coverage` | Run Node tests with coverage (included in build) |
 | `npm run test:lint` | Run eslint (included in build) |
-| `npm run test:lint:fix` | Run eslint try to fix linting errors |
 | `npm run test:lint:fix` | Run eslint try to fix linting errors |
 
 #### Deno commands

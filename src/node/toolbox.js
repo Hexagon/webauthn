@@ -1,7 +1,7 @@
-import psl from "psl";
 import * as crypto from "crypto";
 import { URL } from "url";
 import jwkToPem from "jwk-to-pem"; // CommonJS
+import { getPublicSuffix } from "tldts";
 
 function checkOrigin(str) {
 
@@ -18,7 +18,7 @@ function checkOrigin(str) {
 		throw new Error("origin should be https");
 	}
 
-	if (!psl.isValid(originUrl.hostname) && !isLocalhost) {
+	if (getPublicSuffix(originUrl.hostname) === null && !isLocalhost) {
 		throw new Error("origin is not a valid eTLD+1");
 	}
 
@@ -78,7 +78,7 @@ function checkDomainOrUrl(value, name, rules = {}) {
 		throw new Error(`${name} must be a string`);
 	}
 
-	if (psl.isValid(value)) return value; // if valid domain no need for futher checks
+	if (getPublicSuffix(value) !== null) return value; // if valid domain no need for futher checks
 
 	return checkUrl(value, name, rules);
 }
