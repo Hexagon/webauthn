@@ -28,6 +28,7 @@ import { testParse } from "./src/parse.js";
 import { testUtils } from "./src/utils.js";
 import { testToolBox } from "./src/toolbox.js";
 import { testParseAssertion } from "./src/parseassertion.js";
+import { testMain } from "./src/main.js";
 
 testParseAssertion(Webauthn);
 testValidator(Webauthn);
@@ -35,3 +36,4 @@ testResponse(Webauthn);
 testParse(Webauthn);
 testUtils(Webauthn);
 testToolBox(Webauthn);
+testMain(Webauthn);

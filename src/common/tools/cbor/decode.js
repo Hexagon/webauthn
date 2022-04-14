@@ -3,7 +3,7 @@
 
    MIT License, see ./LICENSE
 
-   Bundled by hexagon@56k.guru to avoid dependency problems when supporting both Node and Deno
+   Bundled by <hexagon@56k.guru> to avoid dependency problems when supporting both Node and Deno
 */
 
 let decoder;

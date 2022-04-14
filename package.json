@@ -40,6 +40,7 @@
     "build:typings": "tsc",
     "build:docs": "(rm -rf docs/* || rd /S /Q docs) && jsdoc -c .jsdoc.json",
     "test:lint:deno": "deno fmt --check test/deno src/deno",
+    "test:lint:deno:fix": "deno fmt test/deno src/deno",
     "test:deno": "deno test test/deno"
     
   },
