@@ -2,6 +2,8 @@ import * as crypto from "crypto";
 import { URL } from "url";
 import jwkToPem from "jwk-to-pem"; // CommonJS
 import { getPublicSuffix } from "tldts";
+import { fromBER } from "asn1js";
+import * as pkijs from "pkijs";
 
 function checkOrigin(str) {
 
@@ -119,6 +121,23 @@ function getHostname(urlIn) {
 	return new URL(urlIn).hostname;
 }
 
+const envUnified = (typeof window !== "undefined") ? window.env : process.env;
+
+let webcrypto;
+if(envUnified.FIDO2LIB_USENATIVECRYPTO) {
+	// Opt-in to use native crypto, as it depends on the environment and is difficult to test
+	// NodeJS crypto API is currently in experimental state
+	console.warn("[FIDO2-LIB] Native crypto is enabled");
+	if ((typeof self !== "undefined") && "crypto" in self) {
+		webcrypto = self.crypto;
+	} else {
+		webcrypto = await import("crypto").webcrypto;
+	}
+} else {
+	const { Crypto } = await import("@peculiar/webcrypto");
+	webcrypto = new Crypto();
+}
+
 const ToolBox = {
 	checkOrigin,
 	checkRpId,
@@ -128,7 +147,16 @@ const ToolBox = {
 	jwkToPem,
 	hashDigest,
 	randomValues,
-	getHostname
+	getHostname,
+	webcrypto,
+	fromBER,
+	pkijs
 };
 
-export { ToolBox };
+const ToolBoxRegistration = {
+	registerAsGlobal: () => {
+		global.webauthnToolBox = ToolBox;
+	}
+};
+
+export { ToolBoxRegistration, ToolBox };

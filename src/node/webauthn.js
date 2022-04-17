@@ -1,12 +1,8 @@
+import { ToolBoxRegistration } from "./toolbox.js";
+ToolBoxRegistration.registerAsGlobal();
+
 import { Webauthn } from "../common/main.js";
-import { ToolBox } from "./toolbox.js";
 
-class WebauthnFactory {
-	constructor(opts) {
-		return new Webauthn(opts, ToolBox);
-	}
-}
-
-WebauthnFactory.Webauthn = WebauthnFactory;
-export default WebauthnFactory;
-export { WebauthnFactory as Webauthn };
+Webauthn.Webauthn = Webauthn;
+export default Webauthn;
+export { Webauthn }; 

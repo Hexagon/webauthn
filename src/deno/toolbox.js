@@ -8,6 +8,9 @@ import {
   importSPKI,
 } from "https://deno.land/x/jose@v4.6.0/index.ts";
 
+import * as pkijs from "https://esm.run/pkijs";
+import { fromBER } from "https://cdn.jsdelivr.net/npm/asn1js/+esm";
+
 /* Internal utils, prepend with underscore */
 
 // ToDo: Actually identify key
@@ -196,6 +199,8 @@ function getHostname(urlIn) {
   return new URL(urlIn).hostname;
 }
 
+const webcrypto = crypto;
+
 const ToolBox = {
   checkOrigin,
   checkRpId,
@@ -206,6 +211,15 @@ const ToolBox = {
   hashDigest,
   randomValues,
   getHostname,
+  webcrypto,
+  fromBER,
+  pkijs
 };
 
-export { ToolBox };
+const ToolBoxRegistration = {
+  registerAsGlobal: () => {
+    window.webauthnToolBox = ToolBox;
+  }
+};
+
+export { ToolBoxRegistration, ToolBox };

@@ -5,7 +5,8 @@ import {
 	isPositiveInteger,
 	appendBuffer,
 	coerceToBase64Url,
-	coerceToArrayBuffer
+	coerceToArrayBuffer,
+	tools
 } from "./utils.js";
 
 import { Webauthn } from "./main.js";
@@ -448,9 +449,9 @@ async function validateRpIdHash() {
 
 	let domain = this.expectations.has("rpId")
 		? this.expectations.get("rpId")
-		: this.tools.getHostname(this.expectations.get("origin"));
+		: tools().getHostname(this.expectations.get("origin"));
 
-	let createdHash = new Uint8Array(await this.tools.hashDigest(domain)).buffer;
+	let createdHash = new Uint8Array(await tools().hashDigest(domain)).buffer;
 
 	// wouldn't it be weird if two SHA256 hashes were different lengths...?
 	if (rpIdHash.byteLength !== createdHash.byteLength) {
@@ -522,14 +523,14 @@ async function validateExpectations() {
 	if (req.has("origin")) {
 		let expectedOrigin = exp.get("origin");
 
-		this.tools.checkOrigin(expectedOrigin);
+		tools().checkOrigin(expectedOrigin);
 	}
 
 	// rpId - optional, isValid
 	if (exp.has("rpId")) {
 		let expectedRpId = exp.get("rpId");
 
-		this.tools.checkRpId(expectedRpId);
+		tools().checkRpId(expectedRpId);
 	}
 
 	// challenge - is valid base64url string
@@ -643,10 +644,10 @@ async function validateAssertionSignature() {
 	let rawAuthnrData = this.authnrData.get("rawAuthnrData");
 	let rawClientData = this.clientData.get("rawClientDataJson");
 
-	let clientDataHashBuf = await this.tools.hashDigest(rawClientData);
+	let clientDataHashBuf = await tools().hashDigest(rawClientData);
 	let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
 
-	let res = await this.tools.verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData,clientDataHash));
+	let res = await tools().verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData,clientDataHash));
 	if (!res) {
 		throw new Error("signature validation failed");
 	}
@@ -660,7 +661,7 @@ async function validateOrigin() {
 	let expectedOrigin = this.expectations.get("origin");
 	let clientDataOrigin = this.clientData.get("origin");
 
-	let origin = this.tools.checkOrigin(clientDataOrigin);
+	let origin = tools().checkOrigin(clientDataOrigin);
 
 	if (origin !== expectedOrigin) {
 		throw new Error("clientData origin did not match expected origin");

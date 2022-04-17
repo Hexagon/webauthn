@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-import Webauthn from "../../src/deno/webauthn.js";
+import { Webauthn } from "../../src/deno/webauthn.js";
 
 import { testMain } from "./src/main.js";
 import { testParseAssertion } from "./src/parseassertion.js";
@@ -29,6 +29,7 @@ import { testResponse } from "./src/response.js";
 import { testParse } from "./src/parse.js";
 import { testUtils } from "./src/utils.js";
 import { testToolBox } from "./src/toolbox.js";
+import { testCertUtils } from "./src/certutils.js";
 
 testMain(Webauthn);
 testParseAssertion(Webauthn);
@@ -36,3 +37,4 @@ testResponse(Webauthn);
 testParse(Webauthn);
 testUtils(Webauthn);
 testToolBox(Webauthn);
+testCertUtils(Webauthn);

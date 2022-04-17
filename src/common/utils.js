@@ -41,12 +41,37 @@ function isPem(pem) {
 	return !!pem.match(pemRegex);
 }
 
+function pemToBase64(pem) {
+	if (!isPem(pem)) {
+		throw new Error("expected PEM string as input");
+	}
+
+	let pemArr = pem.split("\n");
+	// remove first and last lines
+	pemArr = pemArr.slice(1, pemArr.length - 2);
+	return pemArr.join("");
+}
+
 function isPositiveInteger(n) {
 	return n >>> 0 === parseFloat(n);
 }
 
 function abToBuf(ab) {
 	return new Uint8Array(ab).buffer;
+}
+
+function abToPem(type, ab) {
+	if (typeof type !== "string") {
+		throw new Error("abToPem expected 'type' to be string like 'CERTIFICATE', got: " + type);
+	}
+
+	let str = coerceToBase64(ab, "pem buffer");
+
+	return [
+		`-----BEGIN ${type}-----\n`,
+		...str.match(/.{1,64}/g).map((s) => s + "\n"),
+		`-----END ${type}-----\n`,
+	].join("");
 }
 
 /**
@@ -173,9 +198,21 @@ function arrayBufferEquals(b1, b2) {
 	return true;
 }
 
+function tools() {
+	if (typeof window !== "undefined" && window.webauthnToolBox) {
+		return window.webauthnToolBox;
+	} else if (typeof global !== "undefined" && global.webauthnToolBox) {
+		return global.webauthnToolBox;
+	} else {
+		//console.log('wat', global.watWat);
+		throw new Error("Webauthn global ToolBox not registered");
+	}	
+}
+
 export {
 	ab2str,
 	abToBuf,
+	abToPem,
 	isBase64Url,
 	abEqual,
 	isPem,
@@ -187,5 +224,7 @@ export {
 	coerceToBase64,
 	cbor,
 	coseToJwk,
-	arrayBufferEquals
+	arrayBufferEquals,
+	pemToBase64,
+	tools
 };

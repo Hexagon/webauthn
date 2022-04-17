@@ -3,14 +3,15 @@ import {
 	coerceToArrayBuffer,
 	ab2str,
 	cbor,
-	coseToJwk 
+	coseToJwk,
+	tools
 } from "./utils.js";
 
 import { Webauthn } from "./main.js";
 
 // NOTE: throws if origin is https and has port 443
 // use `new URL(originstr).origin` to create a properly formatted origin
-function parseExpectations(exp, tools) {
+function parseExpectations(exp) {
 	if (typeof exp !== "object") {
 		throw new TypeError("expected 'expectations' to be of type object, got " + typeof exp);
 	}
@@ -23,7 +24,7 @@ function parseExpectations(exp, tools) {
 			throw new TypeError("expected 'origin' should be string, got " + typeof exp.origin);
 		}
 
-		let origin = tools.checkOrigin(exp.origin);
+		let origin = tools().checkOrigin(exp.origin);
 		ret.set("origin", origin);
 	}
 
@@ -33,7 +34,7 @@ function parseExpectations(exp, tools) {
 			throw new TypeError("expected 'rpId' should be string, got " + typeof exp.rpId);
 		}
 
-		let rpId = tools.checkRpId(exp.rpId);
+		let rpId = tools().checkRpId(exp.rpId);
 		ret.set("rpId", rpId);
 	}
 
@@ -160,7 +161,7 @@ async function parseAuthnrAttestationResponse(msg, tools) {
 	return ret;
 }
 
-async function parseAuthenticatorData(authnrDataArrayBuffer, tools) {
+async function parseAuthenticatorData(authnrDataArrayBuffer) {
 	
 	authnrDataArrayBuffer = coerceToArrayBuffer(authnrDataArrayBuffer, "authnrDataArrayBuffer");
 	let ret = new Map();
@@ -199,7 +200,7 @@ async function parseAuthenticatorData(authnrDataArrayBuffer, tools) {
 		ret.set("credentialPublicKeyCose", credentialPublicKeyCose);
 		let jwk = coseToJwk(credentialPublicKeyCose);
 		ret.set("credentialPublicKeyJwk", jwk);
-		ret.set("credentialPublicKeyPem", await tools.jwkToPem(jwk));
+		ret.set("credentialPublicKeyPem", await tools().jwkToPem(jwk));
 	}
 
 	// TODO: parse extensions
@@ -211,7 +212,7 @@ async function parseAuthenticatorData(authnrDataArrayBuffer, tools) {
 	return ret;
 }
 
-async function parseAuthnrAssertionResponse(msg, tools) {
+async function parseAuthnrAssertionResponse(msg) {
 	if (typeof msg !== "object") {
 		throw new TypeError("expected msg to be Object");
 	}

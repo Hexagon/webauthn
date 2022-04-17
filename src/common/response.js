@@ -5,6 +5,9 @@ import {
 	parseAuthnrAssertionResponse,
 	parseAuthnrAttestationResponse,
 } from "./parser.js";
+import {
+	tools
+} from "./utils.js";
 
 const lockSym = Symbol();
 
@@ -50,7 +53,7 @@ class Fido2Result {
 		await this.validateFlags();
 	}
 
-	async create(req, exp, tools) {
+	async create(req, exp) {
 		if (typeof req !== "object") {
 			throw new TypeError("expected 'request' to be object, got: " + typeof req);
 		}
@@ -59,9 +62,7 @@ class Fido2Result {
 			throw new TypeError("expected 'expectations' to be object, got: " + typeof exp);
 		}
 
-		this.tools = tools;
-
-		this.expectations = parseExpectations(exp, this.tools);
+		this.expectations = parseExpectations(exp);
 		this.request = req;
 		
 		// validate that input expectations and request are complete and in the right format
@@ -99,7 +100,7 @@ class Fido2AttestationResult extends Fido2Result {
 	async parse() {
 		this.validateCreateRequest();
 		await super.parse();
-		this.authnrData = await parseAuthnrAttestationResponse(this.request, this.tools);
+		this.authnrData = await parseAuthnrAttestationResponse(this.request);
 	}
 
 	async validate() {
@@ -142,7 +143,7 @@ class Fido2AssertionResult extends Fido2Result {
 	async parse() {
 		this.validateAssertionResponse();
 		await super.parse();
-		this.authnrData = await parseAuthnrAssertionResponse(this.request, this.tools);
+		this.authnrData = await parseAuthnrAssertionResponse(this.request, tools);
 	}
 
 	async validate() {

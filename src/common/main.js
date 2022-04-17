@@ -4,7 +4,8 @@ import {
 } from "./response.js";
 import {
 	coerceToArrayBuffer,
-	abToBuf
+	abToBuf,
+	tools
 } from "./utils.js";
 
 let globalAttestationMap = new Map();
@@ -29,15 +30,12 @@ class Webauthn {
     * @param {Array<Number>} [opts.cryptoParams] A list of COSE algorithm identifiers (e.g. -7)
     * ordered by the preference in which the authenticator should use them.
     */
-	constructor(opts, ToolBox) {
+	constructor(opts) {
 		/* eslint complexity: ["off"] */
 		opts = opts || {};
 
 		// set defaults
 		this.config = {};
-
-		// Store reference to toolbox in .tools
-		this.tools = ToolBox;
 
 		// timeout
 		this.config.timeout = (opts.timeout === undefined) ? 60000 : opts.timeout; // 1 minute
@@ -410,7 +408,7 @@ class Webauthn {
 	async attestationResult(res, expected) {
 		expected.flags = factorToFlags(expected.factor, ["AT"]);
 		delete expected.factor;
-		return Fido2AttestationResult.create(res, expected, this.tools);
+		return Fido2AttestationResult.create(res, expected);
 	}
 
 	/**
@@ -441,7 +439,7 @@ class Webauthn {
 	async assertionResult(res, expected) {
 		expected.flags = factorToFlags(expected.factor, []);
 		delete expected.factor;
-		return Fido2AssertionResult.create(res, expected, this.tools);
+		return Fido2AssertionResult.create(res, expected);
 	}
 
 	/**
@@ -463,7 +461,7 @@ class Webauthn {
 
 		// The object being returned is described here:
 		// https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptions
-		let challenge = this.tools.randomValues(this.config.challengeSize);
+		let challenge = tools().randomValues(this.config.challengeSize);
 		challenge = coerceToArrayBuffer(challenge, "challenge");
 		let pubKeyCredParams = [];
 		this.config.cryptoParams.forEach((coseId) => {
@@ -477,7 +475,7 @@ class Webauthn {
 		if (opts.extraData) {
 			rawChallenge = challenge;
 			let extraData = coerceToArrayBuffer(opts.extraData, "extraData");
-			let hash = await this.tools.hashDigest([...abToBuf(challenge),...abToBuf(extraData)]);
+			let hash = await tools().hashDigest([...abToBuf(challenge),...abToBuf(extraData)]);
 			challenge = new Uint8Array(hash).buffer;
 		}
 
@@ -560,7 +558,7 @@ class Webauthn {
 		opts = opts || {};
 
 		// https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptions
-		let challenge = this.tools.randomValues(this.config.challengeSize);
+		let challenge = tools().randomValues(this.config.challengeSize);
 		challenge = coerceToArrayBuffer(challenge, "challenge");
 		let options = {};
 
@@ -569,7 +567,7 @@ class Webauthn {
 		if (opts.extraData) {
 			rawChallenge = challenge;
 			let extraData = coerceToArrayBuffer(opts.extraData, "extraData");
-			let hash = await this.tools.hashDigest([...abToBuf(challenge),...abToBuf(extraData)]);
+			let hash = await tools().hashDigest([...abToBuf(challenge),...abToBuf(extraData)]);
 			challenge = new Uint8Array(hash).buffer;
 		}
 
@@ -694,5 +692,14 @@ Webauthn.addAttestationFormat(
 	noneAttestation.parseFn,
 	noneAttestation.validateFn
 );
+
+// add 'packed' attestation format
+/*import { packedAttestation } from "./attestations/packed.js";
+Webauthn.addAttestationFormat(
+	packedAttestation.name,
+	packedAttestation.parseFn,
+	packedAttestation.validateFn
+);*/
+
 
 export { Webauthn };
