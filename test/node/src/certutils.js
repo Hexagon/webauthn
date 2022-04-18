@@ -134,6 +134,7 @@ const testCertUtils = function () {
 	test("Certificate getExtensions returns correct extensions for attestation", function() {
 		let cert = new Certificate(h.certs.yubiKeyAttestation);
 		let extensions = cert.getExtensions();
+		console.log(extensions);
 		assert.instance(extensions, Map);
 		assert.equal(extensions.size, 2);
 		assert.ok(extensions.has("yubico-device-id"));

@@ -4,6 +4,7 @@ import jwkToPem from "jwk-to-pem"; // CommonJS
 import { getPublicSuffix } from "tldts";
 import { fromBER } from "asn1js";
 import * as pkijs from "pkijs";
+import * as cbor from "cbor-x";
 
 function checkOrigin(str) {
 
@@ -150,7 +151,8 @@ const ToolBox = {
 	getHostname,
 	webcrypto,
 	fromBER,
-	pkijs
+	pkijs,
+	cbor
 };
 
 const ToolBoxRegistration = {

@@ -8,8 +8,9 @@ import {
   importSPKI,
 } from "https://deno.land/x/jose@v4.6.0/index.ts";
 
-import * as pkijs from "https://esm.run/pkijs";
-import { fromBER } from "https://cdn.jsdelivr.net/npm/asn1js/+esm";
+import * as pkijs from "https://unpkg.com/pkijs?module";
+import { fromBER } from "https://unpkg.com/asn1js?module";
+import * as cbor from "https://unpkg.com/cbor-x?module";
 
 /* Internal utils, prepend with underscore */
 
@@ -213,7 +214,8 @@ const ToolBox = {
   getHostname,
   webcrypto,
   fromBER,
-  pkijs
+  pkijs,
+  cbor
 };
 
 const ToolBoxRegistration = {

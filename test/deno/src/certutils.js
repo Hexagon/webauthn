@@ -28,11 +28,11 @@ const testCertUtils = function () {
         assertEquals(cert instanceof Certificate, true);
         assertEquals(typeof cert._cert, "object");
     });
-    /*Deno.test("Certificate constructor throws if no arg to constructor", function() {
+    Deno.test("Certificate constructor throws if no arg to constructor", function() {
         assertThrows(() => {
             new Certificate();
         }, TypeError, "could not coerce 'certificate' to ArrayBuffer");
-    });*/
+    });
     Deno.test("Certificate constructor throws if constructor arg can't be coerced to ArrayBuffer", function() {
         assertThrows(() => {
             new Certificate(3);
@@ -131,21 +131,22 @@ const testCertUtils = function () {
 		var version = cert.getVersion();
 		assertEquals(version, 3);
 	});
-/*
+
 	Deno.test("Certificate getExtensions returns correct extensions for attestation", function() {
 		var cert = new Certificate(h.certs.yubiKeyAttestation);
 		var extensions = cert.getExtensions();
-		assert.instance(extensions, Map);
+		console.log(extensions);
+		assertEquals(extensions instanceof Map, true);
 		assertEquals(extensions.size, 2);
-		assert.ok(extensions.has("yubico-device-id"));
-		assert.ok(extensions.has("fido-u2f-transports"));
+		assertEquals(extensions.has("yubico-device-id"), true);
+		assertEquals(extensions.has("fido-u2f-transports"), true);
 		assertEquals(extensions.get("yubico-device-id"), "YubiKey 4/YubiKey 4 Nano");
 		var u2fTransports = extensions.get("fido-u2f-transports");
-		assert.instance(u2fTransports, Set);
+		assertEquals(u2fTransports instanceof Set, true);
 		assertEquals(u2fTransports.size, 1);
-		assert.ok(u2fTransports.has("usb"));
+		assertEquals(u2fTransports.has("usb"), true);
 	});
-
+/*
 	Deno.test("Certificate getExtensions returns correct extensions for root", function() {
 		var cert = new Certificate(h.certs.yubicoRoot);
 		var extensions = cert.getExtensions();

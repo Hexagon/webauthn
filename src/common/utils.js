@@ -1,5 +1,4 @@
 import { base64 } from "./tools/base64/base64.js";
-import * as cbor from "../common/tools/cbor/decode.js";
 import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
 
 function ab2str(buf) {
@@ -105,11 +104,6 @@ function coerceToArrayBuffer(buf, name) {
 		buf = buf.replace(/-/g, "+").replace(/_/g, "/");
 		// base64 to Buffer
 		buf = base64.toArrayBuffer(buf);
-	}
-
-	// Handle undefined
-	if(typeof buf === "undefined") {
-		buf = new ArrayBuffer(0);
 	}
 
 	// Extract typed array from Array
@@ -222,7 +216,6 @@ export {
 	base64,
 	coerceToBase64Url,
 	coerceToBase64,
-	cbor,
 	coseToJwk,
 	arrayBufferEquals,
 	pemToBase64,

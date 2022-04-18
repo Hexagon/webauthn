@@ -12,8 +12,7 @@
 
 "use strict";
 
-import { coerceToArrayBuffer, coerceToBase64Url } from "../../../common/utils.js";
-import * as cbor from "../cbor/decode.js";
+import { coerceToArrayBuffer, coerceToBase64Url, tools } from "../../utils.js";
 
 // main COSE labels
 // defined here: https://tools.ietf.org/html/rfc8152#section-7.1
@@ -177,7 +176,7 @@ function coseToJwk(cose) {
 
 	let parsedCose;
 	try {
-		parsedCose = cbor.decode(new Uint8Array(cose));
+		parsedCose = tools().cbor.decode(new Uint8Array(cose));
 	} catch (err) {
 		throw new Error("couldn't parse authenticator.authData.attestationData CBOR: " + err);
 	}

@@ -10,6 +10,8 @@ import * as h from "../../helpers/fido2-helpers.js";
 // Test subject
 import { Webauthn } from "../../../src/node/webauthn.js";
 
+new Webauthn();
+
 // Actual tests
 const testMain = function () {
 	test("Istantiation and registration", async () => {

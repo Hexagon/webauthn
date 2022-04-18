@@ -2,7 +2,6 @@ import {
 	coerceToBase64Url,
 	coerceToArrayBuffer,
 	ab2str,
-	cbor,
 	coseToJwk,
 	tools
 } from "./utils.js";
@@ -106,7 +105,7 @@ function parseExpectations(exp) {
 	return ret;
 }
 
-async function parseAuthnrAttestationResponse(msg, tools) {
+async function parseAuthnrAttestationResponse(msg) {
 
 	if (typeof msg !== "object") {
 		throw new TypeError("expected msg to be Object");
@@ -123,25 +122,25 @@ async function parseAuthnrAttestationResponse(msg, tools) {
 
 	let parsed;
 	try {
-		parsed = cbor.decode(new Uint8Array(attestationObject));
+		parsed = tools().cbor.decode(new Uint8Array(attestationObject));
 	} catch (err) {
-		throw new TypeError("couldn't parse attestationObject CBOR");
+		throw new TypeError("couldn't parse attestationObject cbor" + err);
 	}
 
 	if (typeof parsed !== "object") {
-		throw new TypeError("invalid parsing of attestationObject CBOR");
+		throw new TypeError("invalid parsing of attestationObject cbor");
 	}
 
 	if (typeof parsed.fmt !== "string") {
-		throw new Error("expected attestation CBOR to contain a 'fmt' string");
+		throw new Error("expected attestation  to contain a 'fmt' string");
 	}
 
 	if (typeof parsed.attStmt !== "object") {
-		throw new Error("expected attestation CBOR to contain a 'attStmt' object");
+		throw new Error("expected attestation cbor to contain a 'attStmt' object");
 	}
 
 	if (!(parsed.authData instanceof Uint8Array)) {
-		throw new Error("expected attestation CBOR to contain a 'authData' byte sequence");
+		throw new Error("expected attestation cbor to contain a 'authData' byte sequence");
 	}
 
 	if (msg.transports != undefined && !Array.isArray(msg.transports)) {
