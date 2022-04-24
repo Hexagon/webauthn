@@ -2,7 +2,7 @@
 
 NPM: @hexagon\webauthn | Deno.land: webauthn
 
-Slim Webauthn library with ES6, Node and Deno support. Heavily based on fido2-lib, but with it's own set of pros (and cons).
+Slim DWebauthn library with ES6, Deno and Node support. Heavily based on fido2-lib.
 
 *Currently in pre-release*
 
@@ -13,18 +13,11 @@ Slim Webauthn library with ES6, Node and Deno support. Heavily based on fido2-li
 
 Demo/Example for both Deno and Node available at [github.com/Hexagon/webauthn-skeleton/tree/server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno)
 
-Pros, compared to fido2-lib
+Features
 
-*   Supports both Node and Deno with the same code base
-*   Simplified dependency tree. Less duplicates, and less dependencies overall.
-*   ToDo: Make this list complete with explanations
-
-Cons, compared to fido2-lib
-
-*   Lacks all Attestation-modes except "none"
-*   Lacks MDS
-*   All automated tests of fido2-lib isn't implemented
-*   This library should be considered experimental, in comparison.
+*   Supports both Deno and recent versions of Node
+*   ESM based code base
+*   Bundle distributable, no remote dependencies
 
 ## Installation
 
@@ -36,16 +29,16 @@ JavaScript
 
 ```javascript
 // ESM Import ...
-import webauthn from "@hexagon/webauthn";
+import { Webauthn } from "@hexagon/webauthn";
 
 // ... or CommonJS Require
-const webauthn = require("@hexagon/webauthn");
+const { Webauthn } = require("@hexagon/webauthn");
 ```
 
 TypeScript
 
 ```typescript
-import webauthn from "@hexagon/webauthn";
+import { Webauthn } from "@hexagon/webauthn";
 
 // ...
 ```
@@ -55,7 +48,7 @@ import webauthn from "@hexagon/webauthn";
 JavaScript
 
 ```javascript
-import webauthn from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/src/deno/webauthn.js";
+import webauthn from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/lib/webauthn.js";
 
 // ...
 ```
@@ -63,7 +56,7 @@ import webauthn from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/src/deno/we
 TypeScript
 
 ```typescript
-import { webauthn } from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/src/deno/webauthn.js";
+import { webauthn } from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/lib/webauthn.js";
 
 // ...
 ```
@@ -178,25 +171,32 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 
 | Command  | Description                              |
 |-------|------------------------------------------|
-| `deno fmt --check test/deno src/deno` | Check linting of Deno files |
-| `npm run test:lint` | Check linting of Deno files |
+| `deno fmt --check lib test` | Lint/format code base |
+| `npm run lint` | Lint/format code base |
 | `deno test test/deno` | Run deno tests |
-| `npm run test:deno` | .. or Run deno tests |
+| `npm run test` | .. or Run deno tests |
+| `npm run build` | Format code, build docs, test Node & Deno, build typings, bundle dist |
 
 ### File structure
 
 | Path  | Description                              |
 |-------|------------------------------------------|
-| `/src/common` | Source code base folder |
-| `/src/common/attestation` | Attestation plug-ins |
-| `/src/common/tools` | Bundled dependencies |
-| `/src/deno/webauthn.js` | Deno entrypoint |
-| `/src/deno/toolbox.js` | Deno external dependencies and shims |
-| `/src/node/webauthn.js` | Node entrypoint |
-| `/src/node/toolbox.js` | Node external dependencies and shims |
+| `/lib/common` | Source code base folder |
+| `/lib/common/attestation` | Attestation plug-ins |
+| `/lib/common/tools` | Bundled dependencies |
+| `/lib/webauthn.js` | Deno entrypoint |
+| `/lib/toolbox.js` | Deno external dependencies and shims |
 | `/test/node` | Node tests |
 | `/test/deno` | Deno tests |
 | `/docs` | Documentation |
+
+### Dependency management
+
+* Production dependencies is served to the library by a Deno-specific toolbox, see `lib/toolbox.js`.
+* Pre-bundled dependencies is placed in `lib/common/tools`
+* Testing dependencies
+    * Deno dev-dependency versions are managed directly in `test/deno/common/deps.js`
+    * Node dev-dependency versions are managed by `package.json` as usual
 
 ### Contributors
 

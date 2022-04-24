@@ -1,4 +1,35 @@
 export class Webauthn {
+    static utils: typeof utils;
+    /**
+     * Creates a new {@link MdsCollection}
+     * @param {String} collectionName The name of the collection to create.
+     * Used to identify the source of a {@link MdsEntry} when {@link Fido2Lib#findMdsEntry}
+     * finds multiple matching entries from different sources (e.g. FIDO MDS 1 & FIDO MDS 2)
+     * @return {MdsCollection} The MdsCollection that was created
+     * @see  MdsCollection
+     */
+    static createMdsCollection(collectionName: string): MdsCollection;
+    /**
+     * Adds a new {@link MdsCollection} to the global MDS collection list that will be used for {@link findMdsEntry}
+     * @param {MdsCollection} mdsCollection The MDS collection that will be used
+     * @see  MdsCollection
+     */
+    static addMdsCollection(mdsCollection: MdsCollection): Promise<void>;
+    /**
+     * Removes all entries from the global MDS collections list. Mostly used for testing.
+     */
+    static clearMdsCollections(): void;
+    /**
+     * Returns {@link MdsEntry} objects that match the requested id. The
+     * lookup is done by calling {@link MdsCollection#findEntry} on the current global
+     * MDS collection. If no global MDS collection has been specified using
+     * {@link setMdsCollection}, an `Error` will be thrown.
+     * @param  {String|ArrayBuffer} id The authenticator id to look up metadata for
+     * @return {Array.<MdsEntry>}    Returns an Array of {@link MdsEntry} for the specified id.
+     * If no entry was found, the Array will be empty.
+     * @see  MdsCollection
+     */
+    static findMdsEntry(id: string | ArrayBuffer): Array<MdsEntry>;
     /**
      * Adds a new global extension that will be available to all instantiations of
      * {@link Webauthn}. Note that the extension must still be enabled by calling
@@ -53,23 +84,23 @@ export class Webauthn {
      */
     private static parseAttestation;
     /**
-    * Creates a FIDO2 server class
-    * @param {Object} opts Options for the server
-    * @param {Number} [opts.timeout=60000] The amount of time to wait, in milliseconds, before a call has timed out
-    * @param {String} [opts.rpId="localhost"] The name of the server
-    * @param {String} [opts.rpName="Anonymous Service"] The name of the server
-    * @param {String} [opts.rpIcon] A URL for the service's icon. Can be a [RFC 2397]{@link https://tools.ietf.org/html/rfc2397} data URL.
-    * @param {Number} [opts.challengeSize=64] The number of bytes to use for the challenge
-    * @param {Object} [opts.authenticatorSelectionCriteria] An object describing what types of authenticators are allowed to register with the service.
-    * See [AuthenticatorSelectionCriteria]{@link https://w3.org/TR/webauthn/#authenticatorSelection} in the WebAuthn spec for details.
-    * @param {String} [opts.authenticatorAttachment] Indicates whether authenticators should be part of the OS ("platform"), or can be roaming authenticators ("cross-platform")
-    * @param {Boolean} [opts.authenticatorRequireResidentKey] Indicates whether authenticators must store the key internally (true) or if they can use a KDF to generate keys
-    * @param {String} [opts.authenticatorUserVerification] Indicates whether user verification should be performed. Options are "required", "preferred", or "discouraged".
-    * @param {String} [opts.attestation="direct"] The preferred attestation type to be used.
-    * See [AttestationConveyancePreference]{https://w3.org/TR/webauthn/#enumdef-attestationconveyancepreference} in the WebAuthn spec
-    * @param {Array<Number>} [opts.cryptoParams] A list of COSE algorithm identifiers (e.g. -7)
-    * ordered by the preference in which the authenticator should use them.
-    */
+     * Creates a FIDO2 server class
+     * @param {Object} opts Options for the server
+     * @param {Number} [opts.timeout=60000] The amount of time to wait, in milliseconds, before a call has timed out
+     * @param {String} [opts.rpId="localhost"] The name of the server
+     * @param {String} [opts.rpName="Anonymous Service"] The name of the server
+     * @param {String} [opts.rpIcon] A URL for the service's icon. Can be a [RFC 2397]{@link https://tools.ietf.org/html/rfc2397} data URL.
+     * @param {Number} [opts.challengeSize=64] The number of bytes to use for the challenge
+     * @param {Object} [opts.authenticatorSelectionCriteria] An object describing what types of authenticators are allowed to register with the service.
+     * See [AuthenticatorSelectionCriteria]{@link https://w3.org/TR/webauthn/#authenticatorSelection} in the WebAuthn spec for details.
+     * @param {String} [opts.authenticatorAttachment] Indicates whether authenticators should be part of the OS ("platform"), or can be roaming authenticators ("cross-platform")
+     * @param {Boolean} [opts.authenticatorRequireResidentKey] Indicates whether authenticators must store the key internally (true) or if they can use a KDF to generate keys
+     * @param {String} [opts.authenticatorUserVerification] Indicates whether user verification should be performed. Options are "required", "preferred", or "discouraged".
+     * @param {String} [opts.attestation="direct"] The preferred attestation type to be used.
+     * See [AttestationConveyancePreference]{https://w3.org/TR/webauthn/#enumdef-attestationconveyancepreference} in the WebAuthn spec
+     * @param {Array<Number>} [opts.cryptoParams] A list of COSE algorithm identifiers (e.g. -7)
+     * ordered by the preference in which the authenticator should use them.
+     */
     constructor(opts: {
         timeout?: number;
         rpId?: string;
@@ -82,9 +113,8 @@ export class Webauthn {
         authenticatorUserVerification?: string;
         attestation?: string;
         cryptoParams?: Array<number>;
-    }, ToolBox: any);
+    });
     config: {};
-    tools: any;
     attestationMap: Map<any, any>;
     extSet: Set<any>;
     extOptMap: Map<any, any>;
@@ -214,3 +244,5 @@ export class Webauthn {
 }
 import { Fido2AttestationResult } from "./response.js";
 import { Fido2AssertionResult } from "./response.js";
+import * as utils from "./utils.js";
+import { MdsCollection } from "./mds.js";

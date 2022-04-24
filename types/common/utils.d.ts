@@ -1,9 +1,9 @@
-export function ab2str(buf: any): string;
+export function abEqual(b1: any, b2: any): boolean;
 export function abToBuf(ab: any): ArrayBufferLike;
-export function isBase64Url(str: any): boolean;
-export function abEqual(a: any, b: any): boolean;
-export function isPem(pem: any): boolean;
-export function isPositiveInteger(n: any): boolean;
+export function abToHex(ab: any): any;
+export function abToInt(ab: any): number;
+export function abToPem(type: any, ab: any): string;
+export function abToStr(buf: any): string;
 /**
  * Creates a new Uint8Array based on two different ArrayBuffers
  *
@@ -13,11 +13,16 @@ export function isPositiveInteger(n: any): boolean;
  * @return {ArrayBuffers} The new ArrayBuffer created out of the two.
  */
 export function appendBuffer(buffer1: ArrayBuffers, buffer2: ArrayBuffers): ArrayBuffers;
-export function coerceToArrayBuffer(buf: any, name: any): ArrayBuffer;
+export function b64ToJsObject(b64: any, desc: any): any;
 import { base64 } from "./tools/base64/base64.js";
-export function coerceToBase64Url(thing: any, name: any): string;
+export function coerceToArrayBuffer(buf: any, name: any): ArrayBuffer;
 export function coerceToBase64(thing: any, name: any): string;
-import * as cbor from "../common/tools/cbor/decode.js";
-import { coseToJwk } from "../common/tools/cose-to-jwk/cose-to-jwk.js";
-export function arrayBufferEquals(b1: any, b2: any): boolean;
-export { base64, cbor, coseToJwk };
+export function coerceToBase64Url(thing: any, name: any): string;
+export function isBase64Url(str: any): boolean;
+export function isPem(pem: any): boolean;
+export function isPositiveInteger(n: any): boolean;
+export function jsObjectToB64(obj: any): string;
+export function pemToBase64(pem: any): any;
+export function strToAb(str: any): ArrayBuffer;
+import * as tools from "../toolbox.js";
+export { base64, tools };

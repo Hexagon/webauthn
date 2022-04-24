@@ -1,4 +1,27 @@
 /**
+ * A validated assertion result
+ * @extends {Fido2Result}
+ */
+export class Fido2AssertionResult extends Fido2Result {
+    static create(req: any, exp: any, tools: any): Promise<Fido2AssertionResult>;
+    constructor(sym: any, tools: any);
+    requiredExpectations: Set<string>;
+    optionalExpectations: Set<string>;
+    parse(): Promise<void>;
+    authnrData: Map<any, any>;
+}
+/**
+ * A validated attesetation result
+ * @extends {Fido2Result}
+ */
+export class Fido2AttestationResult extends Fido2Result {
+    static create(req: any, exp: any, tools: any): Promise<Fido2AttestationResult>;
+    requiredExpectations: Set<string>;
+    optionalExpectations: Set<string>;
+    parse(): Promise<void>;
+    authnrData: Map<any, any>;
+}
+/**
  * The base class of {@link Fido2AttestationResult} and {@link Fido2AssertionResult}
  * @property {Map} authnrData Authenticator data that was parsed and validated
  * @property {Map} clientData Client data that was parsed and validated
@@ -17,31 +40,7 @@ export class Fido2Result {
     parse(): void;
     clientData: any;
     validate(): Promise<void>;
-    create(req: any, exp: any, tools: any): Promise<Fido2Result>;
-    tools: any;
+    create(req: any, exp: any): Promise<Fido2Result>;
     expectations: Map<any, any>;
     request: any;
-}
-/**
- * A validated attesetation result
- * @extends {Fido2Result}
- */
-export class Fido2AttestationResult extends Fido2Result {
-    static create(req: any, exp: any, tools: any): Promise<Fido2AttestationResult>;
-    requiredExpectations: Set<string>;
-    optionalExpectations: Set<string>;
-    parse(): Promise<void>;
-    authnrData: Map<any, any>;
-}
-/**
- * A validated assertion result
- * @extends {Fido2Result}
- */
-export class Fido2AssertionResult extends Fido2Result {
-    static create(req: any, exp: any, tools: any): Promise<Fido2AssertionResult>;
-    constructor(sym: any, tools: any);
-    requiredExpectations: Set<string>;
-    optionalExpectations: Set<string>;
-    parse(): Promise<void>;
-    authnrData: Map<any, any>;
 }

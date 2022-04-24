@@ -125,7 +125,7 @@
     <pre class="prettyprint source linenums"><code>import {
 	coerceToBase64Url,
 	coerceToArrayBuffer,
-	ab2str,
+	abToStr,
 	cbor,
 	coseToJwk 
 } from "./utils.js";
@@ -388,7 +388,7 @@ function parseClientResponse(msg) {
 	}
 
 	// convert to string
-	let clientDataJson = ab2str(clientDataJSON);
+	let clientDataJson = abToStr(clientDataJSON);
 
 	// parse JSON string
 	let parsed;

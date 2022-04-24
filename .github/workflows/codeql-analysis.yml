@@ -15,12 +15,12 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'src/**'
+      - 'lib/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
     paths:
-      - 'src/**'
+      - 'lib/**'
   schedule:
     - cron: '39 11 * * 2'
 
