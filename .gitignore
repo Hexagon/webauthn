@@ -22,6 +22,8 @@ coverage.lcov
 # node-waf configuration
 .lock-wscript
 
+.vscode
+
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
