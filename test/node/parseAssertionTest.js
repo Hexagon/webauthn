@@ -1,11 +1,8 @@
 // Testing lib
 import * as chai from "chai";
-const assert = chai.assert;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
-const { abEqual } = h.functions;
 
 import { appendBuffer, tools } from "../../dist/webauthn.js";
 
@@ -18,16 +15,19 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+const assert = chai.assert;
+const h = fido2helpers.default;
+const { abEqual } = h.functions;
 
 describe("parseAuthnrAssertionResponse", function () {
   it("parses assertion correctly", async function () {
-    let ret = await parseAuthnrAssertionResponse(h.lib.assertionResponse);
+    const ret = await parseAuthnrAssertionResponse(h.lib.assertionResponse);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 6);
     // rpid
-    let rpIdHash = ret.get("rpIdHash");
+    const rpIdHash = ret.get("rpIdHash");
     assert.instanceOf(rpIdHash, ArrayBuffer);
-    let expectedRpIdHash = new Uint8Array([
+    const expectedRpIdHash = new Uint8Array([
       0x49,
       0x96,
       0x0D,
@@ -63,16 +63,16 @@ describe("parseAuthnrAssertionResponse", function () {
     ]).buffer;
     assert(abEqual(rpIdHash, expectedRpIdHash), "correct rpIdHash");
     // flags
-    let flags = ret.get("flags");
+    const flags = ret.get("flags");
     assert.instanceOf(flags, Set);
     assert.strictEqual(flags.size, 1);
     assert.isTrue(flags.has("UP"));
     // counter
     assert.strictEqual(ret.get("counter"), 363);
     // sig
-    let sig = ret.get("sig");
+    const sig = ret.get("sig");
     assert.instanceOf(sig, ArrayBuffer);
-    let expectedSig = new Uint8Array([
+    const expectedSig = new Uint8Array([
       0x30,
       0x46,
       0x02,
@@ -148,12 +148,12 @@ describe("parseAuthnrAssertionResponse", function () {
     ]).buffer;
     assert(abEqual(sig, expectedSig), "correct signature buffer");
     // userHandle
-    let userHandle = ret.get("userHandle");
+    const userHandle = ret.get("userHandle");
     assert.isUndefined(userHandle);
     // authRawData
-    let rawAuthnrData = ret.get("rawAuthnrData");
+    const rawAuthnrData = ret.get("rawAuthnrData");
     assert.instanceOf(rawAuthnrData, ArrayBuffer);
-    let expectedAuthnrRawData = new Uint8Array([
+    const expectedAuthnrRawData = new Uint8Array([
       0x49,
       0x96,
       0x0D,
@@ -203,10 +203,10 @@ describe("parseAuthnrAssertionResponse", function () {
 
 describe("validate signature", function () {
   it("works", async function () {
-    let sig = h.lib.assertionResponse.response.signature;
-    let pk = h.lib.assnPublicKey;
-    let authnrData = h.lib.assertionResponse.response.authenticatorData;
-    let clientData = h.lib.assertionResponse.response.clientDataJSON;
+    const sig = h.lib.assertionResponse.response.signature;
+    const pk = h.lib.assnPublicKey;
+    const authnrData = h.lib.assertionResponse.response.authenticatorData;
+    const clientData = h.lib.assertionResponse.response.clientDataJSON;
 
     const clientDataHashBuf = await tools.hashDigest(clientData);
     const verify = await tools.verifySignature(

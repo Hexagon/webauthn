@@ -1,9 +1,6 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const assert = chai.assert;
-const expect = chai.expect;
 
 // Helpers
 import {
@@ -15,11 +12,14 @@ import {
 } from "../../dist/webauthn.js";
 
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 // Test subject
 import { MdsCollection, MdsEntry } from "../../dist/webauthn.js";
 import { mdsV3jwt } from "../fixtures/mdsV3.jwt.js";
+chai.use(chaiAsPromised.default);
+const assert = chai.assert;
+const expect = chai.expect;
+const h = fido2helpers.default;
 
 describe("MdsCollection", function () {
   it("is a function", function () {
@@ -27,7 +27,7 @@ describe("MdsCollection", function () {
   });
 
   it("is a class", function () {
-    let mdsCollection = new MdsCollection("test");
+    const mdsCollection = new MdsCollection("test");
     assert.isObject(mdsCollection);
     assert.isFunction(mdsCollection.addToc);
     assert.isFunction(mdsCollection.addEntry);
@@ -63,7 +63,7 @@ describe("MdsCollection", function () {
     });
 
     it("returns a promise", async function () {
-      let p = mc.addToc();
+      const p = mc.addToc();
       assert.instanceOf(p, Promise);
       try {
         await p;
@@ -82,7 +82,7 @@ describe("MdsCollection", function () {
 
     it("rejects if TOC is empty string", function () {
       // bad toc
-      let toc = "";
+      const toc = "";
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -92,7 +92,7 @@ describe("MdsCollection", function () {
 
     it("rejects if TOC is junk string", function () {
       // bad toc
-      let toc =
+      const toc =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
       return assert.isRejected(
         mc.addToc(toc),
@@ -114,11 +114,11 @@ describe("MdsCollection", function () {
         strToAb(JSON.stringify(jwtHeader)),
         "JWT header",
       );
-      let jwtBody =
+      const jwtBody =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let jwtSig =
+      const jwtSig =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let toc = jwtHeader + "." + jwtBody + "." + jwtSig;
+      const toc = jwtHeader + "." + jwtBody + "." + jwtSig;
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -139,11 +139,11 @@ describe("MdsCollection", function () {
         strToAb(JSON.stringify(jwtHeader)),
         "JWT header",
       );
-      let jwtBody =
+      const jwtBody =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let jwtSig =
+      const jwtSig =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let toc = jwtHeader + "." + jwtBody + "." + jwtSig;
+      const toc = jwtHeader + "." + jwtBody + "." + jwtSig;
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -164,11 +164,11 @@ describe("MdsCollection", function () {
         strToAb(JSON.stringify(jwtHeader)),
         "JWT header",
       );
-      let jwtBody =
+      const jwtBody =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let jwtSig =
+      const jwtSig =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let toc = jwtHeader + "." + jwtBody + "." + jwtSig;
+      const toc = jwtHeader + "." + jwtBody + "." + jwtSig;
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -189,11 +189,11 @@ describe("MdsCollection", function () {
         strToAb(JSON.stringify(jwtHeader)),
         "JWT header",
       );
-      let jwtBody =
+      const jwtBody =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let jwtSig =
+      const jwtSig =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
-      let toc = jwtHeader + "." + jwtBody + "." + jwtSig;
+      const toc = jwtHeader + "." + jwtBody + "." + jwtSig;
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -202,7 +202,7 @@ describe("MdsCollection", function () {
     });
 
     it("parses MDS1 TOC", async function () {
-      let toc = await mc.addToc(
+      const toc = await mc.addToc(
         h.mds.mds1TocJwt,
         h.mds.mdsRootCert,
         [
@@ -222,7 +222,7 @@ describe("MdsCollection", function () {
     });
 
     it("parses MDS2 TOC", async function () {
-      let toc = await mc.addToc(
+      const toc = await mc.addToc(
         h.mds.mds2TocJwt,
         h.mds.mdsRootCert,
         [
@@ -274,9 +274,9 @@ describe("MdsCollection", function () {
     });
 
     it("throws on bad signature", function () {
-      let tocParts = h.mds.mds2TocJwt.split(".");
+      const tocParts = h.mds.mds2TocJwt.split(".");
       tocParts[2] = tocParts[2].toUpperCase(); // mess up the signature
-      let toc = tocParts.join(".");
+      const toc = tocParts.join(".");
       return assert.isRejected(
         mc.addToc(toc),
         Error,
@@ -300,7 +300,7 @@ describe("MdsCollection", function () {
     });
 
     it("starts as null", function () {
-      let toc = mc.getToc();
+      const toc = mc.getToc();
       assert.isNull(mc.toc);
       assert.isNull(toc);
     });
@@ -308,7 +308,7 @@ describe("MdsCollection", function () {
     it("returns correct object for MDS1", async function () {
       assert.isNull(mc.toc);
       await mc.addToc(h.mds.mds1TocJwt);
-      let toc = mc.getToc();
+      const toc = mc.getToc();
       assert.isObject(toc);
       assert.isString(toc.nextUpdate);
       assert.strictEqual(toc.nextUpdate, "2018-06-18");
@@ -323,7 +323,7 @@ describe("MdsCollection", function () {
     it("returns correct object for MDS2", async function () {
       assert.isNull(mc.toc);
       await mc.addToc(h.mds.mds2TocJwt);
-      let toc = mc.getToc();
+      const toc = mc.getToc();
       assert.isObject(toc);
       assert.isString(toc.nextUpdate);
       assert.strictEqual(toc.nextUpdate, "2018-06-18");
@@ -418,7 +418,9 @@ describe("MdsCollection", function () {
         mc.entryList.has("923881fe2f214ee465484371aeb72e97f5a58e0a"),
         "added entry 4e4e#4005",
       );
-      let entry = mc.entryList.get("923881fe2f214ee465484371aeb72e97f5a58e0a");
+      const entry = mc.entryList.get(
+        "923881fe2f214ee465484371aeb72e97f5a58e0a",
+      );
       assert.strictEqual(entry.protocolFamily, "u2f");
       assert.strictEqual(
         entry.authenticationAlgorithm,
@@ -446,7 +448,7 @@ describe("MdsCollection", function () {
       await mc.validate();
       assert.strictEqual(mc.entryList.size, 1);
       assert.isTrue(mc.entryList.has("0013#0001"), "added entry 4e4e#4005");
-      let entry = mc.entryList.get("0013#0001");
+      const entry = mc.entryList.get("0013#0001");
       assert.strictEqual(entry.protocolFamily, "uaf");
       assert.strictEqual(
         entry.hash,
@@ -466,7 +468,7 @@ describe("MdsCollection", function () {
       await mc.validate();
       assert.strictEqual(mc.entryList.size, 1);
       assert.isTrue(mc.entryList.has("4e4e#4005"), "added entry 4e4e#4005");
-      let entry = mc.entryList.get("4e4e#4005");
+      const entry = mc.entryList.get("4e4e#4005");
 
       // check that TOC data was copied to new entry:
       // url
@@ -588,7 +590,7 @@ describe("MdsCollection", function () {
       );
       await mc.validate();
       assert.isTrue(mc.entryList.has("4e4e#4005"), "added entry 4e4e#4005");
-      let entry = mc.entryList.get("4e4e#4005");
+      const entry = mc.entryList.get("4e4e#4005");
 
       // check that TOC data was copied to new entry:
       // schema
@@ -598,8 +600,8 @@ describe("MdsCollection", function () {
       // hash
       assert.isUndefined(entry.hash);
 
-      let tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      let tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
+      const tocHash = base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,
@@ -694,7 +696,7 @@ describe("MdsCollection", function () {
       );
       await mc.validate();
 
-      let entry = mc.findEntry("c5ef55ff-ad9a-4b9f-b580-adebafe026d0");
+      const entry = mc.findEntry("c5ef55ff-ad9a-4b9f-b580-adebafe026d0");
       assert.isDefined(
         entry,
         "added entry c5ef55ff-ad9a-4b9f-b580-adebafe026d0",
@@ -708,8 +710,8 @@ describe("MdsCollection", function () {
       // hash
       assert.isUndefined(entry.hash);
 
-      let tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      let tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
+      const tocHash = base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,
@@ -848,7 +850,7 @@ describe("MdsCollection", function () {
       );
       await mc.validate();
 
-      let entry = mc.findEntry("bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2");
+      const entry = mc.findEntry("bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2");
       assert.isDefined(
         entry,
         "added entry bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2",
@@ -862,8 +864,8 @@ describe("MdsCollection", function () {
       // hash
       assert.isUndefined(entry.hash);
 
-      let tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      let tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
+      const tocHash = base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,
@@ -964,13 +966,13 @@ describe("MdsCollection", function () {
     });
 
     it("returns MdsEntry", function () {
-      let entry = mc.findEntry("4e4e#4005");
+      const entry = mc.findEntry("4e4e#4005");
       assert.instanceOf(entry, MdsEntry);
       assert.strictEqual(entry.aaid, "4e4e#4005");
     });
 
     it("returns null on entry not found", function () {
-      let entry = mc.findEntry("ffff#ffff");
+      const entry = mc.findEntry("ffff#ffff");
       assert.isNull(entry);
     });
   });

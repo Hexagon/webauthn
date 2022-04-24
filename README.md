@@ -155,27 +155,13 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 
 ### Development
 
-#### Node commands
-
 | Command  | Description                              |
 |-------|------------------------------------------|
-| `npm run precommit` | Run both node and deno tests and linting, good before committing |
-| `npm run build` | Run all sort of node checks and rebuilds documentation, good before releasing |
-| `npm run build:docs` | Rebuild documentation, good before releasing |
-| `npm run test` | Run Node tests, good after code changes |
-| `npm run test:coverage` | Run Node tests with coverage (included in build) |
-| `npm run test:lint` | Run eslint (included in build) |
-| `npm run test:lint:fix` | Run eslint try to fix linting errors |
-
-#### Deno commands
-
-| Command  | Description                              |
-|-------|------------------------------------------|
-| `deno fmt --check lib test` | Lint/format code base |
-| `npm run lint` | Lint/format code base |
+| `npm run build` | Run all sorts of checks (both Node and Deno), then builds the bundle, run before releasing |
+| `deno fmt` | Format code base |
+| `deno lint` | Lint code base |
 | `deno test test/deno` | Run deno tests |
-| `npm run test` | .. or Run deno tests |
-| `npm run build` | Format code, build docs, test Node & Deno, build typings, bundle dist |
+| `npm run test:node` | Run node tests |
 
 ### File structure
 
@@ -192,11 +178,23 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 
 ### Dependency management
 
-* Production dependencies is served to the library by a Deno-specific toolbox, see `lib/toolbox.js`.
-* Pre-bundled dependencies is placed in `lib/common/tools`
-* Testing dependencies
-    * Deno dev-dependency versions are managed directly in `test/deno/common/deps.js`
-    * Node dev-dependency versions are managed by `package.json` as usual
+* Dependencies are imported by `deps.js`
+* Pre-bundled dependencies are placed in `lib/common/tools`
+* Node.js testing/dev-dependencies versions are managed in `package.json`
+
+#### Current dependencies
+
+| Package | Use | Version | From |
+|---------|-----|----|------|
+| [tldts](https://www.npmjs.com/package/tldts) | Production (bundled in dist) | 5.7.76 | jsdelivr.net |
+| [punycode](https://deno.land/x/punycode) | Production (bundled in dist) | 2.1.1 | deno.land/x |
+| [jose](https://deno.land/x/jose) | Production (bundled in dist) | 4.7.0 | deno.land/x |
+| [cbor-x](https://deno.land/x/cbor) | Production (bundled in dist) | 1.2.1 | deno.land/x |
+| [pkijs](https://www.npmjs.com/package/pkijs) | Production (bundled in dist) | 2.1.58 | unpkg.com |
+| [asn1js](https://www.npmjs.com/package/asn1js) | Production (bundled in dist) | 2.3.2 | unpkg.com |
+| [@hexagon/base64](https://www.npmjs.com/package/@hexagon/base64) | Production (bundled) | 1.0.18 | (bundled) |
+| [std](https://deno.land/std@0.134.0/node/url.ts) | Production (bundled in dist) / Testing | 0.134.0 | deno.land/std |
+| [klon](https://npmjs.org/klon) | Testing | 0.11.0 | esm.run |
 
 ### Contributors
 

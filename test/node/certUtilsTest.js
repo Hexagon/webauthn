@@ -1,21 +1,21 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const assert = chai.assert;
 
 // Helpers
 
-import { abEqual as abEqual } from "../../dist/webauthn.js";
-import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
-
 import {
+  abEqual,
   Certificate,
   CertManager,
   CRL,
   helpers as certHelpers,
 } from "../../dist/webauthn.js";
+import * as fido2helpers from "fido2-helpers";
+
+chai.use(chaiAsPromised.default);
+const assert = chai.assert;
+const h = fido2helpers.default;
 
 const { resolveOid } = certHelpers;
 
@@ -31,7 +31,7 @@ describe("cert utils", function () {
 
     describe("constructor", function () {
       it("can create new cert", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
+        const cert = new Certificate(h.certs.yubicoRoot);
         assert.instanceOf(cert, Certificate);
         assert.isObject(cert._cert);
       });
@@ -71,14 +71,14 @@ describe("cert utils", function () {
 
     describe("verify", function () {
       it("can verify root cert", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let p = cert.verify();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const p = cert.verify();
         assert.instanceOf(p, Promise);
         return p;
       });
 
       it("throws if root cert isn't found", async function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
         let p;
         try {
           p = await cert.verify();
@@ -95,15 +95,15 @@ describe("cert utils", function () {
 
       it("can verify cert with root cert", async function () {
         CertManager.addCert(h.certs.yubicoRoot);
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
         await cert.verify();
       });
     });
 
     describe("getPublicKey", function () {
       it("can extract public key of attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let p = cert.getPublicKey();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const p = cert.getPublicKey();
         assert.instanceOf(p, Promise);
         return p.then((jwk) => {
           assert.isObject(jwk);
@@ -121,8 +121,8 @@ describe("cert utils", function () {
       });
 
       it("can extract public key of root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let p = cert.getPublicKey();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const p = cert.getPublicKey();
         assert.instanceOf(p, Promise);
         return p.then((jwk) => {
           assert.isObject(jwk);
@@ -139,42 +139,42 @@ describe("cert utils", function () {
 
     describe("getSerial", function () {
       it("returns correct serial for attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let serial = cert.getSerial();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const serial = cert.getSerial();
         assert.strictEqual(serial, "Yubico U2F EE Serial 1432534688");
       });
       it("returns correct serial for root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let serial = cert.getSerial();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const serial = cert.getSerial();
         assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
       });
     });
 
     describe("getIssuer", function () {
       it("returns correct issuer for attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let serial = cert.getIssuer();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const serial = cert.getIssuer();
         assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
       });
 
       it("returns correct issuer for root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let serial = cert.getIssuer();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const serial = cert.getIssuer();
         assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
       });
     });
 
     describe("getVersion", function () {
       it("returns correct version for attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let version = cert.getVersion();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const version = cert.getVersion();
         assert.isNumber(version);
         assert.strictEqual(version, 3);
       });
 
       it("returns correct version for root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let version = cert.getVersion();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const version = cert.getVersion();
         assert.isNumber(version);
         assert.strictEqual(version, 3);
       });
@@ -182,8 +182,8 @@ describe("cert utils", function () {
 
     describe("getExtensions", function () {
       it("returns correct extensions for attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let extensions = cert.getExtensions();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const extensions = cert.getExtensions();
         assert.instanceOf(extensions, Map);
         assert.strictEqual(extensions.size, 2);
         assert.isTrue(extensions.has("yubico-device-id"));
@@ -192,15 +192,15 @@ describe("cert utils", function () {
           extensions.get("yubico-device-id"),
           "YubiKey 4/YubiKey 4 Nano",
         );
-        let u2fTransports = extensions.get("fido-u2f-transports");
+        const u2fTransports = extensions.get("fido-u2f-transports");
         assert.instanceOf(u2fTransports, Set);
         assert.strictEqual(u2fTransports.size, 1);
         assert.isTrue(u2fTransports.has("usb"));
       });
 
       it("returns correct extensions for root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let extensions = cert.getExtensions();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const extensions = cert.getExtensions();
         assert.instanceOf(extensions, Map);
         assert.strictEqual(extensions.size, 3);
         assert.isTrue(extensions.has("subject-key-identifier"));
@@ -217,8 +217,8 @@ describe("cert utils", function () {
       });
 
       it("returns FIDO2 extensions", function () {
-        let cert = new Certificate(h.certs.feitianFido2);
-        let extensions = cert.getExtensions();
+        const cert = new Certificate(h.certs.feitianFido2);
+        const extensions = cert.getExtensions();
         assert.instanceOf(cert.warning, Map);
         assert.strictEqual(cert.warning.size, 0);
 
@@ -226,24 +226,24 @@ describe("cert utils", function () {
         assert.strictEqual(extensions.size, 5);
 
         // subject-key-identifier
-        let subjectKeyId = extensions.get("subject-key-identifier");
+        const subjectKeyId = extensions.get("subject-key-identifier");
         assert.instanceOf(subjectKeyId, ArrayBuffer);
         assert.strictEqual(subjectKeyId.byteLength, 20);
 
         // authority-key-identifier
-        let authorityKeyId = extensions.get("authority-key-identifier");
+        const authorityKeyId = extensions.get("authority-key-identifier");
         assert.instanceOf(authorityKeyId, Map);
         assert.strictEqual(authorityKeyId.size, 1);
         assert.instanceOf(authorityKeyId.get("key-identifier"), ArrayBuffer);
 
         // basic-constraints
-        let basicConstraints = extensions.get("basic-constraints");
+        const basicConstraints = extensions.get("basic-constraints");
         assert.isObject(basicConstraints);
         assert.strictEqual(Object.keys(basicConstraints).length, 1);
         assert.strictEqual(basicConstraints.cA, false);
 
         // fido-u2f-transports
-        let transports = extensions.get("fido-u2f-transports");
+        const transports = extensions.get("fido-u2f-transports");
         assert.instanceOf(transports, Set);
         assert.strictEqual(transports.size, 1);
         assert.isTrue(transports.has("usb"), "transports has USB");
@@ -251,9 +251,9 @@ describe("cert utils", function () {
         // 'fido-u2f-transports' => Set { 'usb' },
 
         // fido-aaguid
-        let aaguid = extensions.get("fido-aaguid");
+        const aaguid = extensions.get("fido-aaguid");
         assert.instanceOf(aaguid, ArrayBuffer);
-        let expectedAaguid = new Uint8Array([
+        const expectedAaguid = new Uint8Array([
           0x42,
           0x38,
           0x32,
@@ -275,12 +275,12 @@ describe("cert utils", function () {
       });
 
       it("returns correct extensions for TPM attestation", function () {
-        let cert = new Certificate(h.certs.tpmAttestation);
-        let extensions = cert.getExtensions();
+        const cert = new Certificate(h.certs.tpmAttestation);
+        const extensions = cert.getExtensions();
         assert.instanceOf(extensions, Map);
         assert.strictEqual(extensions.size, 8);
         // key usage
-        let keyUsage = extensions.get("key-usage");
+        const keyUsage = extensions.get("key-usage");
         assert.instanceOf(keyUsage, Set);
         assert.strictEqual(keyUsage.size, 1);
         assert.isTrue(
@@ -288,20 +288,20 @@ describe("cert utils", function () {
           "key-usage has digital signature",
         );
         // basic constraints
-        let basicConstraints = extensions.get("basic-constraints");
+        const basicConstraints = extensions.get("basic-constraints");
         assert.isObject(basicConstraints);
         assert.strictEqual(Object.keys(basicConstraints).length, 1);
         assert.strictEqual(basicConstraints.cA, false);
         // certificate policies
-        let certPolicies = extensions.get("certificate-policies");
+        const certPolicies = extensions.get("certificate-policies");
         assert.isArray(certPolicies);
         assert.strictEqual(certPolicies.length, 1);
-        let policyQualifiers = certPolicies[0];
+        const policyQualifiers = certPolicies[0];
         assert.isObject(policyQualifiers);
         assert.strictEqual(policyQualifiers.id, "policy-qualifiers");
         assert.isArray(policyQualifiers.value);
         assert.strictEqual(policyQualifiers.value.length, 1);
-        let policyQualifier = policyQualifiers.value[0];
+        const policyQualifier = policyQualifiers.value[0];
         assert.isObject(policyQualifier);
         assert.strictEqual(policyQualifier.id, "policy-qualifier");
         assert.isArray(policyQualifier.value);
@@ -311,18 +311,18 @@ describe("cert utils", function () {
           "TCPA  Trusted  Platform  Identity",
         );
         // extended key usage
-        let extKeyUsage = extensions.get("ext-key-usage");
+        const extKeyUsage = extensions.get("ext-key-usage");
         assert.isArray(extKeyUsage);
         assert.strictEqual(extKeyUsage.length, 1);
         assert.strictEqual(extKeyUsage[0], "tcg-kp-aik-certificate");
         // alternate name
-        let subjAltNames = extensions.get("subject-alt-name");
+        const subjAltNames = extensions.get("subject-alt-name");
         assert.isArray(subjAltNames);
         assert.strictEqual(subjAltNames.length, 1);
-        let subjAltName = subjAltNames[0];
+        const subjAltName = subjAltNames[0];
         assert.isObject(subjAltName);
         assert.strictEqual(Object.keys(subjAltName).length, 1);
-        let generalNames = subjAltName.directoryName;
+        const generalNames = subjAltName.directoryName;
         assert.instanceOf(generalNames, Map);
         assert.strictEqual(generalNames.size, 3);
         assert.strictEqual(generalNames.get("tcg-at-tpm-version"), "id:13");
@@ -337,7 +337,7 @@ describe("cert utils", function () {
         assert.strictEqual(authKeyId.size, 1);
         authKeyId = authKeyId.get("key-identifier");
         assert.instanceOf(authKeyId, ArrayBuffer);
-        let expectedAuthKeyId = new Uint8Array([
+        const expectedAuthKeyId = new Uint8Array([
           0xC2,
           0x12,
           0xA9,
@@ -364,9 +364,9 @@ describe("cert utils", function () {
           "got expected authority key identifier",
         );
         // subject key identifier
-        let subjectKeyId = extensions.get("subject-key-identifier");
+        const subjectKeyId = extensions.get("subject-key-identifier");
         assert.instanceOf(subjectKeyId, ArrayBuffer);
-        let expectedSubjectKeyId = new Uint8Array([
+        const expectedSubjectKeyId = new Uint8Array([
           0xAF,
           0xE2,
           0x45,
@@ -393,10 +393,10 @@ describe("cert utils", function () {
           "got expected authority key identifier",
         );
         // info access
-        let infoAccess = extensions.get("authority-info-access");
+        const infoAccess = extensions.get("authority-info-access");
         assert.instanceOf(infoAccess, Map);
         assert.strictEqual(infoAccess.size, 1);
-        let certAuthIss = infoAccess.get("cert-authority-issuers");
+        const certAuthIss = infoAccess.get("cert-authority-issuers");
         assert.isObject(certAuthIss);
         assert.strictEqual(Object.keys(certAuthIss).length, 1);
         assert.strictEqual(
@@ -408,8 +408,8 @@ describe("cert utils", function () {
 
     describe("getSubject", function () {
       it("returns correct extensions for attestation", function () {
-        let cert = new Certificate(h.certs.yubiKeyAttestation);
-        let subject = cert.getSubject();
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const subject = cert.getSubject();
         assert.instanceOf(subject, Map);
         assert.strictEqual(subject.size, 1);
         assert.strictEqual(
@@ -419,8 +419,8 @@ describe("cert utils", function () {
       });
 
       it("returns correct extensions for root", function () {
-        let cert = new Certificate(h.certs.yubicoRoot);
-        let subject = cert.getSubject();
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const subject = cert.getSubject();
         assert.instanceOf(subject, Map);
         assert.strictEqual(subject.size, 1);
         assert.strictEqual(
@@ -430,8 +430,8 @@ describe("cert utils", function () {
       });
 
       it("returns correct values for Feitian FIDO2", function () {
-        let cert = new Certificate(h.certs.feitianFido2);
-        let subject = cert.getSubject();
+        const cert = new Certificate(h.certs.feitianFido2);
+        const subject = cert.getSubject();
         assert.instanceOf(subject, Map);
         assert.strictEqual(subject.size, 4);
         assert.strictEqual(subject.get("country-name"), "CN");
@@ -451,7 +451,7 @@ describe("cert utils", function () {
   describe("helpers", function () {
     describe("resolveOid", function () {
       it("decodes U2F USB transport type", function () {
-        let ret = resolveOid(
+        const ret = resolveOid(
           "1.3.6.1.4.1.45724.2.1.1",
           new Uint8Array([0x03, 0x02, 0x05, 0x20]).buffer,
         );
@@ -463,7 +463,7 @@ describe("cert utils", function () {
       });
 
       it("decodes U2F Bluetooth Classic transport type", function () {
-        let ret = resolveOid(
+        const ret = resolveOid(
           "1.3.6.1.4.1.45724.2.1.1",
           new Uint8Array([0x03, 0x02, 0x07, 0x80]).buffer,
         );
@@ -475,7 +475,7 @@ describe("cert utils", function () {
       });
 
       it("decodes U2F USB+NFC transport type", function () {
-        let ret = resolveOid(
+        const ret = resolveOid(
           "1.3.6.1.4.1.45724.2.1.1",
           new Uint8Array([0x03, 0x02, 0x04, 0x30]).buffer,
         );
@@ -488,7 +488,7 @@ describe("cert utils", function () {
       });
 
       it("decodes U2F USB Internal transport type", function () {
-        let ret = resolveOid(
+        const ret = resolveOid(
           "1.3.6.1.4.1.45724.2.1.1",
           new Uint8Array([0x03, 0x02, 0x03, 0x08]).buffer,
         );
@@ -500,7 +500,7 @@ describe("cert utils", function () {
       });
 
       it("decodes all transport types", function () {
-        let ret = resolveOid(
+        const ret = resolveOid(
           "1.3.6.1.4.1.45724.2.1.1",
           new Uint8Array([0x03, 0x02, 0x03, 0xF8]).buffer,
         );
@@ -521,13 +521,13 @@ describe("cert utils", function () {
 
   describe("CRL", function () {
     it("can create mdsRootCrl", function () {
-      let ret = new CRL(h.mds.mdsRootCrl);
+      const ret = new CRL(h.mds.mdsRootCrl);
       assert.isObject(ret);
       assert.isObject(ret._crl);
     });
 
     it("can create ca1Crl", function () {
-      let ret = new CRL(h.mds.ca1Crl);
+      const ret = new CRL(h.mds.ca1Crl);
       assert.isObject(ret);
       assert.isObject(ret._crl);
     });
@@ -561,14 +561,14 @@ describe("cert utils", function () {
 
     describe("getCerts", function () {
       it("returns empty Map if no certs added", function () {
-        let ret = CertManager.getCerts();
+        const ret = CertManager.getCerts();
         assert.instanceOf(ret, Map);
         assert.strictEqual(ret.size, 0);
       });
 
       it("returns Map with added cert", function () {
         CertManager.addCert(h.certs.yubicoRoot);
-        let ret = CertManager.getCerts();
+        const ret = CertManager.getCerts();
         assert.instanceOf(ret, Map);
         assert.strictEqual(ret.size, 1);
         assert.isTrue(ret.has("Yubico U2F Root CA Serial 457200631"));
@@ -589,20 +589,20 @@ describe("cert utils", function () {
       });
 
       it("works for MDS2", function () {
-        let certs = [
+        const certs = [
           new Certificate(h.mds.mdsSigningCert),
           new Certificate(h.mds.mdsIntermediateCert),
         ];
-        let trustedRoots = [
+        const trustedRoots = [
           new Certificate(h.mds.mdsRootCert),
         ];
 
-        let certRevocationLists = [
+        const certRevocationLists = [
           new CRL(h.mds.mdsRootCrl),
           new CRL(h.mds.ca1Crl),
         ];
 
-        let ret = CertManager.verifyCertChain(
+        const ret = CertManager.verifyCertChain(
           certs,
           trustedRoots,
           certRevocationLists,
@@ -614,20 +614,20 @@ describe("cert utils", function () {
       it("works for TPM");
 
       it("will create certs from input arrays", function () {
-        let certs = [
+        const certs = [
           h.mds.mdsSigningCert,
           h.mds.mdsIntermediateCert,
         ];
-        let trustedRoots = [
+        const trustedRoots = [
           h.mds.mdsRootCert,
         ];
 
-        let certRevocationLists = [
+        const certRevocationLists = [
           h.mds.mdsRootCrl,
           h.mds.ca1Crl,
         ];
 
-        let ret = CertManager.verifyCertChain(
+        const ret = CertManager.verifyCertChain(
           certs,
           trustedRoots,
           certRevocationLists,

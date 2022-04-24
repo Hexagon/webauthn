@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 // Test subject
 import {
@@ -17,6 +14,9 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
+const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -28,7 +28,7 @@ describe("parse attestation (android-safetynet)", function () {
     assert.equal(typeof parser, "object");
   });
 
-  let runs = [
+  const runs = [
     { functionName: "parseAuthnrAttestationResponse" },
     { functionName: "parseAttestationObject" },
   ];
@@ -45,7 +45,6 @@ describe("parse attestation (android-safetynet)", function () {
             h.lib.makeCredentialAttestationSafetyNetResponse.response
               .attestationObject,
           );
-        console.log("ret", ret);
       });
 
       it("has version", function () {

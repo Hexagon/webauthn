@@ -25,16 +25,16 @@ Deno.test("coerceToArrayBuffer", () => {
     .makeCredentialAttestationNoneResponse.response.attestationObject.slice(
       0,
     );
-  let resData = utils.coerceToArrayBuffer(
+  const resData = utils.coerceToArrayBuffer(
     testReq.response.clientDataJSON,
     "test",
   );
-  let resAttestationObject = utils.coerceToArrayBuffer(
+  const resAttestationObject = utils.coerceToArrayBuffer(
     testReq.response.attestationObject,
     "test",
   );
-  let resData2 = utils.coerceToArrayBuffer(resData, "test");
-  let resAttestationObject2 = utils.coerceToArrayBuffer(
+  const resData2 = utils.coerceToArrayBuffer(resData, "test");
+  const resAttestationObject2 = utils.coerceToArrayBuffer(
     resAttestationObject,
     "test",
   );
@@ -64,8 +64,8 @@ Deno.test("coerceToBase64", () => {
     .makeCredentialAttestationNoneResponse.response.attestationObject.slice(
       0,
     );
-  let resData = utils.coerceToBase64(testReq.response.clientDataJSON, "test");
-  let resAttestationObject = utils.coerceToBase64(
+  const resData = utils.coerceToBase64(testReq.response.clientDataJSON, "test");
+  const resAttestationObject = utils.coerceToBase64(
     testReq.response.attestationObject,
     "test",
   );
@@ -87,11 +87,11 @@ Deno.test("coerceToBase64url", () => {
     .makeCredentialAttestationNoneResponse.response.attestationObject.slice(
       0,
     );
-  let resData = utils.coerceToBase64Url(
+  const resData = utils.coerceToBase64Url(
     testReq.response.clientDataJSON,
     "test",
   );
-  let resAttestationObject = utils.coerceToBase64Url(
+  const resAttestationObject = utils.coerceToBase64Url(
     testReq.response.attestationObject,
     "test",
   );
@@ -118,8 +118,8 @@ Deno.test("abToHex should throw on Uint8Array parameter", () => {
 });
 
 Deno.test("abToHex should not throw on ArrayBuffer parameter, and return correct hex string", () => {
-  const data = new Uint8Array([0, 1, 2, 255, 16, 15]),
-    ab = data.buffer,
-    res = utils.abToHex(ab);
+  const data = new Uint8Array([0, 1, 2, 255, 16, 15]);
+  const ab = data.buffer;
+  const res = utils.abToHex(ab);
   assertEquals(res, "000102ff100f");
 });

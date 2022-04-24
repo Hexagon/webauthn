@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 // Test subject
 import {
@@ -18,13 +15,16 @@ import {
   parseExpectations,
 } from "../../dist/webauthn.js";
 import { noneAttestation } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
+const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
   parseAttestationObject,
 };
 
-let runs = [
+const runs = [
   { functionName: "parseAuthnrAttestationResponse" },
   { functionName: "parseAttestationObject" },
 ];
@@ -36,7 +36,7 @@ runs.forEach(function (run) {
     });
 
     it("correctly parses 'none' format", async function () {
-      let ret = run.functionName == "parseAuthnrAttestationResponse"
+      const ret = run.functionName == "parseAuthnrAttestationResponse"
         ? await parser[run.functionName](
           h.lib.makeCredentialAttestationNoneResponse,
         )
@@ -52,12 +52,12 @@ runs.forEach(function (run) {
       // assert.strictEqual(Object.keys(attStmt).length, 0);
       // assert.deepEqual(attStmt, {});
       // fmt
-      let fmt = ret.get("fmt");
+      const fmt = ret.get("fmt");
       assert.strictEqual(fmt, "none");
       // got the right authData CBOR
-      let rawAuthnrData = ret.get("rawAuthnrData");
+      const rawAuthnrData = ret.get("rawAuthnrData");
       assert.instanceOf(rawAuthnrData, ArrayBuffer);
-      let expectedRawAuthnrData = new Uint8Array([
+      const expectedRawAuthnrData = new Uint8Array([
         0x49,
         0x96,
         0x0D,
@@ -361,8 +361,8 @@ runs.forEach(function (run) {
       // var authData = ret.get("authData");
       // assert.isObject(authData);
       // assert.strictEqual(Object.keys(authData).length, 8);
-      let rpIdHash = ret.get("rpIdHash");
-      let expectedRpIdHash = new Uint8Array([
+      const rpIdHash = ret.get("rpIdHash");
+      const expectedRpIdHash = new Uint8Array([
         0x49,
         0x96,
         0x0D,
@@ -401,7 +401,7 @@ runs.forEach(function (run) {
         "correct rpIdHash",
       );
       // flags
-      let flags = ret.get("flags");
+      const flags = ret.get("flags");
       assert.instanceOf(flags, Set);
       assert.strictEqual(flags.size, 2);
       assert.isTrue(flags.has("UP"));
@@ -410,9 +410,9 @@ runs.forEach(function (run) {
       assert.strictEqual(ret.get("counter"), 0);
       assert.isNumber(ret.get("counter"));
       // aaguid
-      let aaguid = ret.get("aaguid");
+      const aaguid = ret.get("aaguid");
       assert.instanceOf(aaguid, ArrayBuffer);
-      let expectedAaguid = new Uint8Array([
+      const expectedAaguid = new Uint8Array([
         0x00,
         0x00,
         0x00,
@@ -434,9 +434,9 @@ runs.forEach(function (run) {
       // credIdLen
       assert.strictEqual(ret.get("credIdLen"), 162);
       // credId
-      let credId = ret.get("credId");
+      const credId = ret.get("credId");
       assert.instanceOf(credId, ArrayBuffer);
-      let expectedCredId = new Uint8Array([
+      const expectedCredId = new Uint8Array([
         0x00,
         0x08,
         0xA2,
@@ -602,9 +602,9 @@ runs.forEach(function (run) {
       ]).buffer;
       assert(h.functions.abEqual(credId, expectedCredId), "correct credId");
       // credentialPublicKeyCose
-      let credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
+      const credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
       assert.instanceOf(credentialPublicKeyCose, ArrayBuffer);
-      let expectedCredentialPublicKeyCose = new Uint8Array([
+      const expectedCredentialPublicKeyCose = new Uint8Array([
         0xA5,
         0x01,
         0x02,
@@ -691,7 +691,7 @@ runs.forEach(function (run) {
         "correct credentialPublicKeyCose",
       );
       // credentialPublicKeyJwk
-      let credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
+      const credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
       assert.isObject(credentialPublicKeyJwk);
       assert.strictEqual(Object.keys(credentialPublicKeyJwk).length, 5);
       assert.strictEqual(credentialPublicKeyJwk.kty, "EC");
@@ -718,9 +718,9 @@ runs.forEach(function (run) {
         "29Y5Ey4u5WGWW4MFMKagJPEJiIjzE1UFFZIRhMhqysM",
       );
       // credentialPublicKeyPem
-      let credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
+      const credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
       assert.isString(credentialPublicKeyPem);
-      let expectedPem = "-----BEGIN PUBLIC KEY-----\n" +
+      const expectedPem = "-----BEGIN PUBLIC KEY-----\n" +
         "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuxHN3W6ehp0VWXKaMNie1J82MVJC\n" +
         "FZYScau74o17cx/b1jkTLi7lYZZbgwUwpqAk8QmIiPMTVQUVkhGEyGrKww==\n" +
         "-----END PUBLIC KEY-----\n";
@@ -731,7 +731,7 @@ runs.forEach(function (run) {
 
 describe("parseFn (none)", function () {
   it("throws if attStmn has fields", function () {
-    let attStmt = { test: 1 };
+    const attStmt = { test: 1 };
     assert.throws(
       () => {
         noneAttestation.parseFn(attStmt);

@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 // Test subject
 import {
@@ -17,13 +14,16 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
+const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
   parseAttestationObject,
 };
 
-let runs = [
+const runs = [
   { functionName: "parseAuthnrAttestationResponse" },
   { functionName: "parseAttestationObject" },
 ];
@@ -34,7 +34,7 @@ runs.forEach(function (run) {
       assert.equal(typeof parser, "object");
     });
 
-    let ret = run.functionName == "parseAuthnrAttestationResponse"
+    const ret = run.functionName == "parseAuthnrAttestationResponse"
       ? await parser[run.functionName](
         h.lib.makeCredentialAttestationU2fResponse,
       )
@@ -47,15 +47,15 @@ runs.forEach(function (run) {
     });
 
     it("parses fmt", function () {
-      let fmt = ret.get("fmt");
+      const fmt = ret.get("fmt");
       assert.strictEqual(fmt, "fido-u2f");
     });
 
     it("parses sig", function () {
-      let sig = ret.get("sig");
+      const sig = ret.get("sig");
       assert.instanceOf(sig, ArrayBuffer);
       assert.strictEqual(sig.byteLength, 72);
-      let expectedSig = new Uint8Array([
+      const expectedSig = new Uint8Array([
         0x30,
         0x46,
         0x02,
@@ -133,15 +133,15 @@ runs.forEach(function (run) {
     });
 
     it("parses x5c", function () {
-      let x5c = ret.get("x5c");
+      const x5c = ret.get("x5c");
       assert.isArray(x5c);
       assert.strictEqual(x5c.length, 0);
     });
 
     it("parses attestation cert", function () {
-      let attCert = ret.get("attCert");
+      const attCert = ret.get("attCert");
       assert.instanceOf(attCert, ArrayBuffer);
-      let expectedAttCert = new Uint8Array([
+      const expectedAttCert = new Uint8Array([
         0x30,
         0x82,
         0x02,
@@ -734,9 +734,9 @@ runs.forEach(function (run) {
     });
 
     it("parses raw authCBOR", function () {
-      let rawAuthnrData = ret.get("rawAuthnrData");
+      const rawAuthnrData = ret.get("rawAuthnrData");
       assert.instanceOf(rawAuthnrData, ArrayBuffer);
-      let expectedRawAuthnrData = new Uint8Array([
+      const expectedRawAuthnrData = new Uint8Array([
         0x49,
         0x96,
         0x0D,
@@ -941,8 +941,8 @@ runs.forEach(function (run) {
     });
 
     it("parses rpIdHash", function () {
-      let rpIdHash = ret.get("rpIdHash");
-      let expectedRpIdHash = new Uint8Array([
+      const rpIdHash = ret.get("rpIdHash");
+      const expectedRpIdHash = new Uint8Array([
         0x49,
         0x96,
         0x0D,
@@ -983,7 +983,7 @@ runs.forEach(function (run) {
     });
 
     it("parses flags", function () {
-      let flags = ret.get("flags");
+      const flags = ret.get("flags");
       assert.instanceOf(flags, Set);
       assert.strictEqual(flags.size, 2);
       assert.isTrue(flags.has("UP"));
@@ -996,9 +996,9 @@ runs.forEach(function (run) {
     });
 
     it("parses AAGUID", function () {
-      let aaguid = ret.get("aaguid");
+      const aaguid = ret.get("aaguid");
       assert.instanceOf(aaguid, ArrayBuffer);
-      let expectedAaguid = new Uint8Array([
+      const expectedAaguid = new Uint8Array([
         0x00,
         0x00,
         0x00,
@@ -1024,9 +1024,9 @@ runs.forEach(function (run) {
     });
 
     it("parses credential ID", function () {
-      let credId = ret.get("credId");
+      const credId = ret.get("credId");
       assert.instanceOf(credId, ArrayBuffer);
-      let expectedCredId = new Uint8Array([
+      const expectedCredId = new Uint8Array([
         0x06,
         0x8F,
         0x95,
@@ -1096,9 +1096,9 @@ runs.forEach(function (run) {
     });
 
     it("parses credential public key (COSE)", function () {
-      let credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
+      const credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
       assert.instanceOf(credentialPublicKeyCose, ArrayBuffer);
-      let expectedCredentialPublicKeyCose = new Uint8Array([
+      const expectedCredentialPublicKeyCose = new Uint8Array([
         0xA5,
         0x01,
         0x02,
@@ -1187,9 +1187,8 @@ runs.forEach(function (run) {
     });
 
     it("creates public key JWK", function () {
-      let credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
+      const credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
       assert.isObject(credentialPublicKeyJwk);
-      console.log(credentialPublicKeyJwk);
       assert.strictEqual(Object.keys(credentialPublicKeyJwk).length, 5);
       assert.strictEqual(credentialPublicKeyJwk.kty, "EC");
       assert.strictEqual(credentialPublicKeyJwk.crv, "P-256");
@@ -1205,9 +1204,9 @@ runs.forEach(function (run) {
     });
 
     it("creates public key PEM", function () {
-      let credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
+      const credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
       assert.isString(credentialPublicKeyPem);
-      let expectedPem = "-----BEGIN PUBLIC KEY-----\n" +
+      const expectedPem = "-----BEGIN PUBLIC KEY-----\n" +
         "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAENXPQCHh+bDesdUPtqke79uebZHhm\n" +
         "1rNBAgg8N+ZCRgQY01Ma7mnYxRTJ1pUeazya9t7ASU/ansWPTwnPaPIZkw==\n" +
         "-----END PUBLIC KEY-----\n";
@@ -1217,7 +1216,7 @@ runs.forEach(function (run) {
 
   describe(run.functionName + " (fido-u2f Hypersecu)", function () {
     it("can parse", async function () {
-      let ret = run.functionName == "parseAuthnrAttestationResponse"
+      const ret = run.functionName == "parseAuthnrAttestationResponse"
         ? await parser[run.functionName](
           h.lib.makeCredentialAttestationU2fResponse,
         )

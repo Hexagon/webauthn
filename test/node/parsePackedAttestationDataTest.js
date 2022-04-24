@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 import { abEqual } from "../../dist/webauthn.js";
 
@@ -19,13 +16,16 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
+const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
   parseAttestationObject,
 };
 
-let runs = [
+const runs = [
   { functionName: "parseAuthnrAttestationResponse" },
   { functionName: "parseAttestationObject" },
 ];
@@ -43,7 +43,7 @@ runs.forEach(function (run) {
       );
     });
 
-    let ret = run.functionName == "parseAuthnrAttestationResponse"
+    const ret = run.functionName == "parseAuthnrAttestationResponse"
       ? await parser[run.functionName](
         h.lib.makeCredentialAttestationPackedResponse,
       )
@@ -61,7 +61,7 @@ runs.forEach(function (run) {
     });
 
     it("has correct alg", function () {
-      let alg = ret.get("alg");
+      const alg = ret.get("alg");
       assert.isObject(alg);
       assert.strictEqual(Object.keys(alg).length, 2);
       assert.strictEqual(alg.algName, "ECDSA_w_SHA256");
@@ -69,7 +69,7 @@ runs.forEach(function (run) {
     });
 
     it("has x5c", function () {
-      let x5c = ret.get("x5c");
+      const x5c = ret.get("x5c");
       assert.isArray(x5c);
       assert.strictEqual(x5c.length, 2);
       assert.instanceOf(x5c[0], ArrayBuffer);
@@ -77,7 +77,7 @@ runs.forEach(function (run) {
       assert.instanceOf(x5c[1], ArrayBuffer);
       assert.strictEqual(x5c[1].byteLength, 476);
 
-      let expectedX5c0 = new Uint8Array([
+      const expectedX5c0 = new Uint8Array([
         0x30,
         0x82,
         0x01,
@@ -591,7 +591,7 @@ runs.forEach(function (run) {
         0xEC,
       ]).buffer;
 
-      let expectedX5c1 = new Uint8Array([
+      const expectedX5c1 = new Uint8Array([
         0x30,
         0x82,
         0x01,
@@ -1075,10 +1075,10 @@ runs.forEach(function (run) {
     });
 
     it("has attCert", function () {
-      let attCert = ret.get("attCert");
+      const attCert = ret.get("attCert");
       assert.instanceOf(attCert, ArrayBuffer);
 
-      let expectedAttCert = new Uint8Array([
+      const expectedAttCert = new Uint8Array([
         0x30,
         0x82,
         0x02,
@@ -1669,10 +1669,10 @@ runs.forEach(function (run) {
     });
 
     it("has sig", function () {
-      let sig = ret.get("sig");
+      const sig = ret.get("sig");
       assert.instanceOf(sig, ArrayBuffer);
 
-      let expectedSig = new Uint8Array([
+      const expectedSig = new Uint8Array([
         0x30,
         0x46,
         0x02,
@@ -1751,11 +1751,11 @@ runs.forEach(function (run) {
     });
 
     it("has correct raw authnrData", function () {
-      let rawAuthnrData = ret.get("rawAuthnrData");
+      const rawAuthnrData = ret.get("rawAuthnrData");
       assert.instanceOf(rawAuthnrData, ArrayBuffer);
       assert.strictEqual(rawAuthnrData.byteLength, 228);
 
-      let expectedRawAuthnrData = new Uint8Array([
+      const expectedRawAuthnrData = new Uint8Array([
         0x95,
         0x69,
         0x08,
@@ -1992,11 +1992,11 @@ runs.forEach(function (run) {
     });
 
     it("has correct rpIdHash", function () {
-      let rpIdHash = ret.get("rpIdHash");
+      const rpIdHash = ret.get("rpIdHash");
       assert.instanceOf(rpIdHash, ArrayBuffer);
       assert.strictEqual(rpIdHash.byteLength, 32);
 
-      let expectedRpIdHash = new Uint8Array([
+      const expectedRpIdHash = new Uint8Array([
         0x95,
         0x69,
         0x08,
@@ -2037,7 +2037,7 @@ runs.forEach(function (run) {
     });
 
     it("has correct flags", function () {
-      let flags = ret.get("flags");
+      const flags = ret.get("flags");
       assert.instanceOf(flags, Set);
       assert.strictEqual(flags.size, 2);
       assert.isTrue(flags.has("AT"));
@@ -2045,17 +2045,17 @@ runs.forEach(function (run) {
     });
 
     it("has correct counter", function () {
-      let counter = ret.get("counter");
+      const counter = ret.get("counter");
       assert.isNumber(counter);
       assert.strictEqual(counter, 1);
     });
 
     it("has correct aaguid", function () {
-      let aaguid = ret.get("aaguid");
+      const aaguid = ret.get("aaguid");
       assert.instanceOf(aaguid, ArrayBuffer);
       assert.strictEqual(aaguid.byteLength, 16);
 
-      let expectedAaguid = new Uint8Array([
+      const expectedAaguid = new Uint8Array([
         0x42,
         0x38,
         0x32,
@@ -2080,17 +2080,17 @@ runs.forEach(function (run) {
     });
 
     it("has correct credIdLen", function () {
-      let credIdLen = ret.get("credIdLen");
+      const credIdLen = ret.get("credIdLen");
       assert.isNumber(credIdLen);
       assert.strictEqual(credIdLen, 96);
     });
 
     it("has correct credentialPublicKeyCose", function () {
-      let credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
+      const credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
       assert.instanceOf(credentialPublicKeyCose, ArrayBuffer);
       assert.strictEqual(credentialPublicKeyCose.byteLength, 77);
 
-      let expectedCredentialPublicKeyCose = new Uint8Array([
+      const expectedCredentialPublicKeyCose = new Uint8Array([
         0xA5,
         0x01,
         0x02,

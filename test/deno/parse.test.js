@@ -4,20 +4,20 @@ import { assertEquals } from "./common/deps.js";
 // Test subject
 import * as parser from "../../lib/common/parser.js";
 
-Deno.test("Dummy test", async () => {
-  let exp = {
+Deno.test("Dummy test", () => {
+  const exp = {
     origin: "https://webauthn.bin.coffee",
     challenge:
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
   };
-  let ret = parser.parseExpectations(exp);
+  const ret = parser.parseExpectations(exp);
   assertEquals(ret instanceof Map, true);
   assertEquals(ret.size, 2);
   assertEquals(ret.get("origin"), exp.origin);
   assertEquals(ret.get("challenge"), exp.challenge);
 });
 Deno.test("coerces Array challenge to base64url", function () {
-  let exp = {
+  const exp = {
     origin: "https://webauthn.bin.coffee",
     challenge: [
       0xe0,
@@ -86,9 +86,9 @@ Deno.test("coerces Array challenge to base64url", function () {
       0x16,
     ],
   };
-  let base64UrlChallenge =
+  const base64UrlChallenge =
     "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-  let ret = parser.parseExpectations(exp);
+  const ret = parser.parseExpectations(exp);
   assertEquals(ret instanceof Map, true);
   assertEquals(ret.size, 2);
   assertEquals(ret.get("origin"), exp.origin);

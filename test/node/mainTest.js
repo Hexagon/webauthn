@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert, expect } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 import * as sinon from "sinon";
 import { packedSelfAttestationResponse } from "../fixtures/packedSelfAttestationData.js";
 
@@ -29,6 +26,9 @@ import {
   tpmAttestation,
   Webauthn,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert, expect } = chai;
+const h = fido2helpers.default;
 
 // Test subject
 
@@ -67,7 +67,7 @@ function restoreAttestationFormats() {
 
 describe("Webauthn", function () {
   it("can create FIDO server object", function () {
-    let fs = new Webauthn();
+    const fs = new Webauthn();
     assert(fs);
     assert.isFunction(fs.attestationOptions);
     assert.isFunction(fs.attestationResult);
@@ -77,21 +77,21 @@ describe("Webauthn", function () {
 
   describe("config", function () {
     it("can config timeout", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         timeout: 42,
       });
       assert.strictEqual(fs.config.timeout, 42);
     });
 
     it("can config zero timeout", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         timeout: 0,
       });
       assert.strictEqual(fs.config.timeout, 0);
     });
 
     it("has default timeout", function () {
-      let fs = new Webauthn();
+      const fs = new Webauthn();
       assert.strictEqual(fs.config.timeout, 60000);
     });
 
@@ -144,7 +144,7 @@ describe("Webauthn", function () {
     });
 
     it("can config rpId", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         rpId: "example.com",
       });
       assert.strictEqual(fs.config.rpId, "example.com");
@@ -163,14 +163,14 @@ describe("Webauthn", function () {
     });
 
     it("can config rpName", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         rpName: "ACME",
       });
       assert.strictEqual(fs.config.rpName, "ACME");
     });
 
     it("has default rpName", function () {
-      let fs = new Webauthn();
+      const fs = new Webauthn();
       assert.strictEqual(fs.config.rpName, "Anonymous Service");
     });
 
@@ -187,7 +187,7 @@ describe("Webauthn", function () {
     });
 
     it("can config rpIcon", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         rpIcon: "https://example.com/foo.png",
       });
       assert.strictEqual(fs.config.rpIcon, "https://example.com/foo.png");
@@ -206,14 +206,14 @@ describe("Webauthn", function () {
     });
 
     it("can config challengeSize", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         challengeSize: 128,
       });
       assert.strictEqual(fs.config.challengeSize, 128);
     });
 
     it("has default challengeSize", function () {
-      let fs = new Webauthn();
+      const fs = new Webauthn();
       assert.strictEqual(fs.config.challengeSize, 64);
     });
 
@@ -242,28 +242,28 @@ describe("Webauthn", function () {
     });
 
     it("can config direct attestation", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         attestation: "direct",
       });
       assert.strictEqual(fs.config.attestation, "direct");
     });
 
     it("can config indirect attestation", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         attestation: "indirect",
       });
       assert.strictEqual(fs.config.attestation, "indirect");
     });
 
     it("can config none attestation", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         attestation: "none",
       });
       assert.strictEqual(fs.config.attestation, "none");
     });
 
     it("can config defautl attestation", function () {
-      let fs = new Webauthn();
+      const fs = new Webauthn();
       assert.strictEqual(fs.config.attestation, "direct");
     });
 
@@ -292,14 +292,14 @@ describe("Webauthn", function () {
     });
 
     it("can config authenticatorAttachment to platform", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorAttachment: "platform",
       });
       assert.strictEqual(fs.config.authenticatorAttachment, "platform");
     });
 
     it("can config authenticatorAttachment to cross-platform", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorAttachment: "cross-platform",
       });
       assert.strictEqual(fs.config.authenticatorAttachment, "cross-platform");
@@ -318,14 +318,14 @@ describe("Webauthn", function () {
     });
 
     it("can config authenticatorRequireResidentKey to false", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorRequireResidentKey: false,
       });
       assert.strictEqual(fs.config.authenticatorRequireResidentKey, false);
     });
 
     it("can config authenticatorRequireResidentKey to true", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorRequireResidentKey: true,
       });
       assert.strictEqual(fs.config.authenticatorRequireResidentKey, true);
@@ -344,7 +344,7 @@ describe("Webauthn", function () {
     });
 
     it("can config authenticatorUserVerification to discouraged", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorUserVerification: "discouraged",
       });
       assert.strictEqual(
@@ -354,14 +354,14 @@ describe("Webauthn", function () {
     });
 
     it("can config authenticatorUserVerification to preferred", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorUserVerification: "preferred",
       });
       assert.strictEqual(fs.config.authenticatorUserVerification, "preferred");
     });
 
     it("can config authenticatorUserVerification to required", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         authenticatorUserVerification: "required",
       });
       assert.strictEqual(fs.config.authenticatorUserVerification, "required");
@@ -380,21 +380,21 @@ describe("Webauthn", function () {
     });
 
     it("can config cryptoParams order", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         cryptoParams: [-257, -7],
       });
       assert.deepEqual(fs.config.cryptoParams, [-257, -7]);
     });
 
     it("can config cryptoParams value", function () {
-      let fs = new Webauthn({
+      const fs = new Webauthn({
         cryptoParams: [-8],
       });
       assert.deepEqual(fs.config.cryptoParams, [-8]);
     });
 
     it("can config cryptoParams value", function () {
-      let fs = new Webauthn();
+      const fs = new Webauthn();
       assert.deepEqual(fs.config.cryptoParams, [-7, -257]);
     });
 
@@ -524,13 +524,13 @@ describe("Webauthn", function () {
     });
 
     it("accepts extraData and returns rawChallenge", async function () {
-      let extraData = new Uint8Array([0x1, 0x2, 0x3, 0x4]).buffer;
-      let opts = await serv.attestationOptions({
-        extraData: extraData,
+      const extraData = new Uint8Array([0x1, 0x2, 0x3, 0x4]).buffer;
+      const opts = await serv.attestationOptions({
+        extraData,
       });
 
-      let challenge = opts.challenge;
-      let calculatedChallenge = await tools.hashDigest(
+      const challenge = opts.challenge;
+      const calculatedChallenge = await tools.hashDigest(
         appendBuffer(opts.rawChallenge, extraData),
       );
       assert.isTrue(
@@ -547,7 +547,7 @@ describe("Webauthn", function () {
     });
 
     it("validates a credential request with 'none' attestation", function () {
-      let expectations = {
+      const expectations = {
         challenge:
           "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
         origin: "https://localhost:8443",
@@ -597,15 +597,15 @@ describe("Webauthn", function () {
     });
 
     it("validates a credential request with 'android-safetynet' attestation", function () {
-      let serv = new Webauthn();
-      let expectations = {
+      const serv = new Webauthn();
+      const expectations = {
         challenge:
           "NrRzgRhGy5Y0NlKNhEAqs4ZFVgNGtN49ZyCTOfLk8G1EPY3vnN3zasIZynlCAyUOLdB3-AALfy1XG2MiVps_Vw",
         origin: "https://contubernio.tic.udc.es",
         factor: "second",
       };
 
-      let makeCredentialAttestationSafetyNetResponse = {
+      const makeCredentialAttestationSafetyNetResponse = {
         rawId: coerceToArrayBuffer(
           "AcaOtf577JrxNa9lHZ9g1Npx2YgKhU0w-F_fFkzbOZNZRmh4_S4NFXBBOH75Jf5NS76jK9vcuRiamDIn63Jxxw0",
           "rawId",
@@ -689,13 +689,13 @@ describe("Webauthn", function () {
     });
 
     it("accepts extraData and returns rawChallenge", async function () {
-      let extraData = new Uint8Array([0x1, 0x2, 0x3, 0x4]).buffer;
-      let opts = await serv.assertionOptions({
-        extraData: extraData,
+      const extraData = new Uint8Array([0x1, 0x2, 0x3, 0x4]).buffer;
+      const opts = await serv.assertionOptions({
+        extraData,
       });
 
-      let challenge = opts.challenge;
-      let calculatedChallenge = await tools.hashDigest(
+      const challenge = opts.challenge;
+      const calculatedChallenge = await tools.hashDigest(
         appendBuffer(opts.rawChallenge, extraData),
       );
       assert.isTrue(
@@ -712,7 +712,7 @@ describe("Webauthn", function () {
     });
 
     it("valid an assertion", function () {
-      let expectations = {
+      const expectations = {
         challenge:
           "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
         origin: "https://localhost:8443",
@@ -731,7 +731,7 @@ describe("Webauthn", function () {
     });
 
     it("valid assertion without userHandle", function () {
-      let expectations = {
+      const expectations = {
         challenge:
           "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
         origin: "https://localhost:8443",
@@ -741,7 +741,7 @@ describe("Webauthn", function () {
         userHandle: null,
       };
 
-      let assertionResponse = {
+      const assertionResponse = {
         rawId: h.lib.assertionResponse.rawId,
         response: {
           clientDataJSON: h.lib.assertionResponse.response.clientDataJSON,
@@ -760,7 +760,7 @@ describe("Webauthn", function () {
     });
 
     it("valid assertion without counter supported", function () {
-      let expectations = {
+      const expectations = {
         challenge:
           "g_Pu32bpluktxugNNBLX-ZO5N9ub0D50bJERbKiU2GWON3md0rR9CaQYdPHdCgo-dpi1-9gbJJvmCuHDnh04Rg",
         origin: "https://mighty-fireant-84.loca.lt",
@@ -773,7 +773,7 @@ describe("Webauthn", function () {
         userHandle: null,
       };
 
-      let assertionResponse = {
+      const assertionResponse = {
         rawId: coerceToArrayBuffer("7S8aQSSxqPkztahKbgw36Mr_-hE", "rawId"),
         response: {
           authenticatorData: coerceToArrayBuffer(
@@ -810,10 +810,10 @@ describe("Webauthn", function () {
     });
 
     it("adds to map on success", function () {
-      let serv = new Webauthn();
+      const serv = new Webauthn();
       assert.instanceOf(serv.attestationMap, Map);
-      let prevSize = serv.attestationMap.size;
-      let ret = Webauthn.addAttestationFormat(
+      const prevSize = serv.attestationMap.size;
+      const ret = Webauthn.addAttestationFormat(
         "foo",
         function () {},
         function () {},
@@ -821,7 +821,7 @@ describe("Webauthn", function () {
       assert.isTrue(ret);
       assert.strictEqual(serv.attestationMap.size, prevSize + 1);
       assert.isTrue(serv.attestationMap.has("foo"));
-      let newFmt = serv.attestationMap.get("foo");
+      const newFmt = serv.attestationMap.get("foo");
       assert.isObject(newFmt);
       assert.strictEqual(Object.keys(newFmt).length, 2);
       assert.isFunction(newFmt.parseFn);
@@ -888,20 +888,20 @@ describe("Webauthn", function () {
     });
 
     it("returns Map on success", function () {
-      let arg = new Map([
+      const arg = new Map([
         ["test", "yup"],
       ]);
       parseStub.onCall(0).returns(arg);
-      let ret = Webauthn.parseAttestation("foo", arg);
+      const ret = Webauthn.parseAttestation("foo", arg);
       assert.instanceOf(ret, Map);
       assert.strictEqual(parseStub.callCount, 1);
       assert.isTrue(parseStub.calledWith(arg));
     });
 
     it("success when returning empty map", function () {
-      let arg = new Map();
+      const arg = new Map();
       parseStub.onCall(0).returns(arg);
-      let ret = Webauthn.parseAttestation("foo", arg);
+      const ret = Webauthn.parseAttestation("foo", arg);
       assert.instanceOf(ret, Map);
       assert.strictEqual(parseStub.callCount, 1);
       assert.isTrue(parseStub.calledWith(arg));
@@ -974,7 +974,7 @@ describe("Webauthn", function () {
     // ToDo: Where does this check for a map?
     it("returns Map on success", async function () {
       validateStub.onCall(0).returns(true);
-      let ret = await Webauthn.validateAttestation.call(fakeRequest);
+      const ret = await Webauthn.validateAttestation.call(fakeRequest);
       assert.isTrue(ret);
       assert.strictEqual(validateStub.callCount, 1);
     });
@@ -1018,7 +1018,7 @@ describe("Webauthn", function () {
     });
 
     it("returns a MdsCollection", function () {
-      let mc = Webauthn.createMdsCollection("test");
+      const mc = Webauthn.createMdsCollection("test");
       assert.instanceOf(mc, MdsCollection);
     });
   });
@@ -1038,7 +1038,7 @@ describe("Webauthn", function () {
     });
 
     it("sets the current global MDS collection", async function () {
-      let mc = Webauthn.createMdsCollection("test");
+      const mc = Webauthn.createMdsCollection("test");
       await mc.addToc(h.mds.mds2TocJwt);
       mc.addEntry(h.mds.mds2UafEntry);
       assert.strictEqual(mc.entryList.size, 0);
@@ -1047,14 +1047,14 @@ describe("Webauthn", function () {
     });
 
     it("can add multiple collections", async function () {
-      let mc1 = Webauthn.createMdsCollection("fido-mds-1");
+      const mc1 = Webauthn.createMdsCollection("fido-mds-1");
       await mc1.addToc(h.mds.mds1TocJwt);
       mc1.addEntry(h.mds.mds1UafEntry);
       assert.strictEqual(mc1.entryList.size, 0);
       await Webauthn.addMdsCollection(mc1);
       assert.strictEqual(mc1.entryList.size, 1);
 
-      let mc2 = Webauthn.createMdsCollection("fido-mds-2");
+      const mc2 = Webauthn.createMdsCollection("fido-mds-2");
       await mc2.addToc(h.mds.mds2TocJwt);
       mc2.addEntry(h.mds.mds2UafEntry);
       assert.strictEqual(mc2.entryList.size, 0);
@@ -1079,31 +1079,31 @@ describe("Webauthn", function () {
     });
 
     it("finds a UAF MDS entry in the global collection", async function () {
-      let mc = Webauthn.createMdsCollection("test");
+      const mc = Webauthn.createMdsCollection("test");
       await mc.addToc(h.mds.mds2TocJwt);
       mc.addEntry(h.mds.mds2UafEntry);
       await Webauthn.addMdsCollection(mc);
 
-      let entryList = Webauthn.findMdsEntry("4e4e#4005");
+      const entryList = Webauthn.findMdsEntry("4e4e#4005");
       assert.isArray(entryList);
       assert.strictEqual(entryList.length, 1);
-      let entry = entryList[0];
+      const entry = entryList[0];
       assert.instanceOf(entry, MdsEntry);
       assert.strictEqual(entry.aaid, "4e4e#4005");
     });
 
     it("finds a UAF MDS entry in the global collection", async function () {
-      let mc = Webauthn.createMdsCollection("test");
+      const mc = Webauthn.createMdsCollection("test");
       await mc.addToc(h.mds.mds1TocJwt);
       mc.addEntry(h.mds.mds1U2fEntry);
       await Webauthn.addMdsCollection(mc);
 
-      let entryList = Webauthn.findMdsEntry(
+      const entryList = Webauthn.findMdsEntry(
         "923881fe2f214ee465484371aeb72e97f5a58e0a",
       );
       assert.isArray(entryList);
       assert.strictEqual(entryList.length, 1);
-      let entry = entryList[0];
+      const entry = entryList[0];
       assert.strictEqual(entry.protocolFamily, "u2f");
       assert.deepEqual(entry.attestationCertificateKeyIdentifiers, [
         "923881fe2f214ee465484371aeb72e97f5a58e0a",
@@ -1115,7 +1115,7 @@ describe("Webauthn", function () {
     });
 
     it("throws if id isn't specified", async function () {
-      let mc = Webauthn.createMdsCollection("test");
+      const mc = Webauthn.createMdsCollection("test");
       await mc.addToc(h.mds.mds2TocJwt);
       mc.addEntry(h.mds.mds2UafEntry);
       await Webauthn.addMdsCollection(mc);
@@ -1131,30 +1131,30 @@ describe("Webauthn", function () {
 
     it("can find multiple entries", async function () {
       // Add UAF 4e4e#4005 from FIDO MDS 1
-      let mc1 = Webauthn.createMdsCollection("fido-mds1-toc");
+      const mc1 = Webauthn.createMdsCollection("fido-mds1-toc");
       await mc1.addToc(h.mds.mds1TocJwt);
       mc1.addEntry(h.mds.mds1UafEntry4e4e4005);
       await Webauthn.addMdsCollection(mc1);
 
       // Add UAF 4e4e#4005 from FIDO MDS 2
-      let mc2 = Webauthn.createMdsCollection("fido-mds2-toc");
+      const mc2 = Webauthn.createMdsCollection("fido-mds2-toc");
       await mc2.addToc(h.mds.mds2TocJwt);
       mc2.addEntry(h.mds.mds2UafEntry);
       await Webauthn.addMdsCollection(mc2);
 
-      let entryList = Webauthn.findMdsEntry("4e4e#4005");
+      const entryList = Webauthn.findMdsEntry("4e4e#4005");
       assert.isArray(entryList);
       assert.strictEqual(entryList.length, 2);
 
       // first entry from MDS1
-      let entry1 = entryList[0];
+      const entry1 = entryList[0];
       assert.strictEqual(entry1.aaid, "4e4e#4005");
       assert.isObject(entry1.collection);
       assert.strictEqual(entry1.collection.name, "fido-mds1-toc");
       assert.isUndefined(entry1.legalHeader);
 
       // second entry from MDS2
-      let entry2 = entryList[1];
+      const entry2 = entryList[1];
       assert.strictEqual(entry2.aaid, "4e4e#4005");
       assert.isObject(entry2.collection);
       assert.strictEqual(entry2.collection.name, "fido-mds2-toc");

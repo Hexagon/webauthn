@@ -4,5 +4,5 @@ export namespace noneAttestation {
     export { noneValidateFn as validateFn };
 }
 declare function noneParseFn(attStmt: any): Map<any, any>;
-declare function noneValidateFn(): Promise<boolean>;
+declare function noneValidateFn(): boolean;
 export {};

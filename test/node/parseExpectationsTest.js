@@ -1,8 +1,6 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 
@@ -17,15 +15,17 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
 
 describe("parseExpectations", function () {
   it("returns Map on good expectations", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -33,14 +33,14 @@ describe("parseExpectations", function () {
   });
 
   it("doesn't add extra items to Map", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
       foo: "bar",
       beer: true,
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -48,7 +48,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws on invalid origin", function () {
-    let exp = {
+    const exp = {
       origin: "asdf",
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
@@ -63,7 +63,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws if expected origin is https:443", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee:443",
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
@@ -78,7 +78,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws if expected rpId is invalid type", function () {
-    let exp = {
+    const exp = {
       rpId: 23,
       origin: "https://webauthn.bin.coffee",
       challenge:
@@ -94,7 +94,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws if expected rpId is invalid", function () {
-    let exp = {
+    const exp = {
       rpId: "foobar",
       origin: "https://webauthn.bin.coffee",
       challenge:
@@ -110,19 +110,19 @@ describe("parseExpectations", function () {
   });
 
   it("sets rpId properly on successful parsing", function () {
-    let exp = {
+    const exp = {
       rpId: "google.com",
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.strictEqual(ret.get("rpId"), "google.com");
     assert.strictEqual(ret.size, 3);
   });
 
   it("coerces Array challenge to base64url", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge: [
         0xe0,
@@ -191,9 +191,9 @@ describe("parseExpectations", function () {
         0x16,
       ],
     };
-    let base64UrlChallenge =
+    const base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -201,7 +201,7 @@ describe("parseExpectations", function () {
   });
 
   it("coerces Uint8Array challenge to base64url", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge: Uint8Array.from([
         0xe0,
@@ -270,9 +270,9 @@ describe("parseExpectations", function () {
         0x16,
       ]),
     };
-    let base64UrlChallenge =
+    const base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -280,7 +280,7 @@ describe("parseExpectations", function () {
   });
 
   it("coerces ArrayBuffer challenge to base64url", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge: Uint8Array.from([
         0xe0,
@@ -349,9 +349,9 @@ describe("parseExpectations", function () {
         0x16,
       ]).buffer,
     };
-    let base64UrlChallenge =
+    const base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -359,7 +359,7 @@ describe("parseExpectations", function () {
   });
 
   it("coerces Buffer challenge to base64url", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge: Buffer.from([
         0xe0,
@@ -428,9 +428,9 @@ describe("parseExpectations", function () {
         0x16,
       ]),
     };
-    let base64UrlChallenge =
+    const base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -438,14 +438,14 @@ describe("parseExpectations", function () {
   });
 
   it("coerces base64 challenge to base64url", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
     };
-    let base64UrlChallenge =
+    const base64UrlChallenge =
       "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg";
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
     assert.strictEqual(ret.get("origin"), exp.origin);
@@ -453,23 +453,23 @@ describe("parseExpectations", function () {
   });
 
   it("empty expectations object returns empty map", function () {
-    let exp = {};
-    let ret = parseExpectations(exp);
+    const exp = {};
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 0);
   });
 
   it("adds flags to map when they exist", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       flags: new Set(["UP", "AT"]),
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 3);
-    let flags = ret.get("flags");
+    const flags = ret.get("flags");
     assert.instanceOf(flags, Set);
     assert.strictEqual(flags.size, 2);
     assert.isTrue(flags.has("UP"), "flags has UP");
@@ -477,16 +477,16 @@ describe("parseExpectations", function () {
   });
 
   it("converts Array of flags to Set", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       flags: ["UP", "AT"],
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 3);
-    let flags = ret.get("flags");
+    const flags = ret.get("flags");
     assert.instanceOf(flags, Set);
     assert.strictEqual(flags.size, 2);
     assert.isTrue(flags.has("UP"), "flags has UP");
@@ -494,7 +494,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws if flags is something other than Array or Set", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -510,37 +510,37 @@ describe("parseExpectations", function () {
   });
 
   it("adds prevCount to map when it exists", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 666,
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 3);
-    let prevCounter = ret.get("prevCounter");
+    const prevCounter = ret.get("prevCounter");
     assert.isNumber(prevCounter);
     assert.strictEqual(prevCounter, 666);
   });
 
   it("adds prevCount to map when it's zero", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 3);
-    let prevCounter = ret.get("prevCounter");
+    const prevCounter = ret.get("prevCounter");
     assert.isNumber(prevCounter);
     assert.strictEqual(prevCounter, 0);
   });
 
   it("throws when prevCount is not a number", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -556,7 +556,7 @@ describe("parseExpectations", function () {
   });
 
   it("adds publicKey to map when it exists", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -565,10 +565,10 @@ describe("parseExpectations", function () {
         "MAg35BCNkaE3j8Q+O/ZhhKqTeIKm7El70EG6ejt4sg1ZaoQ5ELg8k3ywTg==\n" +
         "-----END PUBLIC KEY-----\n",
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 3);
-    let publicKey = ret.get("publicKey");
+    const publicKey = ret.get("publicKey");
     assert.isString(publicKey);
     assert.strictEqual(
       publicKey,
@@ -580,7 +580,7 @@ describe("parseExpectations", function () {
   });
 
   it("throws when publicKey is not a string", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -596,7 +596,7 @@ describe("parseExpectations", function () {
   });
 
   it("adds userHandle to map when it exists", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -604,12 +604,12 @@ describe("parseExpectations", function () {
       userHandle: "YWs",
     };
 
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     let userHandle = ret.get("userHandle");
     assert.isString(userHandle);
     assert.strictEqual(userHandle.length, 3);
     userHandle = coerceToArrayBuffer(userHandle, "userHandle");
-    let expectedUserHandle = new Uint8Array([
+    const expectedUserHandle = new Uint8Array([
       0x61,
       0x6B,
     ]).buffer;
@@ -621,7 +621,7 @@ describe("parseExpectations", function () {
   });
 
   it("adds userHandle to map when null", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -629,13 +629,13 @@ describe("parseExpectations", function () {
       userHandle: null,
     };
 
-    let ret = parseExpectations(exp);
-    let userHandle = ret.get("userHandle");
+    const ret = parseExpectations(exp);
+    const userHandle = ret.get("userHandle");
     assert.isNull(userHandle);
   });
 
   it("adds userHandle to map when empty string", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -643,15 +643,15 @@ describe("parseExpectations", function () {
       userHandle: "",
     };
 
-    let ret = parseExpectations(exp);
-    let userHandle = ret.get("userHandle");
+    const ret = parseExpectations(exp);
+    const userHandle = ret.get("userHandle");
     assert.isString(userHandle);
     assert.strictEqual(userHandle.length, 0);
     assert.strictEqual(userHandle, "");
   });
 
   it("adds allowCredentials to map when it exists", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -662,15 +662,15 @@ describe("parseExpectations", function () {
       }],
     };
 
-    let ret = parseExpectations(exp);
-    let allowCredentials = ret.get("allowCredentials");
+    const ret = parseExpectations(exp);
+    const allowCredentials = ret.get("allowCredentials");
     assert.isArray(allowCredentials);
     assert.strictEqual(allowCredentials.length, 1);
     allowCredentials[0].id = coerceToArrayBuffer(
       allowCredentials[0].id,
       "allowCredentials",
     );
-    let expectedallowCredentialsId = new Uint8Array([
+    const expectedallowCredentialsId = new Uint8Array([
       0x74,
       0x65,
       0x73,
@@ -683,7 +683,7 @@ describe("parseExpectations", function () {
   });
 
   it("adds allowCredentials to map when null", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -691,39 +691,39 @@ describe("parseExpectations", function () {
       allowCredentials: null,
     };
 
-    let ret = parseExpectations(exp);
-    let allowCredentials = ret.get("allowCredentials");
+    const ret = parseExpectations(exp);
+    const allowCredentials = ret.get("allowCredentials");
     assert.isNull(allowCredentials);
   });
 
   it("works when allowCredentials is undefined", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
 
-    let ret = parseExpectations(exp);
-    let allowCredentials = ret.get("allowCredentials");
+    const ret = parseExpectations(exp);
+    const allowCredentials = ret.get("allowCredentials");
     assert.isUndefined(allowCredentials);
   });
 
   it("works when userHandle is undefined", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
 
-    let ret = parseExpectations(exp);
-    let userHandle = ret.get("userHandle");
+    const ret = parseExpectations(exp);
+    const userHandle = ret.get("userHandle");
     assert.isUndefined(userHandle);
   });
 
   it("throws when allowCredentials is not a array", function () {
-    let exp = {
+    const exp = {
       origin: "https://webauthn.bin.coffee",
       challenge:
         "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
@@ -741,7 +741,7 @@ describe("parseExpectations", function () {
   });
 
   it("works with typical attestation expectations", function () {
-    let exp = {
+    const exp = {
       challenge:
         "HcsOvH431SaLt1hc7mpkqohMaub+oTO5ao/hzJOkUwQEdTWDhOYTdp4ejQcOCsIYdB64c1fkeqiblg6EkygpUA==",
       origin: "https://localhost:8443",
@@ -750,7 +750,7 @@ describe("parseExpectations", function () {
       prevCounter: 0,
       flags: ["UP-or-UV"],
     };
-    let ret = parseExpectations(exp);
+    const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 5);
   });

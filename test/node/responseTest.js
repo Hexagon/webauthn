@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
-const assert = chai.assert;
 
 // Helpers
 
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
-const { cloneObject } = h.functions;
 
 // Testing subject
 import {
@@ -14,6 +11,9 @@ import {
   Fido2AttestationResult,
   Fido2Result,
 } from "../../dist/webauthn.js";
+const assert = chai.assert;
+const h = fido2helpers.default;
+const { cloneObject } = h.functions;
 
 describe("Fido2Result", function () {
   it("is function", function () {
@@ -58,7 +58,7 @@ describe("Fido2AttestationResult", function () {
   });
 
   it("passes with 'none' attestation", async function () {
-    let ret = await Fido2AttestationResult.create(
+    const ret = await Fido2AttestationResult.create(
       h.lib.makeCredentialAttestationNoneResponse,
       {
         origin: "https://localhost:8443",
@@ -91,7 +91,7 @@ describe("Fido2AttestationResult", function () {
 		assert.instanceOf(u2fTransports, Set);
 		assert.strictEqual(u2fTransports.size, 1);
 		assert.isTrue(u2fTransports.has("usb"));
-	}*/
+	} */
   );
 
   it(
@@ -112,7 +112,7 @@ describe("Fido2AttestationResult", function () {
 		assert.strictEqual(ret.audit.warning.get("attesation-not-validated"), "could not validate attestation because the root attestation certification could not be found");
 		assert.strictEqual(ret.audit.info.size, 1);
 		assert.strictEqual(ret.audit.info.get("attestation-type"), "basic");
-	}*/
+	} */
   );
 
   it(
@@ -131,7 +131,7 @@ describe("Fido2AttestationResult", function () {
 			challenge: samAnon1Challenge,
 			flags: ["UP", "AT"],
 		});
-	}*/
+	} */
   );
 
   it(
@@ -150,7 +150,7 @@ describe("Fido2AttestationResult", function () {
 			challenge: ffNonAnonChallenge,
 			flags: ["UP", "AT"],
 		});
-	}*/
+	} */
   );
 
   it(
@@ -177,7 +177,7 @@ describe("Fido2AttestationResult", function () {
 		assert.isTrue(auditInfo.has("fido-aaguid"), "audit info has fido-aaguid");
 		assert.isTrue(auditInfo.has("attestation-type"), "audit info has attestation-type");
 		assert.isTrue(ret.audit.warning.has("attesation-not-validated"), "audit warning has attesation-not-validated");
-	}*/
+	} */
   );
 
   it(
@@ -208,7 +208,7 @@ describe("Fido2AttestationResult", function () {
 		assert.isTrue(auditInfo.has("authority-info-access"), "audit info has authority-info-access");
 		assert.isTrue(auditInfo.has("attestation-type"), "audit info has attestation-type");
 		assert.isTrue(ret.audit.warning.has("attesation-not-validated"), "audit warning has attesation-not-validated");
-	}*/
+	} */
   );
 });
 
@@ -239,7 +239,7 @@ describe("Fido2AssertionResult", function () {
   });
 
   it("returns Fido2AssertionResult object on success", async function () {
-    let ret = await Fido2AssertionResult.create(h.lib.assertionResponse, {
+    const ret = await Fido2AssertionResult.create(h.lib.assertionResponse, {
       origin: "https://localhost:8443",
       challenge:
         "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
@@ -252,7 +252,7 @@ describe("Fido2AssertionResult", function () {
   });
 
   it("works with WindowsHello", async function () {
-    let ret = await Fido2AssertionResult.create(
+    const ret = await Fido2AssertionResult.create(
       h.lib.assertionResponseWindowsHello,
       {
         origin: "https://webauthn.org",

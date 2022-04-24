@@ -4,5 +4,5 @@ export namespace packedAttestation {
     export { packedValidateFn as validateFn };
 }
 declare function packedParseFn(attStmt: any): Map<any, any>;
-declare function packedValidateFn(): Promise<any>;
+declare function packedValidateFn(): any;
 export {};

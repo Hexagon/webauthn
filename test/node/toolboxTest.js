@@ -1,9 +1,9 @@
 // Testing lib
 import * as chai from "chai";
-const assert = chai.assert;
 
 // Helpers
 import { tools } from "../../dist/webauthn.js";
+const assert = chai.assert;
 const {
   checkOrigin,
   checkRpId,
@@ -44,7 +44,7 @@ describe("toolbox", function () {
     });
 
     it("allows localhost", function () {
-      let ret = checkOrigin("https://localhost:8443");
+      const ret = checkOrigin("https://localhost:8443");
       assert.strictEqual(ret, "https://localhost:8443");
     });
 
@@ -59,7 +59,7 @@ describe("toolbox", function () {
     });
 
     it.skip("allows international domain", function () {
-      let ret = checkOrigin("https://www.食狮.公司.cn:8080");
+      const ret = checkOrigin("https://www.食狮.公司.cn:8080");
       assert.isTrue(ret);
     });
 
@@ -93,12 +93,12 @@ describe("toolbox", function () {
     });
 
     it("allows localhost", function () {
-      let ret = checkRpId("test.localhost");
+      const ret = checkRpId("test.localhost");
       assert.strictEqual(ret, "test.localhost");
     });
 
     it("allows fully qualified urls", function () {
-      let ret = checkRpId("https://test.com");
+      const ret = checkRpId("https://test.com");
       assert.strictEqual(ret, "https://test.com");
     });
 
@@ -235,12 +235,12 @@ describe("toolbox", function () {
     });
 
     it("should return value when value is valid url", () => {
-      let ret = checkUrl("https://www.test.com", "test");
+      const ret = checkUrl("https://www.test.com", "test");
       assert.strictEqual(ret, "https://www.test.com");
     });
 
     it("should allow http when specified in rules", () => {
-      let ret = checkUrl("http://www.test.com", "test", { allowHttp: true });
+      const ret = checkUrl("http://www.test.com", "test", { allowHttp: true });
       assert.strictEqual(ret, "http://www.test.com");
     });
 
@@ -255,21 +255,21 @@ describe("toolbox", function () {
     });
 
     it("should allow hash when specified in rules", () => {
-      let ret = checkUrl("https://www.test.com#foo", "test", {
+      const ret = checkUrl("https://www.test.com#foo", "test", {
         allowHash: true,
       });
       assert.strictEqual(ret, "https://www.test.com#foo");
     });
 
     it("should allow credentials when specified in rules", () => {
-      let ret = checkUrl("https://user:pass@www.test.com", "test", {
+      const ret = checkUrl("https://user:pass@www.test.com", "test", {
         allowCred: true,
       });
       assert.strictEqual(ret, "https://user:pass@www.test.com");
     });
 
     it("should allow query string when specified in rules", () => {
-      let ret = checkUrl("https://www.test.com?foo=bar", "test", {
+      const ret = checkUrl("https://www.test.com?foo=bar", "test", {
         allowQuery: true,
       });
       assert.strictEqual(ret, "https://www.test.com?foo=bar");
@@ -312,12 +312,12 @@ describe("toolbox", function () {
     });
 
     it("should return value when value is valid domain", () => {
-      let ret = checkDomainOrUrl("test.com", "test");
+      const ret = checkDomainOrUrl("test.com", "test");
       assert.strictEqual(ret, "test.com");
     });
 
     it("should return value when value is valid url", () => {
-      let ret = checkDomainOrUrl("https://www.test.com", "test");
+      const ret = checkDomainOrUrl("https://www.test.com", "test");
       assert.strictEqual(ret, "https://www.test.com");
     });
   });

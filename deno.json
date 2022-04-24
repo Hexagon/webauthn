@@ -1,0 +1,14 @@
+{
+    "lint": {
+      "files": {
+        "include": ["lib/","test/"],
+        "exclude": ["test/node/"]
+      },
+      "rules": {}
+    },
+    "fmt": {
+      "files": {
+        "include": ["lib/","test/"]
+      }
+    }
+  }

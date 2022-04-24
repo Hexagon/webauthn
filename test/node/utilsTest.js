@@ -1,6 +1,5 @@
 // Testing lib
 import * as chai from "chai";
-const assert = chai.assert;
 
 // Helpers
 
@@ -14,9 +13,10 @@ import {
   isPem,
   pemToBase64,
   strToAb,
-  /*jsObjectToB64,*/
+  /* jsObjectToB64, */
 } from "../../dist/webauthn.js";
 import * as h from "../helpers/fido2-helpers.js";
+const assert = chai.assert;
 
 describe("utils", function () {
   describe("coerceToBase64Url", () => {
@@ -25,7 +25,7 @@ describe("utils", function () {
     });
 
     it("coerce ArrayBuffer to base64url", () => {
-      let ab = Uint8Array.from([
+      const ab = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -43,13 +43,13 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      let res = coerceToBase64Url(ab, "test");
+      const res = coerceToBase64Url(ab, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
 
     it("coerce Uint8Array to base64url", () => {
-      let buf = Uint8Array.from([
+      const buf = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -67,7 +67,7 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]);
-      let res = coerceToBase64Url(buf, "test");
+      const res = coerceToBase64Url(buf, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
@@ -80,7 +80,7 @@ describe("utils", function () {
     });
 
     it("coerce Array to base64url", () => {
-      let arr = [
+      const arr = [
         0x00,
         0x01,
         0x02,
@@ -98,21 +98,21 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ];
-      let res = coerceToBase64Url(arr, "test");
+      const res = coerceToBase64Url(arr, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
 
-    /*it("coerce base64 to base64url", () => {
+    /* it("coerce base64 to base64url", () => {
 			var b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
 			var res = coerceToBase64Url(b64, "test");
 			assert.isString(res);
 			assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
-		});*/
+		}); */
 
     it("coerce base64url to base64url", () => {
-      let b64url = "AAECAwQFBgcJCgsMDQ4_-A";
-      let res = coerceToBase64Url(b64url, "test");
+      const b64url = "AAECAwQFBgcJCgsMDQ4_-A";
+      const res = coerceToBase64Url(b64url, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
@@ -152,7 +152,7 @@ describe("utils", function () {
     });
 
     it("coerce ArrayBuffer to base64", () => {
-      let ab = Uint8Array.from([
+      const ab = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -170,13 +170,13 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      let res = coerceToBase64(ab, "test");
+      const res = coerceToBase64(ab, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
 
     it("coerce Uint8Array to base64", () => {
-      let buf = Uint8Array.from([
+      const buf = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -194,7 +194,7 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]);
-      let res = coerceToBase64(buf, "test");
+      const res = coerceToBase64(buf, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
@@ -207,7 +207,7 @@ describe("utils", function () {
     });
 
     it("coerce Array to base64", () => {
-      let arr = [
+      const arr = [
         0x00,
         0x01,
         0x02,
@@ -225,21 +225,21 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ];
-      let res = coerceToBase64(arr, "test");
+      const res = coerceToBase64(arr, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
 
     it("coerce base64 to base64", () => {
-      let b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
-      let res = coerceToBase64(b64, "test");
+      const b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
+      const res = coerceToBase64(b64, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
 
     it.skip("coerce base64url to base64", () => {
-      let b64url = "AAECAwQFBgcJCgsMDQ4_-A";
-      let res = coerceToBase64(b64url, "test");
+      const b64url = "AAECAwQFBgcJCgsMDQ4_-A";
+      const res = coerceToBase64(b64url, "test");
       assert.isString(res);
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
@@ -279,10 +279,10 @@ describe("utils", function () {
     });
 
     it("coerce base64url to ArrayBuffer", () => {
-      let b64url = "AAECAwQFBgcJCgsMDQ4_-A";
-      let res = coerceToArrayBuffer(b64url, "test");
+      const b64url = "AAECAwQFBgcJCgsMDQ4_-A";
+      const res = coerceToArrayBuffer(b64url, "test");
       assert.instanceOf(res, ArrayBuffer);
-      let expectedAb = Uint8Array.from([
+      const expectedAb = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -304,10 +304,10 @@ describe("utils", function () {
     });
 
     it("coerce base64 to ArrayBuffer", () => {
-      let b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
-      let res = coerceToArrayBuffer(b64, "test");
+      const b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
+      const res = coerceToArrayBuffer(b64, "test");
       assert.instanceOf(res, ArrayBuffer);
-      let expectedAb = Uint8Array.from([
+      const expectedAb = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -329,7 +329,7 @@ describe("utils", function () {
     });
 
     it("coerce Array to ArrayBuffer", () => {
-      let arr = [
+      const arr = [
         0x00,
         0x01,
         0x02,
@@ -347,9 +347,9 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ];
-      let res = coerceToArrayBuffer(arr, "test");
+      const res = coerceToArrayBuffer(arr, "test");
       assert.instanceOf(res, ArrayBuffer);
-      let expectedAb = Uint8Array.from([
+      const expectedAb = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -373,7 +373,7 @@ describe("utils", function () {
     it("coerce Buffer to ArrayBuffer");
 
     it("coerce Uint8Array to ArrayBuffer", () => {
-      let buf = Uint8Array.from([
+      const buf = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -391,9 +391,9 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]);
-      let res = coerceToArrayBuffer(buf, "test");
+      const res = coerceToArrayBuffer(buf, "test");
       assert.instanceOf(res, ArrayBuffer);
-      let expectedAb = Uint8Array.from([
+      const expectedAb = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -415,7 +415,7 @@ describe("utils", function () {
     });
 
     it("coerce ArrayBuffer to ArrayBuffer", () => {
-      let ab = Uint8Array.from([
+      const ab = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -433,9 +433,9 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      let res = coerceToArrayBuffer(ab, "test");
+      const res = coerceToArrayBuffer(ab, "test");
       assert.instanceOf(res, ArrayBuffer);
-      let expectedAb = Uint8Array.from([
+      const expectedAb = Uint8Array.from([
         0x00,
         0x01,
         0x02,
@@ -501,9 +501,9 @@ describe("utils", function () {
 
   describe("strToAb", function () {
     it("converts string to ArrayBuffer", function () {
-      let ab = strToAb("abc123");
+      const ab = strToAb("abc123");
 
-      let expectedAb = new Uint8Array([
+      const expectedAb = new Uint8Array([
         0x61,
         0x62,
         0x63,
@@ -516,7 +516,7 @@ describe("utils", function () {
     });
   });
 
-  /*describe("jsObjectToB64", function() {
+  /* describe("jsObjectToB64", function() {
 		it("converts Object to base64 string", function() {
 			assert.strictEqual(jsObjectToB64({ test: true }), "eyJ0ZXN0Ijp0cnVlfQ==");
 		});
@@ -524,21 +524,21 @@ describe("utils", function () {
 		it("removes non UTF-8 characters", function() {
 			assert.strictEqual(jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK - Ð¾Ñ\x82 Hideez" } }), jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK -  Hideez" } }));
 		});
-	});*/
+	}); */
 
   describe("abEqual", function () {
     it("compare Buffer with Buffer", function () {
-      let ab = new ArrayBuffer(Buffer.from(strToAb("ciao")));
+      const ab = new ArrayBuffer(Buffer.from(strToAb("ciao")));
 
-      let expectedAb = new ArrayBuffer(Buffer.from("ciao"));
+      const expectedAb = new ArrayBuffer(Buffer.from("ciao"));
 
       assert.isTrue(abEqual(ab, expectedAb), "expected result from abEqual");
     });
 
     it("compare Buffer with ArrayBuffer", function () {
-      let ab = strToAb("ciao");
+      const ab = strToAb("ciao");
 
-      let expectedAb = Buffer.from("ciao");
+      const expectedAb = Buffer.from("ciao");
 
       assert.isFalse(abEqual(ab, expectedAb), "expected result from abEqual");
     });
@@ -577,7 +577,7 @@ describe("utils", function () {
 
   describe("pemToBase64", function () {
     it("converts mdsSigningCert", function () {
-      let ret = pemToBase64(h.mds.mdsSigningCert);
+      const ret = pemToBase64(h.mds.mdsSigningCert);
       assert.strictEqual(
         ret,
         "MIICnTCCAkOgAwIBAgIORvCM1auU6FYVXUebJHcwCgYIKoZIzj0EAwIwUzELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUZJRE8gQWxsaWFuY2UxHTAbBgNVBAsTFE1ldGFkYXRhIFRPQyBTaWduaW5nMQ0wCwYDVQQDEwRDQS0xMB4XDTE1MDgxOTAwMDAwMFoXDTE4MDgxOTAwMDAwMFowZDELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUZJRE8gQWxsaWFuY2UxHTAbBgNVBAsTFE1ldGFkYXRhIFRPQyBTaWduaW5nMR4wHAYDVQQDExVNZXRhZGF0YSBUT0MgU2lnbmVyIDMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASKX+p3W2j1GV4lQwn7HXNj4lh9e2wAa6J9tBIQhbQTkqMvNZGnHxOn7yTZ3NpYO5ZGVgr/XC66qli7BWA8jgTfo4HpMIHmMA4GA1UdDwEB/wQEAwIGwDAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBRckNF+zzxMuLvm+qRjLeJQf0DwyzAfBgNVHSMEGDAWgBRpEV4taWSFnZa41v9czb88dc9MGDA1BgNVHR8ELjAsMCqgKKAmhiRodHRwOi8vbWRzLmZpZG9hbGxpYW5jZS5vcmcvQ0EtMS5jcmwwTwYDVR0gBEgwRjBEBgsrBgEEAYLlHAEDATA1MDMGCCsGAQUFBwIBFidodHRwczovL21kcy5maWRvYWxsaWFuY2Uub3JnL3JlcG9zaXRvcnkwCgYIKoZIzj0EAwIDSAAwRQIhALLbYjBrbhPkwrn3mQjCERIwkMNNT/lfkpNXH+4zjUXEAiBas2lP6jp44Bh4X+tBXqY7y61ijGRIZCaAF1KIlgub0g==",
@@ -585,7 +585,7 @@ describe("utils", function () {
     });
 
     it("converts mdsRootCrl", function () {
-      let ret = pemToBase64(h.mds.mdsRootCrl);
+      const ret = pemToBase64(h.mds.mdsRootCrl);
       assert.strictEqual(
         ret,
         "MIIBLTCBswIBATAKBggqhkjOPQQDAzBTMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNRklETyBBbGxpYW5jZTEdMBsGA1UECxMUTWV0YWRhdGEgVE9DIFNpZ25pbmcxDTALBgNVBAMTBFJvb3QXDTE4MDQwNzAwMDAwMFoXDTE4MDcxNTAwMDAwMFqgLzAtMAoGA1UdFAQDAgEMMB8GA1UdIwQYMBaAFNKlHwun9mLIQNTYvbnXjtFUu7xGMAoGCCqGSM49BAMDA2kAMGYCMQCnXSfNppE9vpsGtY9DsPWyR3aVVSPs6i5/3A21a1+rCNoa1cJNWKZJ7IV4cdjIXVUCMQCDh8U8OekdTnuvcG3FaoMJO0y0C0FS5dbTzcuiADjyVbAQeaSsCauVySzyB3lVVgE=",
@@ -593,7 +593,7 @@ describe("utils", function () {
     });
 
     it("converts assnPublicKey", function () {
-      let ret = pemToBase64(h.lib.assnPublicKey);
+      const ret = pemToBase64(h.lib.assnPublicKey);
       assert.strictEqual(
         ret,
         "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERez9aO2wBAWO54MuGbEqSdWahSnGMAg35BCNkaE3j8Q+O/ZhhKqTeIKm7El70EG6ejt4sg1ZaoQ5ELg8k3ywTg==",
@@ -659,9 +659,9 @@ describe("utils", function () {
     });
 
     it("should not throw on ArrayBuffer parameter, and return correct hex string", () => {
-      const data = new Uint8Array([0, 1, 2, 255, 16, 15]),
-        ab = data.buffer,
-        res = abToHex(ab);
+      const data = new Uint8Array([0, 1, 2, 255, 16, 15]);
+      const ab = data.buffer;
+      const res = abToHex(ab);
       assert.equal(res, "000102ff100f");
     });
   });

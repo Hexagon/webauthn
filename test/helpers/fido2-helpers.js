@@ -13,8 +13,8 @@ function printHex(msg, buf) {
 
   // check the arguments
   if (
-    (typeof msg != "string") ||
-    (typeof buf != "object")
+    (typeof msg !== "string") ||
+    (typeof buf !== "object")
   ) {
     console.log("Bad args to printHex"); // eslint-disable-line no-console
     return;
@@ -25,9 +25,10 @@ function printHex(msg, buf) {
   }
 
   // print the buffer as a 16 byte long hex string
-  let arr = new Uint8Array(buf);
-  let len = buf.byteLength;
-  let i, str = "";
+  const arr = new Uint8Array(buf);
+  const len = buf.byteLength;
+  let i;
+  let str = "";
   console.log(msg, `(${buf.byteLength} bytes)`); // eslint-disable-line no-console
   for (i = 0; i < len; i++) {
     let hexch = arr[i].toString(16);
@@ -53,7 +54,7 @@ function hex2ab(hex) {
     throw new RangeError("Expected string to be an even number of characters");
   }
 
-  let view = new Uint8Array(hex.length / 2);
+  const view = new Uint8Array(hex.length / 2);
 
   for (let i = 0; i < hex.length; i += 2) {
     view[i / 2] = parseInt(hex.substring(i, i + 2), 16);
@@ -63,8 +64,8 @@ function hex2ab(hex) {
 }
 
 function strToAb(str) {
-  let buf = new ArrayBuffer(str.length);
-  let bufView = new Uint8Array(buf);
+  const buf = new ArrayBuffer(str.length);
+  const bufView = new Uint8Array(buf);
   for (let i = 0, strLen = str.length; i < strLen; i++) {
     bufView[i] = str.charCodeAt(i);
   }
@@ -82,10 +83,11 @@ function strToAb(str) {
      * Licensed under the MIT license.
      */
 // var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const chars =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 // Use a lookup table to find the index.
-let lookup = new Uint8Array(256);
+const lookup = new Uint8Array(256);
 for (let i = 0; i < chars.length; i++) {
   lookup[chars.charCodeAt(i)] = i;
 }
@@ -96,14 +98,14 @@ function b64decode(base64) {
   }
 
   base64 = base64.replace(/-/g, "+").replace(/_/g, "/");
-  let bufferLength = base64.length * 0.75,
-    len = base64.length,
-    i,
-    p = 0,
-    encoded1,
-    encoded2,
-    encoded3,
-    encoded4;
+  let bufferLength = base64.length * 0.75;
+  const len = base64.length;
+  let i;
+  let p = 0;
+  let encoded1;
+  let encoded2;
+  let encoded3;
+  let encoded4;
 
   if (base64[base64.length - 1] === "=") {
     bufferLength--;
@@ -112,8 +114,8 @@ function b64decode(base64) {
     }
   }
 
-  let arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
+  const arraybuffer = new ArrayBuffer(bufferLength);
+  const bytes = new Uint8Array(arraybuffer);
 
   for (i = 0; i < len; i += 4) {
     encoded1 = lookup[base64.charCodeAt(i)];
@@ -130,10 +132,10 @@ function b64decode(base64) {
 }
 
 function b64encode(arraybuffer) {
-  let bytes = new Uint8Array(arraybuffer),
-    i,
-    len = bytes.length,
-    base64 = "";
+  const bytes = new Uint8Array(arraybuffer);
+  let i;
+  const len = bytes.length;
+  let base64 = "";
 
   for (i = 0; i < len; i += 3) {
     base64 += chars[bytes[i] >> 2];
@@ -156,7 +158,7 @@ function abToStr(buf) {
 }
 
 function bufEqual(a, b) {
-  let len = a.length;
+  const len = a.length;
 
   if (
     !(a instanceof Buffer) ||
@@ -211,7 +213,7 @@ function coerceToArrayBuffer(buf, name) {
   return buf;
 }
 
-let functions = {
+const functions = {
   printHex,
   hex2ab,
   strToAb,
@@ -242,7 +244,7 @@ let functions = {
  * ********************************************************************************
  * ******************************************************************************* */
 
-let creationOptionsRequest = {
+const creationOptionsRequest = {
   username: "bubba",
   displayName: "Bubba Smith",
   authenticatorSelection: {
@@ -253,7 +255,7 @@ let creationOptionsRequest = {
   attestation: "none",
 };
 
-let basicCreationOptions = {
+const basicCreationOptions = {
   status: "ok",
   challenge:
     "sP4MiwodjreC8-80IMjcyWNlo_Y1SJXmFgQNBilnjdf30WRsjFDhDYmfY4-4uhq2HFjYREbXdr6Vjuvz2XvTjA==",
@@ -271,7 +273,7 @@ let basicCreationOptions = {
   }],
 };
 
-let completeCreationOptions = {
+const completeCreationOptions = {
   status: "ok",
   challenge:
     "sP4MiwodjreC8-80IMjcyWNlo_Y1SJXmFgQNBilnjdf30WRsjFDhDYmfY4-4uhq2HFjYREbXdr6Vjuvz2XvTjA==",
@@ -306,31 +308,31 @@ let completeCreationOptions = {
   extensions: {},
 };
 
-let challengeResponseAttestationNoneMsgB64Url = {
-  "rawId":
+const challengeResponseAttestationNoneMsgB64Url = {
+  rawId:
     "AAii3V6sGoaozW7TbNaYlJaJ5br8TrBfRXnofZO6l2suc3a5tt_XFuFkFA_5eabU80S1PW0m4IZ79BS2kQO7Zcuy2vf0ESg18GTLG1mo5YSkIdqL2J44egt-6rcj7NedSEwxa_uuxUYBtHNnSQqDmtoUAfM9LSWLl65BjKVZNGUp9ao33mMSdVfQQ0bHze69JVQvLBf8OTiZUqJsOuKmpqUc",
-  "id":
+  id:
     "AAii3V6sGoaozW7TbNaYlJaJ5br8TrBfRXnofZO6l2suc3a5tt_XFuFkFA_5eabU80S1PW0m4IZ79BS2kQO7Zcuy2vf0ESg18GTLG1mo5YSkIdqL2J44egt-6rcj7NedSEwxa_uuxUYBtHNnSQqDmtoUAfM9LSWLl65BjKVZNGUp9ao33mMSdVfQQ0bHze69JVQvLBf8OTiZUqJsOuKmpqUc",
-  "response": {
-    "attestationObject":
+  response: {
+    attestationObject:
       "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVkBJkmWDeWIDoxodDQXD2R2YFuP5K65ooYyx5lc87qDHZdjQQAAAAAAAAAAAAAAAAAAAAAAAAAAAKIACKLdXqwahqjNbtNs1piUlonluvxOsF9Feeh9k7qXay5zdrm239cW4WQUD_l5ptTzRLU9bSbghnv0FLaRA7tly7La9_QRKDXwZMsbWajlhKQh2ovYnjh6C37qtyPs151ITDFr-67FRgG0c2dJCoOa2hQB8z0tJYuXrkGMpVk0ZSn1qjfeYxJ1V9BDRsfN7r0lVC8sF_w5OJlSomw64qampRylAQIDJiABIVgguxHN3W6ehp0VWXKaMNie1J82MVJCFZYScau74o17cx8iWCDb1jkTLi7lYZZbgwUwpqAk8QmIiPMTVQUVkhGEyGrKww==",
-    "clientDataJSON":
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiIzM0VIYXYtaloxdjlxd0g3ODNhVS1qMEFSeDZyNW8tWUhoLXdkN0M2alBiZDdXaDZ5dGJJWm9zSUlBQ2Vod2Y5LXM2aFhoeVNITy1ISFVqRXdaUzI5dyIsImNsaWVudEV4dGVuc2lvbnMiOnt9LCJoYXNoQWxnb3JpdGhtIjoiU0hBLTI1NiIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0Ojg0NDMiLCJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIn0=",
   },
 };
 
-let getOptionsRequest = {
+const getOptionsRequest = {
   username: "bubba",
   displayName: "Bubba Smith",
 };
 
-let basicGetOptions = {
+const basicGetOptions = {
   status: "ok",
   challenge:
     "sP4MiwodjreC8-80IMjcyWNlo_Y1SJXmFgQNBilnjdf30WRsjFDhDYmfY4-4uhq2HFjYREbXdr6Vjuvz2XvTjA==",
 };
 
-let completeGetOptions = {
+const completeGetOptions = {
   status: "ok",
   challenge:
     "sP4MiwodjreC8-80IMjcyWNlo_Y1SJXmFgQNBilnjdf30WRsjFDhDYmfY4-4uhq2HFjYREbXdr6Vjuvz2XvTjA==",
@@ -346,67 +348,67 @@ let completeGetOptions = {
   extensions: {},
 };
 
-let challengeResponseAttestationU2fMsgB64Url = {
+const challengeResponseAttestationU2fMsgB64Url = {
   // "binaryEncoding": "base64",
-  "username": "adam",
-  "rawId":
+  username: "adam",
+  rawId:
     "Bo-VjHOkJZy8DjnCJnIc0Oxt9QAz5upMdSJxNbd-GyAo6MNIvPBb9YsUlE0ZJaaWXtWH5FQyPS6bT_e698IirQ==",
-  "id":
+  id:
     "Bo-VjHOkJZy8DjnCJnIc0Oxt9QAz5upMdSJxNbd-GyAo6MNIvPBb9YsUlE0ZJaaWXtWH5FQyPS6bT_e698IirQ==",
-  "response": {
-    "attestationObject":
+  response: {
+    attestationObject:
       "o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEgwRgIhAO-683ISJhKdmUPmVbQuYZsp8lkD7YJcInHS3QOfbrioAiEAzgMJ499cBczBw826r1m55Jmd9mT4d1iEXYS8FbIn8MpjeDVjgVkCSDCCAkQwggEuoAMCAQICBFVivqAwCwYJKoZIhvcNAQELMC4xLDAqBgNVBAMTI1l1YmljbyBVMkYgUm9vdCBDQSBTZXJpYWwgNDU3MjAwNjMxMCAXDTE0MDgwMTAwMDAwMFoYDzIwNTAwOTA0MDAwMDAwWjAqMSgwJgYDVQQDDB9ZdWJpY28gVTJGIEVFIFNlcmlhbCAxNDMyNTM0Njg4MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESzMfdz2BRLmZXL5FhVF-F1g6pHYjaVy-haxILIAZ8sm5RnrgRbDmbxMbLqMkPJH9pgLjGPP8XY0qerrnK9FDCaM7MDkwIgYJKwYBBAGCxAoCBBUxLjMuNi4xLjQuMS40MTQ4Mi4xLjUwEwYLKwYBBAGC5RwCAQEEBAMCBSAwCwYJKoZIhvcNAQELA4IBAQCsFtmzbrazqbdtdZSzT1n09z7byf3rKTXra0Ucq_QdJdPnFhTXRyYEynKleOMj7bdgBGhfBefRub4F226UQPrFz8kypsr66FKZdy7bAnggIDzUFB0-629qLOmeOVeAMmOrq41uxICn3whK0sunt9bXfJTD68CxZvlgV8r1_jpjHqJqQzdio2--z0z0RQliX9WvEEmqfIvHaJpmWemvXejw1ywoglF0xQ4Gq39qB5CDe22zKr_cvKg1y7sJDvHw2Z4Iab_p5WdkxCMObAV3KbAQ3g7F-czkyRwoJiGOqAgau5aRUewWclryqNled5W8qiJ6m5RDIMQnYZyq-FTZgpjXaGF1dGhEYXRhWMRJlg3liA6MaHQ0Fw9kdmBbj-SuuaKGMseZXPO6gx2XY0EAAAAAAAAAAAAAAAAAAAAAAAAAAABABo-VjHOkJZy8DjnCJnIc0Oxt9QAz5upMdSJxNbd-GyAo6MNIvPBb9YsUlE0ZJaaWXtWH5FQyPS6bT_e698IiraUBAgMmIAEhWCA1c9AIeH5sN6x1Q-2qR7v255tkeGbWs0ECCDw35kJGBCJYIBjTUxruadjFFMnWlR5rPJr23sBJT9qexY9PCc9o8hmT",
-    "clientDataJSON":
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiJWdTh1RHFua3dPamQ4M0tMajZTY24yQmdGTkxGYkdSN0txX1hKSndRbm5hdHp0VVI3WElCTDdLOHVNUENJYVFtS3cxTUNWUTVhYXpOSkZrN05ha2dxQSIsImNsaWVudEV4dGVuc2lvbnMiOnt9LCJoYXNoQWxnb3JpdGhtIjoiU0hBLTI1NiIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0Ojg0NDMiLCJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIn0=",
   },
 };
 
-let challengeResponseAttestationU2fHypersecuB64UrlMsg = {
-  "rawId":
+const challengeResponseAttestationU2fHypersecuB64UrlMsg = {
+  rawId:
     "HRiuOZKJ6yNnBrSnocnFuGgsjcAZICl4-0uEDAQHCIXncWQCkYUBvvUzZQovrxmeB9Qm23hmj6PnzWyoiWtt8w",
-  "id":
+  id:
     "HRiuOZKJ6yNnBrSnocnFuGgsjcAZICl4-0uEDAQHCIXncWQCkYUBvvUzZQovrxmeB9Qm23hmj6PnzWyoiWtt8w",
-  "response": {
-    "clientDataJSON":
+  response: {
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiJwU0c5ejZHZDVtNDhXV3c5ZTAzQUppeGJLaWEweW5FcW03b185S0VrUFkwemNhWGhqbXhvQ2hDNVFSbks0RTZYSVQyUUZjX3VHeWNPNWxVTXlnZVpndyIsImNsaWVudEV4dGVuc2lvbnMiOnt9LCJoYXNoQWxnb3JpdGhtIjoiU0hBLTI1NiIsIm9yaWdpbiI6Imh0dHBzOi8vd2ViYXV0aG4ub3JnIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9",
-    "attestationObject":
+    attestationObject:
       "o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEgwRgIhANsxYs-ntdvXjEaGTl-T91fmoSQCCzLEmXpzwuIqSrzUAiEA2vnx_cP4Ck9ASruZ7NdCtHKleCfd0NwCHcv2cMj175JjeDVjgVkBQDCCATwwgeSgAwIBAgIKOVGHiTh4UmRUCTAKBggqhkjOPQQDAjAXMRUwEwYDVQQDEwxGVCBGSURPIDAxMDAwHhcNMTQwODE0MTgyOTMyWhcNMjQwODE0MTgyOTMyWjAxMS8wLQYDVQQDEyZQaWxvdEdudWJieS0wLjQuMS0zOTUxODc4OTM4Nzg1MjY0NTQwOTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABIeOKoi1TAiEYdCsb8XIAncH9Ko9EuGkXEugACIy1mV0fefgs7ZA4hnz5X3CS67eUWgMASZzpwKHVybohhppKGAwCgYIKoZIzj0EAwIDRwAwRAIg6BuIpLPxP_wPNiOJZJiqKKKlBUB2CgCwMYibSjki5S8CIOPFCx-Y1JKxbJ7nDs96PsvjDcRfpynzvswDG_V6VuK0aGF1dGhEYXRhWMSVaQiPHs7jIylUA129ENfK45EwWidRtVm7j9fLsim91EEAAAAAAAAAAAAAAAAAAAAAAAAAAABAHRiuOZKJ6yNnBrSnocnFuGgsjcAZICl4-0uEDAQHCIXncWQCkYUBvvUzZQovrxmeB9Qm23hmj6PnzWyoiWtt86UBAgMmIAEhWCCHjiqItUwIhGHQrG_FyAJ3B_SqPRLhpFxLoAAiMtZldCJYIH3n4LO2QOIZ8-V9wkuu3lFoDAEmc6cCh1cm6IYaaShg",
   },
 };
 
-let challengeResponseAttestationPackedB64UrlMsg = {
-  "rawId":
+const challengeResponseAttestationPackedB64UrlMsg = {
+  rawId:
     "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r",
-  "id":
+  id:
     "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r",
-  "response": {
-    "clientDataJSON":
+  response: {
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiJ1Vlg4OElnUmEwU1NyTUlSVF9xN2NSY2RmZ2ZSQnhDZ25fcGtwVUFuWEpLMnpPYjMwN3dkMU9MWFEwQXVOYU10QlIzYW1rNkhZenAtX1Z4SlRQcHdHdyIsIm9yaWdpbiI6Imh0dHBzOi8vd2ViYXV0aG4ub3JnIiwidG9rZW5CaW5kaW5nIjp7InN0YXR1cyI6Im5vdC1zdXBwb3J0ZWQifSwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9",
-    "attestationObject":
+    attestationObject:
       "o2NmbXRmcGFja2VkZ2F0dFN0bXSjY2FsZyZjc2lnWEgwRgIhAIsK0Wr9tmud-waIYoQw20UWi7DL_gDx_PNG3PB57eHLAiEAtRyd-4JI2pCVX-dDz4mbHc_AkvC3d_4qnBBa3n2I_hVjeDVjg1kCRTCCAkEwggHooAMCAQICEBWfe8LNiRjxKGuTSPqfM-IwCgYIKoZIzj0EAwIwSTELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMRswGQYDVQQDDBJGZWl0aWFuIEZJRE8yIENBLTEwIBcNMTgwNDExMDAwMDAwWhgPMjAzMzA0MTAyMzU5NTlaMG8xCzAJBgNVBAYTAkNOMR0wGwYDVQQKDBRGZWl0aWFuIFRlY2hub2xvZ2llczEiMCAGA1UECwwZQXV0aGVudGljYXRvciBBdHRlc3RhdGlvbjEdMBsGA1UEAwwURlQgQmlvUGFzcyBGSURPMiBVU0IwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASABnVcWfvJSbAVqNIKkliXvoMKsu_oLPiP7aCQlmPlSMcfEScFM7QkRnidTP7hAUOKlOmDPeIALC8qHddvTdtdo4GJMIGGMB0GA1UdDgQWBBR6VIJCgGLYiuevhJglxK-RqTSY8jAfBgNVHSMEGDAWgBRNO9jEZxUbuxPo84TYME-daRXAgzAMBgNVHRMBAf8EAjAAMBMGCysGAQQBguUcAgEBBAQDAgUgMCEGCysGAQQBguUcAQEEBBIEEEI4MkVENzNDOEZCNEU1QTIwCgYIKoZIzj0EAwIDRwAwRAIgJEtFo76I3LfgJaLGoxLP-4btvCdKIsEFLjFIUfDosIcCIDQav04cJPILGnPVPazCqfkVtBuyOmsBbx_v-ODn-JDAWQH_MIIB-zCCAaCgAwIBAgIQFZ97ws2JGPEoa5NI-p8z4TAKBggqhkjOPQQDAjBLMQswCQYDVQQGEwJDTjEdMBsGA1UECgwURmVpdGlhbiBUZWNobm9sb2dpZXMxHTAbBgNVBAMMFEZlaXRpYW4gRklETyBSb290IENBMCAXDTE4MDQxMDAwMDAwMFoYDzIwMzgwNDA5MjM1OTU5WjBJMQswCQYDVQQGEwJDTjEdMBsGA1UECgwURmVpdGlhbiBUZWNobm9sb2dpZXMxGzAZBgNVBAMMEkZlaXRpYW4gRklETzIgQ0EtMTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABI5-YAnswRZlzKD6w-lv5Qg7lW1XJRHrWzL01mc5V91n2LYXNR3_S7mA5gupuTO5mjQw8xfqIRMHVr1qB3TedY-jZjBkMB0GA1UdDgQWBBRNO9jEZxUbuxPo84TYME-daRXAgzAfBgNVHSMEGDAWgBTRoZhNgX_DuWv2B2e9UBL-kEXxVDASBgNVHRMBAf8ECDAGAQH_AgEAMA4GA1UdDwEB_wQEAwIBBjAKBggqhkjOPQQDAgNJADBGAiEA-3-j0kBHoRFQwnhWbSHMkBaY7KF_TztINFN5ymDkwmUCIQDrCkPBiMHXvYg-kSRgVsKwuVtYonRvC588qRwpLStZ7FkB3DCCAdgwggF-oAMCAQICEBWfe8LNiRjxKGuTSPqfM9YwCgYIKoZIzj0EAwIwSzELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMR0wGwYDVQQDDBRGZWl0aWFuIEZJRE8gUm9vdCBDQTAgFw0xODA0MDEwMDAwMDBaGA8yMDQ4MDMzMTIzNTk1OVowSzELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMR0wGwYDVQQDDBRGZWl0aWFuIEZJRE8gUm9vdCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJ3wCm47zF9RMtW-pPlkEHTVTLfSYBlsidz7zOAUiuV6k36PvtKAI_-LZ8MiC9BxQUfUrfpLY6klw344lwLq7POjQjBAMB0GA1UdDgQWBBTRoZhNgX_DuWv2B2e9UBL-kEXxVDAPBgNVHRMBAf8EBTADAQH_MA4GA1UdDwEB_wQEAwIBBjAKBggqhkjOPQQDAgNIADBFAiEAt7E9ZQYxnhfsSk6c1dSmFNnJGoU3eJiycs2DoWh7-IoCIA9iWJH8h-UOAaaPK66DtCLe6GIxdpIMv3kmd1PRpWqsaGF1dGhEYXRhWOSVaQiPHs7jIylUA129ENfK45EwWidRtVm7j9fLsim91EEAAAABQjgyRUQ3M0M4RkI0RTVBMgBgsL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401rpQECAyYgASFYIFkdweEE6mWiIAYPDoKz3881Aoa4sn8zkTm0aPKKYBvdIlggtlG32lxrang8M0tojYJ36CL1VMv2pZSzqR_NfvG88bA",
   },
 };
 
-let challengeResponseAttestationTpmB64UrlMsg = {
-  "rawId": "hWzdFiPbOMQ5KNBsMhs-Zeh8F0iTHrH63YKkrxJFgjQ",
-  "id": "hWzdFiPbOMQ5KNBsMhs-Zeh8F0iTHrH63YKkrxJFgjQ",
-  "response": {
-    "clientDataJSON":
+const challengeResponseAttestationTpmB64UrlMsg = {
+  rawId: "hWzdFiPbOMQ5KNBsMhs-Zeh8F0iTHrH63YKkrxJFgjQ",
+  id: "hWzdFiPbOMQ5KNBsMhs-Zeh8F0iTHrH63YKkrxJFgjQ",
+  response: {
+    clientDataJSON:
       "ew0KCSJ0eXBlIiA6ICJ3ZWJhdXRobi5jcmVhdGUiLA0KCSJjaGFsbGVuZ2UiIDogIndrNkxxRVhBTUFacHFjVFlsWTJ5b3I1RGppeUlfYjFneTluRE90Q0IxeUdZbm1fNFdHNFVrMjRGQXI3QXhUT0ZmUU1laWdrUnhPVExaTnJMeEN2Vl9RIiwNCgkib3JpZ2luIiA6ICJodHRwczovL3dlYmF1dGhuLm9yZyIsDQoJInRva2VuQmluZGluZyIgOiANCgl7DQoJCSJzdGF0dXMiIDogInN1cHBvcnRlZCINCgl9DQp9",
-    "attestationObject":
+    attestationObject:
       "o2NmbXRjdHBtaGF1dGhEYXRhWQFnlWkIjx7O4yMpVANdvRDXyuORMFonUbVZu4_Xy7IpvdRFAAAAAAiYcFjK3EuBtuEw3lDcvpYAIIVs3RYj2zjEOSjQbDIbPmXofBdIkx6x-t2CpK8SRYI0pAEDAzkBACBZAQDF2m9Nk1e94gL1xVjNCjFW0lTy4K2atXkx-YJrdH3hrE8p1gcIdNzleRDhmERJnY5CRwM5sXDQIrUBq4jpwvTtMC5HGccN6-iEJAPtm9_CJzCmGhtw9hbF8bcAys94RhN9xLLUaajhWqtPrYZXCEAi0o9E2QdTIxJrcAfJgZOf33JMr0--R1BAQxpOoGRDC8ss-tfQW9ufZLWw4JUuz4Z5Jz1sbfqBYB8UUDMWoT0HgsMaPmvd7T17xGvB-pvvDf-Dt96vFGtYLEZEgho8Yu26pr5CK_BOQ-2vX9N4MIYVPXNhogMGGmKYqybhM3yhye0GdBpZBUd5iOcgME6uGJ1_IUMBAAFnYXR0U3RtdKZjdmVyYzIuMGNhbGc5__5jc2lnWQEAcV1izWGUWIs0DEOZNQGdriNNXo6nbrGDLzEAeswCK9njYGCLmOkHVgSyafhsjCEMZkQmuPUmEOMDKosqxup_tiXQwG4yCW9TyWoINWGayQ4vcr6Ys-l6KMPkg__d2VywhfonnTJDBfE_4BIRD60GR0qBzTarthDHQFMqRtoUtuOsTF5jedU3EQPojRA5iCNC2naCCZuMSURdlPmhlW5rAaRZVF41ZZECi5iFOM2rO0UpGuQSLUvr1MqQOsDytMf7qWZMvwT_5_8BF6GNdB2l2VzmIJBbV6g8z7dj0fRkjlCXBp8UG2LvTq5SsfugrRWXOJ8BkdMplPfl0mz6ssU_n2N4NWOCWQS2MIIEsjCCA5qgAwIBAgIQEyidpWZzRxOSMNfrAvV1fzANBgkqhkiG9w0BAQsFADBBMT8wPQYDVQQDEzZOQ1UtTlRDLUtFWUlELTE1OTFENEI2RUFGOThEMDEwNDg2NEI2OTAzQTQ4REQwMDI2MDc3RDMwHhcNMTgwNTIwMTYyMDQ0WhcNMjgwNTIwMTYyMDQ0WjAAMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvQ6XK2ujM11E7x4SL34p252ncyQTd3-4r5ALQhBbFKS95gUsuENTG-48GBQwu48i06cckm3eH20TUeJvn4-pj6i8LFOrIK14T3P3GFzbxgQLq1KVm63JWDdEXk789JgzQjHNO7DZFKWTEiktwmBUPUA88TjQcXOtrR5EXTrt1FzGzabOepFann3Ny_XtxI8lDZ3QLwPLJfmk7puGtkGNaXOsRC7GLAnoEB7UWvjiyKG6HAtvVTgxcW5OQnHFb9AHycU5QdukXrP0njdCpLCRR0Nq6VMKmVU3MaGh-DCwYEB32sPNPdDkPDWyk16ItwcmXqfSBV5ZOr8ifvcXbCWUWwIDAQABo4IB5TCCAeEwDgYDVR0PAQH_BAQDAgeAMAwGA1UdEwEB_wQCMAAwbQYDVR0gAQH_BGMwYTBfBgkrBgEEAYI3FR8wUjBQBggrBgEFBQcCAjBEHkIAVABDAFAAQQAgACAAVAByAHUAcwB0AGUAZAAgACAAUABsAGEAdABmAG8AcgBtACAAIABJAGQAZQBuAHQAaQB0AHkwEAYDVR0lBAkwBwYFZ4EFCAMwSgYDVR0RAQH_BEAwPqQ8MDoxODAOBgVngQUCAwwFaWQ6MTMwEAYFZ4EFAgIMB05QQ1Q2eHgwFAYFZ4EFAgEMC2lkOjRFNTQ0MzAwMB8GA1UdIwQYMBaAFMISqVvO-lb4wMFvsVvdAzRHs3qjMB0GA1UdDgQWBBSv4kXTSA8i3NUM0q57lrWpM8p_4TCBswYIKwYBBQUHAQEEgaYwgaMwgaAGCCsGAQUFBzAChoGTaHR0cHM6Ly9hemNzcHJvZG5jdWFpa3B1Ymxpc2guYmxvYi5jb3JlLndpbmRvd3MubmV0L25jdS1udGMta2V5aWQtMTU5MWQ0YjZlYWY5OGQwMTA0ODY0YjY5MDNhNDhkZDAwMjYwNzdkMy8zYjkxOGFlNC0wN2UxLTQwNTktOTQ5MS0wYWQyNDgxOTA4MTguY2VyMA0GCSqGSIb3DQEBCwUAA4IBAQAs-vqdkDX09fNNYqzbv3Lh0vl6RgGpPGl-MYgO8Lg1I9UKvEUaaUHm845ABS8m7r9p22RCWO6TSEPS0YUYzAsNuiKiGVna4nB9JWZaV9GDS6aMD0nJ8kNciorDsV60j0Yb592kv1VkOKlbTF7-Z10jaapx0CqhxEIUzEBb8y9Pa8oOaQf8ORhDHZp-mbn_W8rUzXSDS0rFbWKaW4tGpVoKGRH-f9vIeXxGlxVS0wqqRm_r-h1aZInta0OOiL_S4367gZyeLL3eUnzdd-eYySYn2XINPbVacK8ZifdsLMwiNtz5uM1jbqpEn2UoB3Hcdn0hc12jTLPWFfg7GiKQ0hk9WQXsMIIF6DCCA9CgAwIBAgITMwAAAQDiBsSROVGXhwAAAAABADANBgkqhkiG9w0BAQsFADCBjDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAOBgNVBAcTB1JlZG1vbmQxHjAcBgNVBAoTFU1pY3Jvc29mdCBDb3Jwb3JhdGlvbjE2MDQGA1UEAxMtTWljcm9zb2Z0IFRQTSBSb290IENlcnRpZmljYXRlIEF1dGhvcml0eSAyMDE0MB4XDTE3MDIwMTE3NDAyNFoXDTI5MTIzMTE3NDAyNFowQTE_MD0GA1UEAxM2TkNVLU5UQy1LRVlJRC0xNTkxRDRCNkVBRjk4RDAxMDQ4NjRCNjkwM0E0OEREMDAyNjA3N0QzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9IwUMSiQUbrQR0NLkKR-9RB8zfHYdlmDB0XN_m8qrNHKRJ__lBOR-mwU_h3MFRZF6X3ZZwka1DtwBdzLFV8lVu33bc15stjSd6B22HRRKQ3sIns5AYQxg0eX2PtWCJuIhxdM_jDjP2hq9Yvx-ibt1IO9UZwj83NGxXc7Gk2UvCs9lcFSp6U8zzl5fGFCKYcxIKH0qbPrzjlyVyZTKwGGSTeoMMEdsZiq-m_xIcrehYuHg-FAVaPLLTblS1h5cu80-ruFUm5Xzl61YjVU9tAV_Y4joAsJ5QP3VPocFhr5YVsBVYBiBcQtr5JFdJXZWWEgYcFLdAFUk8nJERS7-5xLuQIDAQABo4IBizCCAYcwCwYDVR0PBAQDAgGGMBsGA1UdJQQUMBIGCSsGAQQBgjcVJAYFZ4EFCAMwFgYDVR0gBA8wDTALBgkrBgEEAYI3FR8wEgYDVR0TAQH_BAgwBgEB_wIBADAdBgNVHQ4EFgQUwhKpW876VvjAwW-xW90DNEezeqMwHwYDVR0jBBgwFoAUeowKzi9IYhfilNGuVcFS7HF0pFYwcAYDVR0fBGkwZzBloGOgYYZfaHR0cDovL3d3dy5taWNyb3NvZnQuY29tL3BraW9wcy9jcmwvTWljcm9zb2Z0JTIwVFBNJTIwUm9vdCUyMENlcnRpZmljYXRlJTIwQXV0aG9yaXR5JTIwMjAxNC5jcmwwfQYIKwYBBQUHAQEEcTBvMG0GCCsGAQUFBzAChmFodHRwOi8vd3d3Lm1pY3Jvc29mdC5jb20vcGtpb3BzL2NlcnRzL01pY3Jvc29mdCUyMFRQTSUyMFJvb3QlMjBDZXJ0aWZpY2F0ZSUyMEF1dGhvcml0eSUyMDIwMTQuY3J0MA0GCSqGSIb3DQEBCwUAA4ICAQAKc9z1UUBAaybIVnK8yL1N1iGJFFFFw_PpkxW76hgQhUcCxNFQskfahfFzkBD05odVC1DKyk2PyOle0G86FCmZiJa14MtKNsiu66nVqk2hr8iIcu-cYEsgb446yIGd1NblQKA1C_28F2KHm8YRgcFtRSkWEMuDiVMa0HDU8aI6ZHO04Naj86nXeULJSZsA0pQwNJ04-QJP3MFQzxQ7md6D-pCx-LVA-WUdGxT1ofaO5NFxq0XjubnZwRjQazy_m93dKWp19tbBzTUKImgUKLYGcdmVWXAxUrkxHN2FbZGOYWfmE2TGQXS2Z-g4YAQo1PleyOav3HNB8ti7u5HpI3t9a73xuECy2gFcZQ24DJuBaQe4mU5I_hPiAa-822nPPL6w8m1eegxhHf7ziRW_hW8s1cvAZZ5Jpev96zL_zRv34MsRWhKwLbu2oOCSEYYh8D8DbQZjmsxlUYR_q1cP8JKiIo6NNJ85g7sjTZgXxeanA9wZwqwJB-P98VdVslC17PmVu0RHOqRtxrht7OFT7Z10ecz0tj9ODXrv5nmBktmbgHRirRMl84wp7-PJhTXdHbxZv-OoL4HP6FxyDbHxLB7QmR4-VoEZN0vsybb1A8KEj2pkNY_tmxHH6k87euM99bB8FHrW9FNrXCGL1p6-PYtiky52a5YQZGT8Hz-ZnxobTmhjZXJ0SW5mb1ih_1RDR4AXACIAC7xZ9N_ZpqQtw7hmr_LfDRmCa78BS2erCtbrsXYwa4AHABSsnz8FacZi-wkUkfHu4xjG8MPfmwAAAAGxWkjHaED549jznwUBqeDEpT-7xBMAIgALcSGuv6a5r9BwMvQvCSXg7GdAjdWZpXv6D4DH8VYBCE8AIgALAVI0eQ_AAZjNvrhUEMK2q4wxuwIFOnHIDF0Qljhf47RncHViQXJlYVkBNgABAAsABgRyACCd_8vzbDg65pn7mGjcbcuJ1xU4hL4oA5IsEkFYv60irgAQABAIAAAAAAABAMXab02TV73iAvXFWM0KMVbSVPLgrZq1eTH5gmt0feGsTynWBwh03OV5EOGYREmdjkJHAzmxcNAitQGriOnC9O0wLkcZxw3r6IQkA-2b38InMKYaG3D2FsXxtwDKz3hGE33EstRpqOFaq0-thlcIQCLSj0TZB1MjEmtwB8mBk5_fckyvT75HUEBDGk6gZEMLyyz619Bb259ktbDglS7PhnknPWxt-oFgHxRQMxahPQeCwxo-a93tPXvEa8H6m-8N_4O33q8Ua1gsRkSCGjxi7bqmvkIr8E5D7a9f03gwhhU9c2GiAwYaYpirJuEzfKHJ7QZ0GlkFR3mI5yAwTq4YnX8",
   },
 };
 
-let challengeResponseAttestationSafetyNetMsgB64Url = {
-  "rawId":
+const challengeResponseAttestationSafetyNetMsgB64Url = {
+  rawId:
     "qCXEfJ-dEoBlWqIl0iq2p_gj13HSg7r_MA7xOcOiO8RkCrYNmQHIjV9yhZVASr87cUsflo7DNuuvGsnrlTl1ig",
-  "id":
+  id:
     "qCXEfJ-dEoBlWqIl0iq2p_gj13HSg7r_MA7xOcOiO8RkCrYNmQHIjV9yhZVASr87cUsflo7DNuuvGsnrlTl1ig",
-  "response": {
-    "clientDataJSON":
+  response: {
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiJEa1hCdWRCa2wzTzBlTUV5SGZBTVgxT2tRbHV4c2hjaW9WU3dITVJMUlhtd044SXJldHg3cWJ0MWx3Y0p4d0FxWUU0SUxTZjVwd3lHMEhXSWtEekVMUT09Iiwib3JpZ2luIjoid2ViYXV0aG4ub3JnIiwiaGFzaEFsZyI6IlNIQS0yNTYifQ",
-    "attestationObject":
+    attestationObject:
       "o2hhdXRoRGF0YVjElWkIjx7O4yMpVANdvRDXyuORMFonUbVZu4_Xy7IpvdRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQKglxHyfnRKAZVqiJdIqtqf4I9dx0oO6_zAO8TnDojvEZAq2DZkByI1fcoWVQEq_O3FLH5aOwzbrrxrJ65U5dYqlAQIDJiABIVggh5OJfYRDzVGIowKqU57AnoVjjdmmjGi9zlMkjAVV9DAiWCDr0iSi0viIKNPMTIdN28gWNmkcwOr6DQx66MPff3Odm2NmbXRxYW5kcm9pZC1zYWZldHluZXRnYXR0U3RtdKJjdmVyaDEyNjg1MDIzaHJlc3BvbnNlWRSnZXlKaGJHY2lPaUpTVXpJMU5pSXNJbmcxWXlJNld5Sk5TVWxGYVdwRFEwRXpTMmRCZDBsQ1FXZEpTVmxyV1c4MVJqQm5PRFpyZDBSUldVcExiMXBKYUhaalRrRlJSVXhDVVVGM1ZrUkZURTFCYTBkQk1WVkZRbWhOUTFaV1RYaElha0ZqUW1kT1ZrSkJiMVJHVldSMllqSmtjMXBUUWxWamJsWjZaRU5DVkZwWVNqSmhWMDVzWTNwRmJFMURUVWRCTVZWRlFYaE5ZMUl5T1haYU1uaHNTVVZzZFdSSFZubGliVll3U1VWR01XUkhhSFpqYld3d1pWTkNTRTE2UVdWR2R6QjRUbnBGZVUxRVVYaE5la1UwVGtST1lVWjNNSGhQUkVWNVRVUk5kMDFFUVhkTlJFSmhUVWQzZUVONlFVcENaMDVXUWtGWlZFRnNWbFJOVWsxM1JWRlpSRlpSVVVsRVFYQkVXVmQ0Y0ZwdE9YbGliV3hvVFZKWmQwWkJXVVJXVVZGSVJFRXhUbUl6Vm5Wa1IwWndZbWxDVjJGWFZqTk5VazEzUlZGWlJGWlJVVXRFUVhCSVlqSTVibUpIVldkVFZ6VnFUVkp6ZDBkUldVUldVVkZFUkVKS2FHUklVbXhqTTFGMVdWYzFhMk50T1hCYVF6VnFZakl3ZDJkblJXbE5RVEJIUTFOeFIxTkpZak5FVVVWQ1FWRlZRVUUwU1VKRWQwRjNaMmRGUzBGdlNVSkJVVU5WYWpoM1dXOVFhWGhMWW1KV09ITm5XV2QyVFZSbVdDdGtTWE5HVkU5clowdFBiR2hVTUdrd1ltTkVSbHBMTW5KUGVFcGFNblZUVEZOV2FGbDJhWEJhVGtVelNFcFJXWFYxV1hkR2FtbDVLM2xyWm1GMFFVZFRhbEo2UmpGaU16RjFORE12TjI5SE5XcE5hRE5UTXpkaGJIZHFWV0k0UTFkcFZIaHZhWEJXVDFsM1MwdDZkVlY1YTNGRlEzUnFiR2hLTkVGclYyRkVVeXRhZUV0RmNVOWhaVGwwYmtOblpVaHNiRnBGTDA5U1oyVk5ZWGd5V0U1RGIwZzJjM0pVUlZKamEzTnFlbHBhY2tGWGVFdHpaR1oyVm5KWVRucERVamxFZUZaQlUzVkpOa3g2ZDJnNFJGTnNNa1ZQYjJ0aWMyRnVXaXNyTDBweFRXVkJRa1ptVUhkcWVYZHlZakJ3Y2tWVmVUQndZV1ZXYzNWa0t6QndaV1Y0U3k4MUswVTJhM0JaUjBzMFdrc3libXR2Vmt4MVowVTFkR0ZJY2tGcU9ETlJLMUJQWW1KMlQzcFhZMFpyY0c1V1MzbHFielpMVVVGdFdEWlhTa0ZuVFVKQlFVZHFaMmRHUjAxSlNVSlJha0ZVUW1kT1ZraFRWVVZFUkVGTFFtZG5ja0puUlVaQ1VXTkVRVlJCWkVKblRsWklVa1ZGUm1wQlZXZG9TbWhrU0ZKc1l6TlJkVmxYTld0amJUbHdXa00xYW1JeU1IZGhRVmxKUzNkWlFrSlJWVWhCVVVWRldFUkNZVTFETUVkRFEzTkhRVkZWUmtKNlFVTm9hVVp2WkVoU2QwOXBPSFpqUjNSd1RHMWtkbUl5WTNaYU0wNTVUV2s1U0ZaR1RraFRWVVpJVFhrMWFtTnVVWGRMVVZsSlMzZFpRa0pSVlVoTlFVZEhTRmRvTUdSSVFUWk1lVGwyV1ROT2QweHVRbkpoVXpWdVlqSTVia3d3WkZWVk1HUktVVlZqZWsxQ01FZEJNVlZrUkdkUlYwSkNVVWM0U1hKUmRFWlNOa05WVTJ0cGEySXpZV2x0YzIweU5tTkNWRUZOUW1kT1ZraFNUVUpCWmpoRlFXcEJRVTFDT0VkQk1WVmtTWGRSV1UxQ1lVRkdTR1pEZFVaRFlWb3pXakp6VXpORGFIUkRSRzlJTm0xbWNuQk1UVU5GUjBFeFZXUkpRVkZoVFVKbmQwUkJXVXRMZDFsQ1FrRklWMlZSU1VaQmVrRkpRbWRhYm1kUmQwSkJaMGwzVFZGWlJGWlNNR1pDUTI5M1MwUkJiVzlEVTJkSmIxbG5ZVWhTTUdORWIzWk1NazU1WWtNMWQyRXlhM1ZhTWpsMlduazVTRlpHVGtoVFZVWklUWGsxYW1OdGQzZEVVVmxLUzI5YVNXaDJZMDVCVVVWTVFsRkJSR2RuUlVKQlJpOVNlazV1UXpWRWVrSlZRblJ1YURKdWRFcE1WMFZSYURsNlJXVkdXbVpRVERsUmIydHliRUZ2V0dkcVYyZE9PSEJUVWxVeGJGWkhTWEIwZWsxNFIyaDVNeTlQVWxKYVZHRTJSREpFZVRob2RrTkVja1pKTXl0c1Exa3dNVTFNTlZFMldFNUZOVkp6TW1ReFVtbGFjRTF6ZWtRMFMxRmFUa2N6YUZvd1FrWk9VUzlqYW5KRGJVeENUMGRMYTBWVk1XUnRRVmh6UmtwWVNtbFBjakpEVGxSQ1QxUjFPVVZpVEZkb1VXWmtRMFl4WW5kNmVYVXJWelppVVZOMk9GRkVialZQWkUxVEwxQnhSVEZrUldkbGRDODJSVWxTUWpjMk1VdG1XbEVyTDBSRk5reHdNMVJ5V2xSd1QwWkVSR2RZYUN0TVowZFBjM2RvUld4cU9XTXpkbHBJUjBwdWFHcHdkRGh5YTJKcGNpOHlkVXhIWm5oc1ZsbzBTekY0TlVSU1RqQlFWVXhrT1hsUVUyMXFaeXRoYWpFcmRFaDNTVEZ0VVcxYVZsazNjWFpQTlVSbmFFOTRhRXBOUjJ4Nk5teE1hVnB0ZW05blBTSXNJazFKU1VWWVJFTkRRVEJUWjBGM1NVSkJaMGxPUVdWUGNFMUNlamhqWjFrMFVEVndWRWhVUVU1Q1oydHhhR3RwUnpsM01FSkJVWE5HUVVSQ1RVMVRRWGRJWjFsRVZsRlJURVY0WkVoaVJ6bHBXVmQ0VkdGWFpIVkpSa3AyWWpOUloxRXdSV2RNVTBKVFRXcEZWRTFDUlVkQk1WVkZRMmhOUzFJeWVIWlpiVVp6VlRKc2JtSnFSVlJOUWtWSFFURlZSVUY0VFV0U01uaDJXVzFHYzFVeWJHNWlha0ZsUm5jd2VFNTZRVEpOVkZWM1RVUkJkMDVFU21GR2R6QjVUVlJGZVUxVVZYZE5SRUYzVGtSS1lVMUdVWGhEZWtGS1FtZE9Wa0pCV1ZSQmJGWlVUVkkwZDBoQldVUldVVkZMUlhoV1NHSXlPVzVpUjFWblZraEtNV016VVdkVk1sWjVaRzFzYWxwWVRYaEtWRUZxUW1kT1ZrSkJUVlJJUldSMllqSmtjMXBUUWtwaWJsSnNZMjAxYkdSRFFrSmtXRkp2WWpOS2NHUklhMmRTZWsxM1oyZEZhVTFCTUVkRFUzRkhVMGxpTTBSUlJVSkJVVlZCUVRSSlFrUjNRWGRuWjBWTFFXOUpRa0ZSUkV0VmEzWnhTSFl2VDBwSGRXOHlia2xaWVU1V1YxaFJOVWxYYVRBeFExaGFZWG8yVkVsSVRFZHdMMnhQU2lzMk1EQXZOR2hpYmpkMmJqWkJRVUl6UkZaNlpGRlBkSE0zUnpWd1NEQnlTbTV1VDBaVlFVczNNVWMwYm5wTFRXWklRMGRWYTNOWEwyMXZibUVyV1RKbGJVcFJNazRyWVdsamQwcExaWFJRUzFKVFNXZEJkVkJQUWpaQllXaG9PRWhpTWxoUE0yZzVVbFZyTWxRd1NFNXZkVUl5Vm5wNGIwMVliR3Q1VnpkWVZWSTFiWGMyU210TVNHNUJOVEpZUkZadlVsUlhhMDUwZVRWdlEwbE9USFpIYlc1U2Mwb3hlbTkxUVhGWlIxWlJUV012TjNONUt5OUZXV2hCVEhKV1NrVkJPRXRpZEhsWUszSTRjMjUzVlRWRE1XaFZjbmRoVnpaTlYwOUJVbUU0Y1VKd1RsRmpWMVJyWVVsbGIxbDJlUzl6UjBsS1JXMXFVakIyUmtWM1NHUndNV05UWVZkSmNqWXZOR2MzTW00M1QzRllkMlpwYm5VM1dsbFhPVGRGWm05UFUxRktaVUY2UVdkTlFrRkJSMnBuWjBWNlRVbEpRa3g2UVU5Q1owNVdTRkU0UWtGbU9FVkNRVTFEUVZsWmQwaFJXVVJXVWpCc1FrSlpkMFpCV1VsTGQxbENRbEZWU0VGM1JVZERRM05IUVZGVlJrSjNUVU5OUWtsSFFURlZaRVYzUlVJdmQxRkpUVUZaUWtGbU9FTkJVVUYzU0ZGWlJGWlNNRTlDUWxsRlJraG1RM1ZHUTJGYU0xb3ljMU16UTJoMFEwUnZTRFp0Wm5Kd1RFMUNPRWRCTVZWa1NYZFJXVTFDWVVGR1NuWnBRakZrYmtoQ04wRmhaMkpsVjJKVFlVeGtMMk5IV1ZsMVRVUlZSME5EYzBkQlVWVkdRbmRGUWtKRGEzZEtla0ZzUW1kbmNrSm5SVVpDVVdOM1FWbFpXbUZJVWpCalJHOTJUREk1YW1NelFYVmpSM1J3VEcxa2RtSXlZM1phTTA1NVRXcEJlVUpuVGxaSVVqaEZTM3BCY0UxRFpXZEtZVUZxYUdsR2IyUklVbmRQYVRoMldUTktjMHh1UW5KaFV6VnVZakk1Ymt3eVpIcGpha2wyV2pOT2VVMXBOV3BqYlhkM1VIZFpSRlpTTUdkQ1JHZDNUbXBCTUVKbldtNW5VWGRDUVdkSmQwdHFRVzlDWjJkeVFtZEZSa0pSWTBOQlVsbGpZVWhTTUdOSVRUWk1lVGwzWVRKcmRWb3lPWFphZVRsNVdsaENkbU15YkRCaU0wbzFUSHBCVGtKbmEzRm9hMmxIT1hjd1FrRlJjMFpCUVU5RFFWRkZRVWhNWlVwc2RWSlVOMkoyY3pJMlozbEJXamh6YnpneGRISlZTVk5rTjA4ME5YTnJSRlZ0UVdkbE1XTnVlR2hITVZBeVkwNXRVM2hpVjNOdmFVTjBNbVYxZURsTVUwUXJVRUZxTWt4SldWSkdTRmN6TVM4MmVHOXBZekZyTkhSaVYxaHJSRU5xYVhJek4zaFVWRTV4VWtGTlVGVjVSbEpYVTJSMmRDdHViRkJ4ZDI1aU9FOWhNa2t2YldGVFNuVnJZM2hFYWs1VFpuQkVhQzlDWkRGc1drNW5aR1F2T0dOTVpITkZNeXQzZVhCMVprbzVkVmhQTVdsUmNHNW9PWHBpZFVaSmQzTkpUMDVIYkRGd00wRTRRMmQ0YTNGSkwxVkJhV2d6U21GSFQzRmpjR05rWVVOSmVtdENZVkk1ZFZsUk1WZzBhekpXWnpWQlVGSk1iM1Y2Vm5rM1lUaEpWbXMyZDNWNU5uQnRLMVEzU0ZRMFRGazRhV0pUTlVaRldteG1RVVpNVTFjNFRuZHpWbm81VTBKTE1sWnhiakZPTUZCSlRXNDFlRUUyVGxwV1l6ZHZPRE0xUkV4QlJuTm9SVmRtUXpkVVNXVXpaejA5SWwxOS5leUp1YjI1alpTSTZJbXhYYTBscWVEZFBOSGxOY0ZaQlRtUjJVa1JZZVhWUFVrMUdiMjVWWWxaYWRUUXZXSGszU1hCMlpGSkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVkZMWjJ4NFNIbG1ibEpMUVZwV2NXbEtaRWx4ZEhGbU5FazVaSGd3YjA4MkwzcEJUemhVYmtSdmFuWkZXa0Z4TWtSYWEwSjVTVEZtWTI5WFZsRkZjUzlQTTBaTVNEVmhUM2Q2WW5KeWVISktOalZWTldSWmNXeEJVVWxFU21sQlFrbFdaMmRvTlU5S1psbFNSSHBXUjBsdmQwdHhWVFUzUVc1dlZtcHFaRzF0YWtkcE9YcHNUV3RxUVZaV09VUkJhVmREUkhJd2FWTnBNSFpwU1V0T1VFMVVTV1JPTWpoblYwNXRhMk4zVDNJMlJGRjROalpOVUdabU0wOWtiU3QxTm1WS2NVeENiREZJTWxNeWRISkJRa2hNYVc1cmJuTjVWazFRYlM5Q1RsVldXakpLUm14eU9EQWlMQ0owYVcxbGMzUmhiWEJOY3lJNk1UVXlPRGt4TVRZek5ETTROU3dpWVhCclVHRmphMkZuWlU1aGJXVWlPaUpqYjIwdVoyOXZaMnhsTG1GdVpISnZhV1F1WjIxeklpd2lZWEJyUkdsblpYTjBVMmhoTWpVMklqb2lTazlETTFWcmMyeHpkVlo2TVRObFQzQnVSa2s1UW5CTWIzRkNaemxyTVVZMlQyWmhVSFJDTDBkcVRUMGlMQ0pqZEhOUWNtOW1hV3hsVFdGMFkyZ2lPbVpoYkhObExDSmhjR3REWlhKMGFXWnBZMkYwWlVScFoyVnpkRk5vWVRJMU5pSTZXeUpIV0ZkNU9GaEdNM1pKYld3ekwwMW1ibTFUYlhsMVMwSndWRE5DTUdSWFlraFNVaTgwWTJkeEsyZEJQU0pkTENKaVlYTnBZMGx1ZEdWbmNtbDBlU0k2Wm1Gc2MyVXNJbUZrZG1salpTSTZJbEpGVTFSUFVrVmZWRTlmUmtGRFZFOVNXVjlTVDAwc1RFOURTMTlDVDA5VVRFOUJSRVZTSW4wLmlDRjZEMm9zOERZdURWT250M3pESkIybVNYblpqdFdKdGxfanpTRHg1TXJSQzlBMmZtRkJaNno1a3BRWjJNaVE3b290ajlXa0hNZ3hxSWhyWDNkbGgyUE9IQXdrSVMzNHlTakxWTnNTUHByRTg0ZVpncVNGTE1FWVQwR1IyZVZMSEFNUE44bjVSOEs2YnVET0dGM25TaTZHS3pHNTdabGw4Q1NvYjJ5aUFTOXI3c3BkQTZIMFRESC1OR3pTZGJNSUlkOGZaRDFkekZLTlFyNzdiNmxiSUFGZ1FiUlpCcm5wLWUtSDRpSDZkMjFvTjJOQVlSblI1WVVSYWNQNmtHR2oyY0Z4c3dFMjkwOHd4djloaVlOS05vamVldThYYzRJdDdQYmhsQXVPN3l3aFFGQTgxaVBDQ0ZtMTFCOGNmVVhiV0E4bF8ydHROUEJFTUdNNi1aNlZ5UQ",
   },
 };
@@ -421,45 +423,45 @@ let challengeResponseAttestationSafetyNetMsgB64Url = {
 //     }
 // };
 
-let assertionResponseMsgB64Url = {
-  "rawId":
+const assertionResponseMsgB64Url = {
+  rawId:
     "AAhH7cnPRBkcukjnc2G2GM1H5dkVs9P1q2VErhD57pkzKVjBbixdsufjXhUOfiD27D0VA-fPKUVYNGE2XYcjhihtYODQv-xEarplsa7Ix6hK13FA6uyRxMgHC3PhTbx-rbq_RMUbaJ-HoGVt-c820ifdoagkFR02Van8Vr9q67Bn6zHNDT_DNrQbtpIUqqX_Rg2p5o6F7bVO3uOJG9hUNgUb",
-  "id":
+  id:
     "AAhH7cnPRBkcukjnc2G2GM1H5dkVs9P1q2VErhD57pkzKVjBbixdsufjXhUOfiD27D0VA-fPKUVYNGE2XYcjhihtYODQv-xEarplsa7Ix6hK13FA6uyRxMgHC3PhTbx-rbq_RMUbaJ-HoGVt-c820ifdoagkFR02Van8Vr9q67Bn6zHNDT_DNrQbtpIUqqX_Rg2p5o6F7bVO3uOJG9hUNgUb",
-  "response": {
-    "clientDataJSON":
+  response: {
+    clientDataJSON:
       "eyJjaGFsbGVuZ2UiOiJlYVR5VU5ueVBERGRLOFNORWdURVV2ejFROGR5bGtqalRpbVlkNVg3UUFvLUY4X1oxbHNKaTNCaWxVcEZaSGtJQ05EV1k4cjlpdm5UZ1c3LVhaQzNxUSIsImNsaWVudEV4dGVuc2lvbnMiOnt9LCJoYXNoQWxnb3JpdGhtIjoiU0hBLTI1NiIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0Ojg0NDMiLCJ0eXBlIjoid2ViYXV0aG4uZ2V0In0=",
-    "authenticatorData": "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAABaw==",
-    "signature":
+    authenticatorData: "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAABaw==",
+    signature:
       "MEYCIQD6dF3B0ZoaLA0r78oyRdoMNR0bN93Zi4cF_75hFAH6pQIhALY0UIsrh03u_f4yKOwzwD6Cj3_GWLJiioTT9580s1a7",
-    "userHandle": "",
+    userHandle: "",
   },
 };
 
-let assertionResponseWindowsHelloMsgB64Url = {
-  "rawId": "AwVUFfSwuMV1DRHfYmNry1IUGW03wEw9aTAR7kJM1nw",
-  "id": "AwVUFfSwuMV1DRHfYmNry1IUGW03wEw9aTAR7kJM1nw",
-  "response": {
-    "clientDataJSON":
+const assertionResponseWindowsHelloMsgB64Url = {
+  rawId: "AwVUFfSwuMV1DRHfYmNry1IUGW03wEw9aTAR7kJM1nw",
+  id: "AwVUFfSwuMV1DRHfYmNry1IUGW03wEw9aTAR7kJM1nw",
+  response: {
+    clientDataJSON:
       "ew0KCSJ0eXBlIiA6ICJ3ZWJhdXRobi5nZXQiLA0KCSJjaGFsbGVuZ2UiIDogIm03WlUwWi1fSWl3dmlGbkYxSlhlSmpGaFZCaW5jVzY5RTFDdGo4QVEtWWJiMXVjNDFiTUh0SXRnNkpBQ2gxc09qX1pYam9udzJhY2pfSkQyaS1heEVRIiwNCgkib3JpZ2luIiA6ICJodHRwczovL3dlYmF1dGhuLm9yZyIsDQoJInRva2VuQmluZGluZyIgOiANCgl7DQoJCSJzdGF0dXMiIDogInN1cHBvcnRlZCINCgl9DQp9",
-    "authenticatorData": "lWkIjx7O4yMpVANdvRDXyuORMFonUbVZu4_Xy7IpvdQFAAAAAQ",
-    "signature":
+    authenticatorData: "lWkIjx7O4yMpVANdvRDXyuORMFonUbVZu4_Xy7IpvdQFAAAAAQ",
+    signature:
       "ElyXBPkS6ps0aod8pSEwdbaeG04SUSoucEHaulPrK3eBk3R4aePjTB-SjiPbya5rxzbuUIYO0UnqkpZrb19ZywWqwQ7qVxZzxSq7BCZmJhcML7j54eK_2nszVwXXVgO7WxpBcy_JQMxjwjXw6wNAxmnJ-H3TJJO82x4-9pDkno-GjUH2ObYk9NtkgylyMcENUaPYqajSLX-q5k14T2g839UC3xzsg71xHXQSeHgzPt6f3TXpNxNNcBYJAMm8-exKsoMkxHPDLkzK1wd5giietdoT25XQ72i8fjSSL8eiS1gllEjwbqLJn5zMQbWlgpSzJy3lK634sdeZtmMpXbRtMA",
-    "userHandle": "YWs",
+    userHandle: "YWs",
   },
 };
 
-let successServerResponse = {
+const successServerResponse = {
   status: "ok",
   errorMessage: "",
 };
 
-let errorServerResponse = {
+const errorServerResponse = {
   status: "failed",
   errorMessage: "out of memory",
 };
 
-let server = {
+const server = {
   creationOptionsRequest,
   basicCreationOptions,
   completeCreationOptions,
@@ -484,7 +486,7 @@ let server = {
  * ********************************************************************************
  * ******************************************************************************* */
 
-let makeCredentialAttestationNoneResponse = {
+const makeCredentialAttestationNoneResponse = {
   username: challengeResponseAttestationNoneMsgB64Url.username,
   rawId: b64decode(challengeResponseAttestationNoneMsgB64Url.rawId),
   response: {
@@ -497,7 +499,7 @@ let makeCredentialAttestationNoneResponse = {
   },
 };
 
-let makeCredentialAttestationU2fResponse = {
+const makeCredentialAttestationU2fResponse = {
   username: challengeResponseAttestationU2fMsgB64Url.username,
   rawId: b64decode(challengeResponseAttestationU2fMsgB64Url.rawId),
   response: {
@@ -510,7 +512,7 @@ let makeCredentialAttestationU2fResponse = {
   },
 };
 
-let makeCredentialAttestationHypersecuU2fResponse = {
+const makeCredentialAttestationHypersecuU2fResponse = {
   rawId: b64decode(challengeResponseAttestationU2fHypersecuB64UrlMsg.rawId),
   response: {
     attestationObject: b64decode(
@@ -523,7 +525,7 @@ let makeCredentialAttestationHypersecuU2fResponse = {
   },
 };
 
-let makeCredentialAttestationPackedResponse = {
+const makeCredentialAttestationPackedResponse = {
   rawId: b64decode(challengeResponseAttestationPackedB64UrlMsg.rawId),
   response: {
     attestationObject: b64decode(
@@ -535,7 +537,7 @@ let makeCredentialAttestationPackedResponse = {
   },
 };
 
-let makeCredentialAttestationTpmResponse = {
+const makeCredentialAttestationTpmResponse = {
   rawId: b64decode(challengeResponseAttestationTpmB64UrlMsg.rawId),
   response: {
     attestationObject: b64decode(
@@ -547,7 +549,7 @@ let makeCredentialAttestationTpmResponse = {
   },
 };
 
-let makeCredentialAttestationSafetyNetResponse = {
+const makeCredentialAttestationSafetyNetResponse = {
   rawId: b64decode(challengeResponseAttestationSafetyNetMsgB64Url.rawId),
   response: {
     attestationObject: b64decode(
@@ -559,7 +561,7 @@ let makeCredentialAttestationSafetyNetResponse = {
   },
 };
 
-let assertionResponse = {
+const assertionResponse = {
   id: assertionResponseMsgB64Url.id,
   rawId: b64decode(assertionResponseMsgB64Url.rawId),
   response: {
@@ -574,7 +576,7 @@ let assertionResponse = {
   },
 };
 
-let assertionResponseWindowsHello = {
+const assertionResponseWindowsHello = {
   rawId: b64decode(assertionResponseWindowsHelloMsgB64Url.rawId),
   response: {
     clientDataJSON: b64decode(
@@ -590,12 +592,12 @@ let assertionResponseWindowsHello = {
   },
 };
 
-let assnPublicKey = "-----BEGIN PUBLIC KEY-----\n" +
+const assnPublicKey = "-----BEGIN PUBLIC KEY-----\n" +
   "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERez9aO2wBAWO54MuGbEqSdWahSnG\n" +
   "MAg35BCNkaE3j8Q+O/ZhhKqTeIKm7El70EG6ejt4sg1ZaoQ5ELg8k3ywTg==\n" +
   "-----END PUBLIC KEY-----\n";
 
-let assnPublicKeyWindowsHello = "-----BEGIN PUBLIC KEY-----\n" +
+const assnPublicKeyWindowsHello = "-----BEGIN PUBLIC KEY-----\n" +
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2zT9pxqfMK3SNWvasEpd\n" +
   "5/IcnjKGUJcUOGWjNJ3oszlvOlkpiWjCwYqnVH0Fy4ohm0rGzOOw4kyQh6i/X2qX\n" +
   "dA0C2UNpuq29wpLBxl5ZiePVpnetJJVFRKiwA9WoDvlU3zX7QpFKzbEeRKSmI9r0\n" +
@@ -605,7 +607,7 @@ let assnPublicKeyWindowsHello = "-----BEGIN PUBLIC KEY-----\n" +
   "/QIDAQAB\n" +
   "-----END PUBLIC KEY-----\n";
 
-let lib = {
+const lib = {
   makeCredentialAttestationNoneResponse,
   makeCredentialAttestationU2fResponse,
   makeCredentialAttestationHypersecuU2fResponse,
@@ -624,7 +626,7 @@ let lib = {
  * ********************************************************************************
  * ******************************************************************************* */
 
-let yubiKeyAttestation = new Uint8Array([
+const yubiKeyAttestation = new Uint8Array([
   0x30,
   0x82,
   0x02,
@@ -1211,7 +1213,7 @@ let yubiKeyAttestation = new Uint8Array([
   0xD7,
 ]).buffer;
 
-let yubicoRoot = new Uint8Array([
+const yubicoRoot = new Uint8Array([
   0x30,
   0x82,
   0x03,
@@ -2016,7 +2018,7 @@ let yubicoRoot = new Uint8Array([
   0x73,
 ]).buffer;
 
-let feitianFido2 = new Uint8Array([
+const feitianFido2 = new Uint8Array([
   0x30,
   0x82,
   0x02,
@@ -2600,7 +2602,7 @@ let feitianFido2 = new Uint8Array([
   0xC0,
 ]).buffer;
 
-let tpmAttestation = new Uint8Array([
+const tpmAttestation = new Uint8Array([
   0x30,
   0x82,
   0x04,
@@ -3809,7 +3811,7 @@ let tpmAttestation = new Uint8Array([
   0x3D,
 ]).buffer;
 
-let certs = {
+const certs = {
   yubiKeyAttestation,
   yubicoRoot,
   feitianFido2,
@@ -3823,7 +3825,7 @@ let certs = {
  * ******************************************************************************* */
 
 // downloaded Jun 6, 2018
-let mds1TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
+const mds1TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
   "SUNuVENDQWtPZ0F3SUJBZ0lPUnZDTTFhdVU2RllWWFVlYkpIY3dDZ1lJS29aSXpqMEVBd0l3VX" +
   "pFTE1Ba0dBMVVFQmhNQ1ZWTXhGakFVQmdOVkJBb1REVVpKUkU4Z1FXeHNhV0Z1WTJVeEhUQWJC" +
   "Z05WQkFzVEZFMWxkR0ZrWVhSaElGUlBReUJUYVdkdWFXNW5NUTB3Q3dZRFZRUURFd1JEUVMweE" +
@@ -4234,7 +4236,7 @@ let mds1TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
 
 // downloaded Jun 11, 2018
 // [ 923881fe2f214ee465484371aeb72e97f5a58e0a ]
-let mds1U2fEntry = "ew0KICAiYXR0ZXN0YXRpb25DZXJ0aWZpY2F0ZUtleUlkZW50aWZpZX" +
+const mds1U2fEntry = "ew0KICAiYXR0ZXN0YXRpb25DZXJ0aWZpY2F0ZUtleUlkZW50aWZpZX" +
   "JzIjogWw0KICAgICI5MjM4ODFmZTJmMjE0ZWU0NjU0ODQzNzFhZWI3MmU5N2Y1YTU4ZTBhIg0K" +
   "ICBdLA0KICAicHJvdG9jb2xGYW1pbHkiOiAidTJmIiwNCiAgImFzc2VydGlvblNjaGVtZSI6IC" +
   "JVMkZWMUJJTiIsDQogICJkZXNjcmlwdGlvbiI6ICJGZWl0aWFuIEJpb1Bhc3MgRklETyBTZWN1" +
@@ -4313,7 +4315,7 @@ let mds1U2fEntry = "ew0KICAiYXR0ZXN0YXRpb25DZXJ0aWZpY2F0ZUtleUlkZW50aWZpZX" +
 
 // downloaded Jun 11, 2018
 // 0013#0001
-let mds1UafEntry = "ew0KICAiYWFpZCI6ICIwMDEzIzAwMDEiLA0KICAiYXNzZXJ0aW9uU2" +
+const mds1UafEntry = "ew0KICAiYWFpZCI6ICIwMDEzIzAwMDEiLA0KICAiYXNzZXJ0aW9uU2" +
   "NoZW1lIjogIlVBRlYxVExWIiwNCiAgImF0dGVzdGF0aW9uUm9vdENlcnRpZmljYXRlcyI6IFsN" +
   "CiAgICAiTUlJREFUQ0NBZW1nQXdJQkFnSUVkYm82dHpBTkJna3Foa2lHOXcwQkFRc0ZBREE0TV" +
   "Fzd0NRWURWUVFHRXdKTFVqRU5NQXNHQTFVRUNnd0VSVlJTU1RFYU1CZ0dBMVVFQXd3UlJWUlNT" +
@@ -4396,7 +4398,7 @@ let mds1UafEntry = "ew0KICAiYWFpZCI6ICIwMDEzIzAwMDEiLA0KICAiYXNzZXJ0aW9uU2" +
 
 // downloaded Jun 14, 2018
 // 4e4e#4005
-let mds1UafEntry4e4e4005 = "ew0KICAiYWFpZCI6ICI0ZTRlIzQwMDUiLA0KICAiZGVzY3" +
+const mds1UafEntry4e4e4005 = "ew0KICAiYWFpZCI6ICI0ZTRlIzQwMDUiLA0KICAiZGVzY3" +
   "JpcHRpb24iOiAiVG91Y2ggSUQgb3IgUGFzc2NvZGUgQXV0aGVudGljYXRvciIsDQogICJhdXRo" +
   "ZW50aWNhdG9yVmVyc2lvbiI6IDI1NiwNCiAgInVzZXJWZXJpZmljYXRpb25EZXRhaWxzIjogWw" +
   "0KICAgIFsNCiAgICAgIHsNCiAgICAgICAgInVzZXJWZXJpZmljYXRpb24iOiA0LA0KICAgICAg" +
@@ -4491,7 +4493,7 @@ let mds1UafEntry4e4e4005 = "ew0KICAiYWFpZCI6ICI0ZTRlIzQwMDUiLA0KICAiZGVzY3" +
   "ciI6IDAsDQogICAgICAiaW50ZXJsYWNlIjogMA0KICAgIH0NCiAgXQ0KfQ==";
 
 // downloaded Jun 6, 2018
-let mds2TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
+const mds2TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
   "SUNuVENDQWtPZ0F3SUJBZ0lPUnZDTTFhdVU2RllWWFVlYkpIY3dDZ1lJS29aSXpqMEVBd0l3VX" +
   "pFTE1Ba0dBMVVFQmhNQ1ZWTXhGakFVQmdOVkJBb1REVVpKUkU4Z1FXeHNhV0Z1WTJVeEhUQWJC" +
   "Z05WQkFzVEZFMWxkR0ZrWVhSaElGUlBReUJUYVdkdWFXNW5NUTB3Q3dZRFZRUURFd1JEUVMweE" +
@@ -4589,7 +4591,7 @@ let mds2TocJwt = "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogIkpXVCIsICJ4NWMiOiBbIk1J" +
 
 // downloaded Jun 6, 2018
 // 4e4e#4005
-let mds2UafEntry = "eyJhYWlkIjogIjRlNGUjNDAwNSIsICJhc3NlcnRpb25TY2hlbWUiOi" +
+const mds2UafEntry = "eyJhYWlkIjogIjRlNGUjNDAwNSIsICJhc3NlcnRpb25TY2hlbWUiOi" +
   "AiVUFGVjFUTFYiLCAiYXR0YWNobWVudEhpbnQiOiAxLCAiYXR0ZXN0YXRpb25Sb290Q2VydGlm" +
   "aWNhdGVzIjogW10sICJhdHRlc3RhdGlvblR5cGVzIjogWzE1ODgwXSwgImF1dGhlbnRpY2F0aW" +
   "9uQWxnb3JpdGhtIjogOCwgImF1dGhlbnRpY2F0b3JWZXJzaW9uIjogMjU2LCAiZGVzY3JpcHRp" +
@@ -4691,7 +4693,7 @@ let mds2UafEntry = "eyJhYWlkIjogIjRlNGUjNDAwNSIsICJhc3NlcnRpb25TY2hlbWUiOi" +
   "VyaWZpY2F0aW9uIjogMn1dXX0=";
 
 // https://mds.fidoalliance.org/Root.cer
-let mdsRootCert = "-----BEGIN CERTIFICATE-----\n" +
+const mdsRootCert = "-----BEGIN CERTIFICATE-----\n" +
   "MIICQzCCAcigAwIBAgIORqmxkzowRM99NQZJurcwCgYIKoZIzj0EAwMwUzELMAkG\n" +
   "A1UEBhMCVVMxFjAUBgNVBAoTDUZJRE8gQWxsaWFuY2UxHTAbBgNVBAsTFE1ldGFk\n" +
   "YXRhIFRPQyBTaWduaW5nMQ0wCwYDVQQDEwRSb290MB4XDTE1MDYxNzAwMDAwMFoX\n" +
@@ -4708,7 +4710,7 @@ let mdsRootCert = "-----BEGIN CERTIFICATE-----\n" +
   "-----END CERTIFICATE-----\n";
 
 // https://mds.fidoalliance.org/Root.crl
-let mdsRootCrl = "-----BEGIN X509 CRL-----\n" +
+const mdsRootCrl = "-----BEGIN X509 CRL-----\n" +
   "MIIBLTCBswIBATAKBggqhkjOPQQDAzBTMQswCQYDVQQGEwJVUzEWMBQGA1UEChMN\n" +
   "RklETyBBbGxpYW5jZTEdMBsGA1UECxMUTWV0YWRhdGEgVE9DIFNpZ25pbmcxDTAL\n" +
   "BgNVBAMTBFJvb3QXDTE4MDQwNzAwMDAwMFoXDTE4MDcxNTAwMDAwMFqgLzAtMAoG\n" +
@@ -4719,7 +4721,7 @@ let mdsRootCrl = "-----BEGIN X509 CRL-----\n" +
   "-----END X509 CRL-----\n";
 
 // http://mds.fidoalliance.org/CA-1.crl
-let ca1Crl = "-----BEGIN X509 CRL-----\n" +
+const ca1Crl = "-----BEGIN X509 CRL-----\n" +
   "MIIBDTCBswIBATAKBggqhkjOPQQDAjBTMQswCQYDVQQGEwJVUzEWMBQGA1UEChMN\n" +
   "RklETyBBbGxpYW5jZTEdMBsGA1UECxMUTWV0YWRhdGEgVE9DIFNpZ25pbmcxDTAL\n" +
   "BgNVBAMTBENBLTEXDTE4MDYwNzAwMDAwMFoXDTE4MDcxNTAwMDAwMFqgLzAtMAoG\n" +
@@ -4728,7 +4730,7 @@ let ca1Crl = "-----BEGIN X509 CRL-----\n" +
   "AIBctNT3uR9vLosOHQexvhp2EL/KO9cALAk6HaVwL/LD\n" +
   "-----END X509 CRL-----\n";
 
-let mdsIntermediateCert = "-----BEGIN CERTIFICATE-----\n" +
+const mdsIntermediateCert = "-----BEGIN CERTIFICATE-----\n" +
   "MIICsjCCAjigAwIBAgIORqmxk8NQuJfCENVYa1QwCgYIKoZIzj0EAwMwUzELMAkG\n" +
   "A1UEBhMCVVMxFjAUBgNVBAoTDUZJRE8gQWxsaWFuY2UxHTAbBgNVBAsTFE1ldGFk\n" +
   "YXRhIFRPQyBTaWduaW5nMQ0wCwYDVQQDEwRSb290MB4XDTE1MDYxNzAwMDAwMFoX\n" +
@@ -4746,7 +4748,7 @@ let mdsIntermediateCert = "-----BEGIN CERTIFICATE-----\n" +
   "9TAeVUml0iDBM8StE4DiVs/4ejFhqQ==\n" +
   "-----END CERTIFICATE-----\n";
 
-let mdsSigningCert = "-----BEGIN CERTIFICATE-----\n" +
+const mdsSigningCert = "-----BEGIN CERTIFICATE-----\n" +
   "MIICnTCCAkOgAwIBAgIORvCM1auU6FYVXUebJHcwCgYIKoZIzj0EAwIwUzELMAkG\n" +
   "A1UEBhMCVVMxFjAUBgNVBAoTDUZJRE8gQWxsaWFuY2UxHTAbBgNVBAsTFE1ldGFk\n" +
   "YXRhIFRPQyBTaWduaW5nMQ0wCwYDVQQDEwRDQS0xMB4XDTE1MDgxOTAwMDAwMFoX\n" +
@@ -4764,7 +4766,7 @@ let mdsSigningCert = "-----BEGIN CERTIFICATE-----\n" +
   "0g==\n" +
   "-----END CERTIFICATE-----\n";
 
-let mds = {
+const mds = {
   mds1TocJwt,
   mds1U2fEntry,
   mds1UafEntry,

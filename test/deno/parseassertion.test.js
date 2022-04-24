@@ -14,15 +14,15 @@ Deno.test("parser is object", function () {
 });
 
 Deno.test("parses assertion correctly", async function () {
-  var ret = await parser.parseAuthnrAssertionResponse(
+  const ret = await parser.parseAuthnrAssertionResponse(
     h.lib.assertionResponse,
   );
   assertEquals(ret instanceof Map, true);
   assertEquals(ret.size, 6);
   // rpid
-  var rpIdHash = ret.get("rpIdHash");
+  const rpIdHash = ret.get("rpIdHash");
   assertEquals(rpIdHash instanceof ArrayBuffer, true);
-  var expectedRpIdHash = new Uint8Array([
+  const expectedRpIdHash = new Uint8Array([
     0x49,
     0x96,
     0x0D,
@@ -58,16 +58,16 @@ Deno.test("parses assertion correctly", async function () {
   ]).buffer;
   assertEquals(abEqual(rpIdHash, expectedRpIdHash), true);
   // flags
-  var flags = ret.get("flags");
+  const flags = ret.get("flags");
   assertEquals(flags instanceof Set, true);
   assertEquals(flags.size, 1);
   assertEquals(flags.has("UP"), true);
   // counter
   assertEquals(ret.get("counter"), 363);
   // sig
-  var sig = ret.get("sig");
+  const sig = ret.get("sig");
   assertEquals(sig instanceof ArrayBuffer, true);
-  var expectedSig = new Uint8Array([
+  const expectedSig = new Uint8Array([
     0x30,
     0x46,
     0x02,
@@ -143,12 +143,12 @@ Deno.test("parses assertion correctly", async function () {
   ]).buffer;
   assertEquals(abEqual(sig, expectedSig), true);
   // userHandle
-  var userHandle = ret.get("userHandle");
+  const userHandle = ret.get("userHandle");
   assertEquals(typeof userHandle, "undefined");
   // authRawData
-  var rawAuthnrData = ret.get("rawAuthnrData");
+  const rawAuthnrData = ret.get("rawAuthnrData");
   assertEquals(rawAuthnrData instanceof ArrayBuffer, true);
-  var expectedAuthnrRawData = new Uint8Array([
+  const expectedAuthnrRawData = new Uint8Array([
     0x49,
     0x96,
     0x0D,
@@ -191,13 +191,13 @@ Deno.test("parses assertion correctly", async function () {
 });
 
 Deno.test("works", async function () {
-  var sig = h.lib.assertionResponse.response.signature;
-  var pk = h.lib.assnPublicKey;
-  var authnrData = h.lib.assertionResponse.response.authenticatorData;
-  var clientData = h.lib.assertionResponse.response.clientDataJSON;
+  const sig = h.lib.assertionResponse.response.signature;
+  const pk = h.lib.assnPublicKey;
+  const authnrData = h.lib.assertionResponse.response.authenticatorData;
+  const clientData = h.lib.assertionResponse.response.clientDataJSON;
 
   const hash = await tools.hashDigest(clientData);
-  var clientDataHash = new Uint8Array(hash).buffer;
+  const clientDataHash = new Uint8Array(hash).buffer;
 
   const res = await tools.verifySignature(
     pk,

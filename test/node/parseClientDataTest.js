@@ -1,18 +1,20 @@
 // Testing lib
 import * as chai from "chai";
-const { assert } = chai;
 
 // Helpers
 
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 // Test subject
 import { parseClientResponse } from "../../dist/webauthn.js";
+const { assert } = chai;
+const h = fido2helpers.default;
 
 describe("parseClientData", function () {
   it("correctly converts attestation JSON", function () {
-    let ret = parseClientResponse(h.lib.makeCredentialAttestationNoneResponse);
+    const ret = parseClientResponse(
+      h.lib.makeCredentialAttestationNoneResponse,
+    );
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 6);
     assert.strictEqual(
@@ -29,7 +31,7 @@ describe("parseClientData", function () {
   });
 
   it("correctly parses assertion JSON", function () {
-    let ret = parseClientResponse(h.lib.assertionResponse);
+    const ret = parseClientResponse(h.lib.assertionResponse);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 6);
     assert.strictEqual(

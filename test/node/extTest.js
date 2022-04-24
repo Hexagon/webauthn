@@ -1,10 +1,10 @@
 // Testing lib
 import * as chai from "chai";
-const assert = chai.assert;
 
 // Helpers
 import * as sinon from "sinon";
 import { Webauthn } from "../../dist/webauthn.js";
+const assert = chai.assert;
 
 describe("Webauthn extensions", function () {
   afterEach(function () {
@@ -16,7 +16,7 @@ describe("Webauthn extensions", function () {
     assert.isFunction(Webauthn.deleteAllExtensions);
     assert.isFunction(Webauthn.parseExtensionResult);
     assert.isFunction(Webauthn.validateExtensionResult);
-    let mc = new Webauthn();
+    const mc = new Webauthn();
     assert.isFunction(mc.generateExtensionOptions);
     assert.isFunction(mc.enableExtension);
     assert.isFunction(mc.disableExtension);
@@ -145,7 +145,7 @@ describe("Webauthn extensions", function () {
     });
 
     it("passes through options", function (done) {
-      let opts = {
+      const opts = {
         foo: "bar",
       };
 
@@ -289,7 +289,7 @@ describe("Webauthn extensions", function () {
     });
 
     it("sets options", function () {
-      let opts = {
+      const opts = {
         foo: "bar",
       };
 
@@ -308,8 +308,8 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls generator", function () {
-      let genSpy = sinon.stub();
-      let extVal = {
+      const genSpy = sinon.stub();
+      const extVal = {
         beer: "good",
       };
       genSpy.returns(extVal);
@@ -325,13 +325,13 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls all generators", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -348,13 +348,13 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls all enabled generators", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -371,17 +371,17 @@ describe("Webauthn extensions", function () {
     });
 
     it("passes through default options", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
-      let extOpt1 = {
+      const extOpt1 = {
         foo: "bar",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
-      let extOpt2 = null;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
+      const extOpt2 = null;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -406,17 +406,17 @@ describe("Webauthn extensions", function () {
     });
 
     it("passes through passed-in options", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
-      let extOpt1 = {
+      const extOpt1 = {
         foo: "bar",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
-      let extOpt2 = null;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
+      const extOpt2 = null;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -452,8 +452,8 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls generator", function () {
-      let genSpy = sinon.stub();
-      let extVal = {
+      const genSpy = sinon.stub();
+      const extVal = {
         beer: "good",
       };
       genSpy.returns(extVal);
@@ -469,13 +469,13 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls all generators", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -492,13 +492,13 @@ describe("Webauthn extensions", function () {
     });
 
     it("calls all enabled generators", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -515,17 +515,17 @@ describe("Webauthn extensions", function () {
     });
 
     it("passes through default options", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
-      let extOpt1 = {
+      const extOpt1 = {
         foo: "bar",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
-      let extOpt2 = null;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
+      const extOpt2 = null;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);
@@ -550,17 +550,17 @@ describe("Webauthn extensions", function () {
     });
 
     it("passes through passed-in options", function () {
-      let genSpy1 = sinon.stub();
-      let extVal1 = {
+      const genSpy1 = sinon.stub();
+      const extVal1 = {
         beer: "good",
       };
-      let extOpt1 = {
+      const extOpt1 = {
         foo: "bar",
       };
       genSpy1.returns(extVal1);
-      let genSpy2 = sinon.stub();
-      let extVal2 = false;
-      let extOpt2 = null;
+      const genSpy2 = sinon.stub();
+      const extVal2 = false;
+      const extOpt2 = null;
       genSpy2.returns(extVal2);
 
       Webauthn.addExtension("test1", genSpy1, fn, fn);

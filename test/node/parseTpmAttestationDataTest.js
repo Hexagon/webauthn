@@ -1,12 +1,9 @@
 // Testing lib
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
 
 // Helpers
 import * as fido2helpers from "fido2-helpers";
-const h = fido2helpers.default;
 
 import { abEqual, coerceToBase64 } from "../../dist/webauthn.js";
 
@@ -19,13 +16,16 @@ import {
   parseClientResponse,
   parseExpectations,
 } from "../../dist/webauthn.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
+const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
   parseAttestationObject,
 };
 
-let runs = [
+const runs = [
   { functionName: "parseAuthnrAttestationResponse" },
   { functionName: "parseAttestationObject" },
 ];
@@ -54,16 +54,16 @@ runs.forEach(function (run) {
     });
 
     it("parses fmt", function () {
-      let fmt = ret.get("fmt");
+      const fmt = ret.get("fmt");
       assert.strictEqual(fmt, "tpm");
     });
 
     it("parses sig", function () {
-      let sig = ret.get("sig");
+      const sig = ret.get("sig");
       assert.instanceOf(sig, ArrayBuffer);
       assert.strictEqual(sig.byteLength, 256);
 
-      let expectedSig = new Uint8Array([
+      const expectedSig = new Uint8Array([
         0x71,
         0x5D,
         0x62,
@@ -326,7 +326,7 @@ runs.forEach(function (run) {
     });
 
     it("parses version", function () {
-      let ver = ret.get("ver");
+      const ver = ret.get("ver");
       assert.isString(ver);
       assert.strictEqual(ver, "2.0");
     });
@@ -344,7 +344,7 @@ runs.forEach(function (run) {
     });
 
     it("parses x5c", function () {
-      let x5c = ret.get("x5c");
+      const x5c = ret.get("x5c");
 
       assert.isArray(x5c);
       assert.strictEqual(x5c.length, 1);
@@ -360,7 +360,7 @@ runs.forEach(function (run) {
     });
 
     it("parses alg", function () {
-      let alg = ret.get("alg");
+      const alg = ret.get("alg");
 
       assert.isObject(alg);
       assert.strictEqual(Object.keys(alg).length, 2);
@@ -383,11 +383,11 @@ runs.forEach(function (run) {
       });
 
       it("has raw data", function () {
-        let rawCertInfo = certInfo.get("rawCertInfo");
+        const rawCertInfo = certInfo.get("rawCertInfo");
         assert.instanceOf(rawCertInfo, ArrayBuffer);
         assert.strictEqual(rawCertInfo.byteLength, 161);
 
-        let expectedRawCertInfo = new Uint8Array([
+        const expectedRawCertInfo = new Uint8Array([
           0xFF,
           0x54,
           0x43,
@@ -558,20 +558,20 @@ runs.forEach(function (run) {
       });
 
       it("parses magic", function () {
-        let magic = certInfo.get("magic");
+        const magic = certInfo.get("magic");
 
         assert.strictEqual(magic, 0xff544347);
       });
 
       it("parses type", function () {
-        let type = certInfo.get("type");
+        const type = certInfo.get("type");
 
         assert.isString(type);
         assert.strictEqual(type, "TPM_ST_ATTEST_CERTIFY");
       });
 
       it("parses qualifiedSigner", function () {
-        let qualifiedSignerHashType = certInfo.get("qualifiedSignerHashType");
+        const qualifiedSignerHashType = certInfo.get("qualifiedSignerHashType");
         assert.strictEqual(qualifiedSignerHashType, "TPM_ALG_SHA256");
 
         let qualifiedSigner = certInfo.get("qualifiedSigner");
@@ -585,62 +585,62 @@ runs.forEach(function (run) {
       });
 
       it("parses extraData", function () {
-        let extraData = certInfo.get("extraData");
+        const extraData = certInfo.get("extraData");
 
         assert.instanceOf(extraData, ArrayBuffer);
         assert.strictEqual(extraData.byteLength, 20);
       });
 
       it("parses clock", function () {
-        let clock = certInfo.get("clock");
+        const clock = certInfo.get("clock");
 
         assert.instanceOf(clock, ArrayBuffer);
         assert.strictEqual(clock.byteLength, 8);
       });
 
       it("parses resetCount", function () {
-        let resetCount = certInfo.get("resetCount");
+        const resetCount = certInfo.get("resetCount");
 
         assert.strictEqual(resetCount, 1749088739);
       });
 
       it("parses restartCount", function () {
-        let restartCount = certInfo.get("restartCount");
+        const restartCount = certInfo.get("restartCount");
 
         assert.strictEqual(restartCount, 3639844613);
       });
 
       it("parses safe", function () {
-        let safe = certInfo.get("safe");
+        const safe = certInfo.get("safe");
 
         assert.strictEqual(safe, true);
       });
 
       it("parses firmwareVersion", function () {
-        let firmwareVersion = certInfo.get("firmwareVersion");
+        const firmwareVersion = certInfo.get("firmwareVersion");
 
         assert.instanceOf(firmwareVersion, ArrayBuffer);
         assert.strictEqual(firmwareVersion.byteLength, 8);
       });
 
       it("parses nameHashType", function () {
-        let nameHashType = certInfo.get("nameHashType");
+        const nameHashType = certInfo.get("nameHashType");
 
         assert.strictEqual(nameHashType, "TPM_ALG_SHA256");
       });
 
       it("parses name", function () {
-        let name = certInfo.get("name");
+        const name = certInfo.get("name");
 
         assert.instanceOf(name, ArrayBuffer);
         assert.strictEqual(name.byteLength, 32);
       });
 
       it("parses qualifiedNameHashType", function () {
-        let qualifiedNameHashType = certInfo.get("qualifiedNameHashType");
+        const qualifiedNameHashType = certInfo.get("qualifiedNameHashType");
         assert.strictEqual(qualifiedNameHashType, "TPM_ALG_SHA256");
 
-        let qualifiedName = certInfo.get("qualifiedName");
+        const qualifiedName = certInfo.get("qualifiedName");
         assert.instanceOf(qualifiedName, ArrayBuffer);
         assert.strictEqual(qualifiedName.byteLength, 32);
       });
@@ -661,11 +661,11 @@ runs.forEach(function (run) {
       });
 
       it("has raw data", function () {
-        let rawPubArea = pubArea.get("rawPubArea");
+        const rawPubArea = pubArea.get("rawPubArea");
         assert.instanceOf(rawPubArea, ArrayBuffer);
         assert.strictEqual(rawPubArea.byteLength, 310);
 
-        let expectedRawPubArea = new Uint8Array([
+        const expectedRawPubArea = new Uint8Array([
           0x00,
           0x01,
           0x00,
@@ -985,19 +985,19 @@ runs.forEach(function (run) {
       });
 
       it("parses type", function () {
-        let type = pubArea.get("type");
+        const type = pubArea.get("type");
 
         assert.strictEqual(type, "TPM_ALG_RSA");
       });
 
       it("parses nameAlg", function () {
-        let nameAlg = pubArea.get("nameAlg");
+        const nameAlg = pubArea.get("nameAlg");
 
         assert.strictEqual(nameAlg, "TPM_ALG_SHA256");
       });
 
       it("parses objectAttributes", function () {
-        let objectAttributes = pubArea.get("objectAttributes");
+        const objectAttributes = pubArea.get("objectAttributes");
 
         assert.instanceOf(objectAttributes, Set);
         assert.strictEqual(objectAttributes.size, 7);
@@ -1032,39 +1032,39 @@ runs.forEach(function (run) {
       });
 
       it("parses authPolicy", function () {
-        let authPolicy = pubArea.get("authPolicy");
+        const authPolicy = pubArea.get("authPolicy");
 
         assert.instanceOf(authPolicy, ArrayBuffer);
         assert.strictEqual(authPolicy.byteLength, 32);
       });
 
       it("parses symmetric", function () {
-        let symmetric = pubArea.get("symmetric");
+        const symmetric = pubArea.get("symmetric");
 
         assert.strictEqual(symmetric, "TPM_ALG_NULL");
       });
 
       it("parses scheme", function () {
-        let scheme = pubArea.get("scheme");
+        const scheme = pubArea.get("scheme");
 
         assert.strictEqual(scheme, "TPM_ALG_NULL");
       });
 
       it("parses keyBits", function () {
-        let keyBits = pubArea.get("keyBits");
+        const keyBits = pubArea.get("keyBits");
 
         assert.strictEqual(keyBits, 2048);
       });
 
       it("parses exponent", function () {
-        let exponent = pubArea.get("exponent");
+        const exponent = pubArea.get("exponent");
 
         assert.isNumber(exponent);
         assert.strictEqual(exponent, 65537);
       });
 
       it("parses unique", function () {
-        let unique = pubArea.get("unique");
+        const unique = pubArea.get("unique");
 
         assert.instanceOf(unique, ArrayBuffer);
         assert.strictEqual(unique.byteLength, 256);
@@ -1072,21 +1072,21 @@ runs.forEach(function (run) {
     });
 
     it("parses rawAuthnrData", function () {
-      let rawAuthnrData = ret.get("rawAuthnrData");
+      const rawAuthnrData = ret.get("rawAuthnrData");
 
       assert.instanceOf(rawAuthnrData, ArrayBuffer);
       assert.strictEqual(rawAuthnrData.byteLength, 359);
     });
 
     it("parses rpIdHash", function () {
-      let rpIdHash = ret.get("rpIdHash");
+      const rpIdHash = ret.get("rpIdHash");
 
       assert.instanceOf(rpIdHash, ArrayBuffer);
       assert.strictEqual(rpIdHash.byteLength, 32);
     });
 
     it("parses flags", function () {
-      let flags = ret.get("flags");
+      const flags = ret.get("flags");
 
       assert.instanceOf(flags, Set);
       assert.strictEqual(flags.size, 3);
@@ -1096,36 +1096,36 @@ runs.forEach(function (run) {
     });
 
     it("parses counter", function () {
-      let counter = ret.get("counter");
+      const counter = ret.get("counter");
 
       assert.isNumber(counter);
       assert.strictEqual(counter, 0);
     });
 
     it("parses aaguid", function () {
-      let aaguid = ret.get("aaguid");
+      const aaguid = ret.get("aaguid");
 
       assert.instanceOf(aaguid, ArrayBuffer);
       assert.strictEqual(aaguid.byteLength, 16);
     });
 
     it("parses credId", function () {
-      let credIdLen = ret.get("credIdLen");
+      const credIdLen = ret.get("credIdLen");
       assert.strictEqual(credIdLen, 32);
-      let credId = ret.get("credId");
+      const credId = ret.get("credId");
       assert.instanceOf(credId, ArrayBuffer);
       assert.strictEqual(credId.byteLength, 32);
     });
 
     it("parses credentialPublicKeyCose", function () {
-      let credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
+      const credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
 
       assert.instanceOf(credentialPublicKeyCose, ArrayBuffer);
       assert.strictEqual(credentialPublicKeyCose.byteLength, 272);
     });
 
     it("parses credentialPublicKeyJwk", function () {
-      let credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
+      const credentialPublicKeyJwk = ret.get("credentialPublicKeyJwk");
 
       assert.isObject(credentialPublicKeyJwk);
       assert.strictEqual(Object.keys(credentialPublicKeyJwk).length, 4);
@@ -1142,7 +1142,7 @@ runs.forEach(function (run) {
     });
 
     it("parses credentialPublicKeyPem", function () {
-      let credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
+      const credentialPublicKeyPem = ret.get("credentialPublicKeyPem");
       assert.isString(credentialPublicKeyPem);
       assert.strictEqual(credentialPublicKeyPem.length, 451);
     });

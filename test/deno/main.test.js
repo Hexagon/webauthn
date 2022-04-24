@@ -22,28 +22,30 @@ Deno.test("Istantiation and registration", async () => {
   assertEquals(testObj.attestationMap instanceof Map, true);
 
   // Registration
-  let registrationOptions = await testObj.attestationOptions();
+  const registrationOptions = await testObj.attestationOptions();
   assertEquals(registrationOptions.rp.name, "Webauthn Test");
   assertEquals(registrationOptions.rp.id, "My RP");
   assertEquals(registrationOptions.attestation, "none");
   assertEquals(registrationOptions.challenge instanceof ArrayBuffer, true);
   assertEquals(registrationOptions.challenge.byteLength, 128);
-  let attestationExpectations = {
+  const attestationExpectations = {
     challenge:
       "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
     origin: "https://localhost:8443",
     factor: "either",
   };
-  let regResult = await testObj.attestationResult(
+  const regResult = await testObj.attestationResult(
     h.lib.makeCredentialAttestationNoneResponse,
     attestationExpectations,
   ); // will throw on error
   assertEquals(regResult.audit.validExpectations, true);
   assertEquals(regResult.audit.validRequest, true);
   assertEquals(regResult.audit.complete, true);
-  var publicKey = regResult.authnrData.get("credentialPublicKeyPem"),
-    counter = regResult.authnrData.get("counter"),
-    credId = regResult.authnrData.get("credId");
+  const publicKey = regResult.authnrData.get("credentialPublicKeyPem");
+  assertEquals(publicKey !== undefined, true);
+  
+  const counter = regResult.authnrData.get("counter");
+  const credId = regResult.authnrData.get("credId");
 
   // Authorization
   const testObjAuth = new Webauthn({
@@ -60,9 +62,9 @@ Deno.test("Istantiation and registration", async () => {
   assertEquals(testObj.attestationMap instanceof Map, true);
 
   // Authentication
-  var authnOptions = await testObjAuth.assertionOptions();
+  await testObjAuth.assertionOptions();
 
-  var assertionExpectations = {
+  const assertionExpectations = {
     // Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
     // allowCredentials: [{
     //     id: "lTqW8H/lHJ4yT0nLOvsvKgcyJCeO8LdUjG5vkXpgO2b0XfyjLMejRvW5oslZtA4B/GgkO/qhTgoBWSlDqCng4Q==",
@@ -77,7 +79,7 @@ Deno.test("Istantiation and registration", async () => {
     prevCounter: counter,
     userHandle: credId,
   };
-  var authResult = await testObjAuth.assertionResult(
+  await testObjAuth.assertionResult(
     h.lib.assertionResponse,
     assertionExpectations,
   ); // will throw on error
