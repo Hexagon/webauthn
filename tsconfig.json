@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["lib"],
   "compilerOptions": {
     "allowJs": true,
     "declaration": true,
