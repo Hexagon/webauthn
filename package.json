@@ -1,6 +1,6 @@
 {
   "name": "@hexagon/webauthn",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Slim Webauthn library with ES6, Node and Deno support.",
   "author": "Hexagon <github.com/hexagon>",
   "license": "MIT",
@@ -14,8 +14,8 @@
     "url": "https://github.com/hexagon/webauthn/issues"
   },
   "files": [
-    "lib/common/*",
-    "lib/node/*",
+    "dist/",
+    "lib/*",
     "types/*",
     "SECURITY.md"
   ],
