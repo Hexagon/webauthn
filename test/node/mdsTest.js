@@ -241,8 +241,8 @@ describe("MdsCollection", function () {
       assert.isString(toc.raw);
     });
 
-    it("works with array of root certs", function () {
-      return mc.addToc(
+    it("works with array of root certs", async function () {
+      return await mc.addToc(
         h.mds.mds1TocJwt,
         [
           h.mds.mdsRootCert,
@@ -254,23 +254,23 @@ describe("MdsCollection", function () {
       );
     });
 
-    it("MDS1 works with default root cert", function () {
-      return mc.addToc(h.mds.mds1TocJwt);
+    it("MDS1 works with default root cert", async function () {
+      return await mc.addToc(h.mds.mds1TocJwt);
     });
 
-    it("MDS2 works with default root cert", function () {
-      return mc.addToc(h.mds.mds2TocJwt);
+    it("MDS2 works with default root cert", async function () {
+      return await mc.addToc(h.mds.mds2TocJwt);
     });
 
-    it("works with no CRLs", function () {
-      return mc.addToc(
+    it("works with no CRLs", async function () {
+      return await mc.addToc(
         h.mds.mds1TocJwt,
         h.mds.mdsRootCert,
       );
     });
 
-    it("parses MDS2 TOC", function () {
-      return mc.addToc(h.mds.mds2TocJwt);
+    it("parses MDS2 TOC", async function () {
+      return await mc.addToc(h.mds.mds2TocJwt);
     });
 
     it("throws on bad signature", function () {
@@ -952,7 +952,7 @@ describe("MdsCollection", function () {
       mc = new MdsCollection("test");
       await mc.addToc(h.mds.mds2TocJwt);
       mc.addEntry(h.mds.mds2UafEntry);
-      mc.validate();
+      await mc.validate();
     });
 
     it("throws if id is bad type", function () {

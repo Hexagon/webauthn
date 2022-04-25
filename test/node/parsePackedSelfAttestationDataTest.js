@@ -456,7 +456,6 @@ runs.forEach(function (run) {
         0x1C,
         0x97,
       ]).buffer;
-      console.log(rawAuthnrData, expectedRawAuthnrData);
       assert.isTrue(
         abEqual(rawAuthnrData, expectedRawAuthnrData),
         "rawAuthnrData has correct value",
