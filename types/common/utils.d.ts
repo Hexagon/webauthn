@@ -14,15 +14,14 @@ export function abToStr(buf: any): string;
  */
 export function appendBuffer(buffer1: ArrayBuffers, buffer2: ArrayBuffers): ArrayBuffers;
 export function b64ToJsObject(b64: any, desc: any): any;
-import { base64 } from "./tools/base64/base64.js";
 export function coerceToArrayBuffer(buf: any, name: any): ArrayBuffer;
 export function coerceToBase64(thing: any, name: any): string;
 export function coerceToBase64Url(thing: any, name: any): string;
 export function isBase64Url(str: any): boolean;
 export function isPem(pem: any): boolean;
 export function isPositiveInteger(n: any): boolean;
-export function jsObjectToB64(obj: any): string;
+export function jsObjectToB64(obj: any): any;
 export function pemToBase64(pem: any): any;
 export function strToAb(str: any): ArrayBuffer;
 import * as tools from "../toolbox.js";
-export { base64, tools };
+export { tools };

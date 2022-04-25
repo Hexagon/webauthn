@@ -2,7 +2,7 @@
 import { assertEquals, assertThrows } from "./common/deps.js";
 
 // Helpers
-import { base64, tools } from "../../lib/common/utils.js";
+import { tools } from "../../lib/common/utils.js";
 
 Deno.test("randomValues", () => {
   const res32bytes = tools.randomValues(32);
@@ -22,7 +22,7 @@ Deno.test("checkOrigin should throw on non public suffix", () => {
 });
 
 Deno.test("hash", async () => {
-  const hash = base64.fromArrayBuffer(
+  const hash = tools.base64.fromArrayBuffer(
     await tools.hashDigest(new TextEncoder().encode("Asd")),
   );
   assertEquals(hash, "I/N27AiwtvQxCPYb+qls0Wjz2sTl5cAhhaEHrZz/xdE=");

@@ -10,5 +10,12 @@
       "files": {
         "include": ["lib/","test/"]
       }
+    },
+    "importMap": "import_map.json",
+    "tasks": {
+      "test": "deno test test/deno",
+      "coverage": "deno test --coverage=coverage test/deno && deno coverage --exclude=dist --exclude=test coverage",
+      "bundle": "deno bundle lib/webauthn.js dist/webauthn.js",
+      "build": "deno lint && deno task test && deno task bundle && npm run typings && npm run test"
     }
   }

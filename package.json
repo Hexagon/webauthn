@@ -30,18 +30,9 @@
     "android"
   ],
   "scripts": {
-    "test": "deno test test/deno",
-    "test:coverage": "deno test --coverage=coverage test/deno && npm run display:coverage",
-    "test:node": "npx mocha test/node",
-    "display:coverage": "deno coverage --exclude=\"dist\" --exclude=\"test\" coverage",
-    "lint": "deno lint",
-    "build": "npm update && npm outdated && npm run lint && npm run test && npm run build:typings && npm run build:bundle && npm run test:node && echo \"Build successful\"",
-    "build:bundle": "deno bundle lib/webauthn.js dist/webauthn.js",
-    "build:ci": "npm run test:node",
-    "build:typings": "npm run build:typings:precleanup && tsc",
-    "build:typings:precleanup": "(rm -rf types/* || rd /S /Q types)",
-    "build:docs": "npm run build:docs:precleanup & jsdoc -c .jsdoc.json",
-    "build:docs:precleanup": "(rm -rf docs/* || rd /S /Q docs)"
+    "test": "npx mocha test/node",
+    "typings": "(rm -rf types/* || rd /S /Q types) & tsc",
+    "docs": "(rm -rf docs/* || rd /S /Q docs) & jsdoc -c .jsdoc.json"
   },
   "type": "module",
   "main": "./dist/webauthn.js",

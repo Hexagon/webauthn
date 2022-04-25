@@ -10,72 +10,6 @@ if (typeof Deno === "undefined") {
 if (typeof crypto === "undefined") {
     global.crypto = (await import("crypto")).webcrypto;
 }
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const charsUrl = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-const genLookup = (target1)=>{
-    const lookupTemp = typeof Uint8Array === "undefined" ? [] : new Uint8Array(256);
-    for(let i4 = 0; i4 < chars.length; i4++){
-        lookupTemp[target1.charCodeAt(i4)] = i4;
-    }
-    return lookupTemp;
-};
-const lookup = genLookup(chars);
-const lookupUrl = genLookup(charsUrl);
-const base64 = {};
-base64.toArrayBuffer = (data, urlMode)=>{
-    let bufferLength = data.length * 0.75;
-    const len = data.length;
-    let i5;
-    let p = 0;
-    let encoded1;
-    let encoded2;
-    let encoded3;
-    let encoded4;
-    if (data[data.length - 1] === "=") {
-        bufferLength--;
-        if (data[data.length - 2] === "=") {
-            bufferLength--;
-        }
-    }
-    const arraybuffer = new ArrayBuffer(bufferLength);
-    const bytes = new Uint8Array(arraybuffer);
-    const target2 = urlMode ? lookupUrl : lookup;
-    for(i5 = 0; i5 < len; i5 += 4){
-        encoded1 = target2[data.charCodeAt(i5)];
-        encoded2 = target2[data.charCodeAt(i5 + 1)];
-        encoded3 = target2[data.charCodeAt(i5 + 2)];
-        encoded4 = target2[data.charCodeAt(i5 + 3)];
-        bytes[p++] = encoded1 << 2 | encoded2 >> 4;
-        bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
-        bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
-    }
-    return arraybuffer;
-};
-base64.fromArrayBuffer = (arrBuf, urlMode)=>{
-    const bytes = new Uint8Array(arrBuf);
-    let i6;
-    const len = bytes.length;
-    let result = "";
-    const target3 = urlMode ? charsUrl : chars;
-    for(i6 = 0; i6 < len; i6 += 3){
-        result += target3[bytes[i6] >> 2];
-        result += target3[(bytes[i6] & 3) << 4 | bytes[i6 + 1] >> 4];
-        result += target3[(bytes[i6 + 1] & 15) << 2 | bytes[i6 + 2] >> 6];
-        result += target3[bytes[i6 + 2] & 63];
-    }
-    if (len % 3 === 2) {
-        result = result.substring(0, result.length - 1) + (urlMode ? "" : "=");
-    } else if (len % 3 === 1) {
-        result = result.substring(0, result.length - 2) + (urlMode ? "" : "==");
-    }
-    return result;
-};
-base64.toString = (str, urlMode)=>{
-    return new TextDecoder().decode(base64.toArrayBuffer(str, urlMode));
-};
-base64.fromString = (str, urlMode)=>{
-    return base64.fromArrayBuffer(new TextEncoder().encode(str), urlMode);
-};
 const base = 36;
 const damp = 700;
 const delimiter = '-';
@@ -162,7 +96,7 @@ const adapt = function(delta, numPoints, firstTime) {
 const decode = function(input) {
     const output = [];
     const inputLength = input.length;
-    let i7 = 0;
+    let i4 = 0;
     let n1 = 128;
     let bias = 72;
     let basic = input.lastIndexOf(delimiter);
@@ -176,16 +110,16 @@ const decode = function(input) {
         output.push(input.charCodeAt(j));
     }
     for(let index = basic > 0 ? basic + 1 : 0; index < inputLength;){
-        let oldi = i7;
+        let oldi = i4;
         for(let w = 1, k = 36;; k += base){
             if (index >= inputLength) {
                 error('invalid-input');
             }
             const digit = basicToDigit(input.charCodeAt(index++));
-            if (digit >= 36 || digit > floor((2147483647 - i7) / w)) {
+            if (digit >= 36 || digit > floor((2147483647 - i4) / w)) {
                 error('overflow');
             }
-            i7 += digit * w;
+            i4 += digit * w;
             const t1 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
             if (digit < t1) {
                 break;
@@ -197,13 +131,13 @@ const decode = function(input) {
             w *= baseMinusT;
         }
         const out = output.length + 1;
-        bias = adapt(i7 - oldi, out, oldi == 0);
-        if (floor(i7 / out) > 2147483647 - n1) {
+        bias = adapt(i4 - oldi, out, oldi == 0);
+        if (floor(i4 / out) > 2147483647 - n1) {
             error('overflow');
         }
-        n1 += floor(i7 / out);
-        i7 %= out;
-        output.splice(i7++, 0, n1);
+        n1 += floor(i4 / out);
+        i4 %= out;
+        output.splice(i4++, 0, n1);
     }
     return String.fromCodePoint(...output);
 };
@@ -632,8 +566,8 @@ function promisify(original) {
                 }
                 if (argumentNames !== undefined && values.length > 1) {
                     const obj = {};
-                    for(let i8 = 0; i8 < argumentNames.length; i8++){
-                        obj[argumentNames[i8]] = values[i8];
+                    for(let i5 = 0; i5 < argumentNames.length; i5++){
+                        obj[argumentNames[i5]] = values[i5];
                     }
                     resolve3(obj);
                 } else {
@@ -833,11 +767,11 @@ function indexOfNeedle(source, needle, start = 0) {
         start = Math.max(0, source.length + start);
     }
     const s1 = needle[0];
-    for(let i9 = start; i9 < source.length; i9++){
-        if (source[i9] !== s1) continue;
-        const pin = i9;
+    for(let i6 = start; i6 < source.length; i6++){
+        if (source[i6] !== s1) continue;
+        const pin = i6;
         let matched = 1;
-        let j = i9;
+        let j = i6;
         while(matched < needle.length){
             j++;
             if (source[j] !== needle[j - pin]) {
@@ -909,7 +843,7 @@ class BufReader {
         if (this.#w >= this.#buf.byteLength) {
             throw Error("bufio: tried to fill full buffer");
         }
-        for(let i10 = 100; i10 > 0; i10--){
+        for(let i7 = 100; i7 > 0; i7--){
             const rr = await this.#rd.read(this.#buf.subarray(this.#w));
             if (rr === null) {
                 this.#eof = true;
@@ -1052,11 +986,11 @@ class BufReader {
         let s2 = 0;
         let slice;
         while(true){
-            let i11 = this.#buf.subarray(this.#r + s2, this.#w).indexOf(delim);
-            if (i11 >= 0) {
-                i11 += s2;
-                slice = this.#buf.subarray(this.#r, this.#r + i11 + 1);
-                this.#r += i11 + 1;
+            let i8 = this.#buf.subarray(this.#r + s2, this.#w).indexOf(delim);
+            if (i8 >= 0) {
+                i8 += s2;
+                slice = this.#buf.subarray(this.#r, this.#r + i8 + 1);
+                this.#r += i8 + 1;
                 break;
             }
             if (this.#eof) {
@@ -1281,10 +1215,10 @@ function isArrayIndex(value) {
                     return isNumericLookup[value] = false;
                 }
                 let ch = 0;
-                let i12 = 0;
-                for(; i12 < length; ++i12){
-                    ch = value.charCodeAt(i12);
-                    if (i12 === 0 && ch === 0x30 && length > 1 || ch < 0x30 || ch > 0x39) {
+                let i9 = 0;
+                for(; i9 < length; ++i9){
+                    ch = value.charCodeAt(i9);
+                    if (i9 === 0 && ch === 0x30 && length > 1 || ch < 0x30 || ch > 0x39) {
                         return isNumericLookup[value] = false;
                     }
                 }
@@ -1586,8 +1520,8 @@ function inspect(value, opts) {
             ctx.showHidden = opts;
         } else if (opts) {
             const optKeys = Object.keys(opts);
-            for(let i13 = 0; i13 < optKeys.length; ++i13){
-                const key = optKeys[i13];
+            for(let i10 = 0; i10 < optKeys.length; ++i10){
+                const key = optKeys[i10];
                 if (inspectDefaultOptions.hasOwnProperty(key) || key === "stylize") {
                     ctx[key] = opts[key];
                 } else if (ctx.userOptions === undefined) {
@@ -1792,13 +1726,13 @@ inspect.colors = Object.assign(Object.create(null), {
         defaultBG
     ]
 });
-function defineColorAlias(target4, alias) {
+function defineColorAlias(target1, alias) {
     Object.defineProperty(inspect.colors, alias, {
         get () {
-            return this[target4];
+            return this[target1];
         },
         set (value) {
-            this[target4] = value;
+            this[target1] = value;
         },
         configurable: true,
         enumerable: false
@@ -1865,15 +1799,15 @@ function strEscape(str) {
     let result = "";
     let last = 0;
     const lastIndex = str.length;
-    for(let i14 = 0; i14 < lastIndex; i14++){
-        const point = str.charCodeAt(i14);
+    for(let i11 = 0; i11 < lastIndex; i11++){
+        const point = str.charCodeAt(i11);
         if (point === singleQuote || point === 92 || point < 32 || point > 126 && point < 160) {
-            if (last === i14) {
+            if (last === i11) {
                 result += meta[point];
             } else {
-                result += `${str.slice(last, i14)}${meta[point]}`;
+                result += `${str.slice(last, i11)}${meta[point]}`;
             }
-            last = i14 + 1;
+            last = i11 + 1;
         }
     }
     if (last !== lastIndex) {
@@ -1951,7 +1885,7 @@ function formatRaw(ctx, value, recurseTimes, typedArray) {
     let formatter = getEmptyFormatArray;
     let braces;
     let noIterator = true;
-    let i15 = 0;
+    let i12 = 0;
     const filter = ctx.showHidden ? 0 : 2;
     let extrasType = 0;
     if (value[Symbol.iterator] || constructor === null) {
@@ -2113,8 +2047,8 @@ function formatRaw(ctx, value, recurseTimes, typedArray) {
     const indentationLvl = ctx.indentationLvl;
     try {
         output = formatter(ctx, value, recurseTimes);
-        for(i15 = 0; i15 < keys.length; i15++){
-            output.push(formatProperty(ctx, value, recurseTimes, keys[i15], extrasType));
+        for(i12 = 0; i12 < keys.length; i12++){
+            output.push(formatProperty(ctx, value, recurseTimes, keys[i12], extrasType));
         }
         if (protoProps !== undefined) {
             output.push(...protoProps);
@@ -2284,11 +2218,11 @@ function formatArray(ctx, value, recurseTimes) {
     const len = Math.min(Math.max(0, ctx.maxArrayLength), valLen);
     const remaining = valLen - len;
     const output = [];
-    for(let i16 = 0; i16 < len; i16++){
-        if (!value.hasOwnProperty(i16)) {
-            return formatSpecialArray(ctx, value, recurseTimes, len, output, i16);
+    for(let i13 = 0; i13 < len; i13++){
+        if (!value.hasOwnProperty(i13)) {
+            return formatSpecialArray(ctx, value, recurseTimes, len, output, i13);
         }
-        output.push(formatProperty(ctx, value, recurseTimes, i16, 1));
+        output.push(formatProperty(ctx, value, recurseTimes, i13, 1));
     }
     if (remaining > 0) {
         output.push(`... ${remaining} more item${remaining > 1 ? "s" : ""}`);
@@ -2345,8 +2279,8 @@ function formatTypedArray(value, length, ctx, _ignored, recurseTimes) {
     const remaining = value.length - maxLength;
     const output = new Array(maxLength);
     const elementFormatter = value.length > 0 && typeof value[0] === "number" ? formatNumber : formatBigInt;
-    for(let i17 = 0; i17 < maxLength; ++i17){
-        output[i17] = elementFormatter(ctx.stylize, value[i17]);
+    for(let i14 = 0; i14 < maxLength; ++i14){
+        output[i14] = elementFormatter(ctx.stylize, value[i14]);
     }
     if (remaining > 0) {
         output[maxLength] = `... ${remaining} more item${remaining > 1 ? "s" : ""}`;
@@ -2611,11 +2545,11 @@ function isBelowBreakLength(ctx, output, start, base4) {
     if (totalLength + output.length > ctx.breakLength) {
         return false;
     }
-    for(let i18 = 0; i18 < output.length; i18++){
+    for(let i15 = 0; i15 < output.length; i15++){
         if (ctx.colors) {
-            totalLength += removeColors(output[i18]).length;
+            totalLength += removeColors(output[i15]).length;
         } else {
-            totalLength += output[i18].length;
+            totalLength += output[i15].length;
         }
         if (totalLength > ctx.breakLength) {
             return false;
@@ -2628,26 +2562,26 @@ function formatBigInt(fn, value) {
 }
 function formatNamespaceObject(keys, ctx, value, recurseTimes) {
     const output = new Array(keys.length);
-    for(let i19 = 0; i19 < keys.length; i19++){
+    for(let i16 = 0; i16 < keys.length; i16++){
         try {
-            output[i19] = formatProperty(ctx, value, recurseTimes, keys[i19], kObjectType);
+            output[i16] = formatProperty(ctx, value, recurseTimes, keys[i16], kObjectType);
         } catch (_err) {
             const tmp = {
-                [keys[i19]]: ""
+                [keys[i16]]: ""
             };
-            output[i19] = formatProperty(ctx, tmp, recurseTimes, keys[i19], kObjectType);
-            const pos = output[i19].lastIndexOf(" ");
-            output[i19] = output[i19].slice(0, pos + 1) + ctx.stylize("<uninitialized>", "special");
+            output[i16] = formatProperty(ctx, tmp, recurseTimes, keys[i16], kObjectType);
+            const pos = output[i16].lastIndexOf(" ");
+            output[i16] = output[i16].slice(0, pos + 1) + ctx.stylize("<uninitialized>", "special");
         }
     }
     keys.length = 0;
     return output;
 }
-function formatSpecialArray(ctx, value, recurseTimes, maxLength, output, i20) {
+function formatSpecialArray(ctx, value, recurseTimes, maxLength, output, i17) {
     const keys = Object.keys(value);
-    let index = i20;
-    for(; i20 < keys.length && output.length < maxLength; i20++){
-        const key = keys[i20];
+    let index = i17;
+    for(; i17 < keys.length && output.length < maxLength; i17++){
+        const key = keys[i17];
         const tmp = +key;
         if (tmp > 2 ** 32 - 2) {
             break;
@@ -2759,8 +2693,8 @@ function join(output, separator) {
     let str = "";
     if (output.length !== 0) {
         const lastIndex = output.length - 1;
-        for(let i21 = 0; i21 < lastIndex; i21++){
-            str += output[i21];
+        for(let i18 = 0; i18 < lastIndex; i18++){
+            str += output[i18];
             str += separator;
         }
         str += output[lastIndex];
@@ -2770,16 +2704,16 @@ function join(output, separator) {
 function groupArrayElements(ctx, output, value) {
     let totalLength = 0;
     let maxLength = 0;
-    let i22 = 0;
+    let i19 = 0;
     let outputLength = output.length;
     if (ctx.maxArrayLength < output.length) {
         outputLength--;
     }
     const separatorSpace = 2;
     const dataLen = new Array(outputLength);
-    for(; i22 < outputLength; i22++){
-        const len = getStringWidth(output[i22], ctx.colors);
-        dataLen[i22] = len;
+    for(; i19 < outputLength; i19++){
+        const len = getStringWidth(output[i19], ctx.colors);
+        dataLen[i19] = len;
         totalLength += len + separatorSpace;
         if (maxLength < len) {
             maxLength = len;
@@ -2795,20 +2729,20 @@ function groupArrayElements(ctx, output, value) {
         }
         const tmp = [];
         const maxLineLength = [];
-        for(let i23 = 0; i23 < columns; i23++){
+        for(let i20 = 0; i20 < columns; i20++){
             let lineMaxLength = 0;
-            for(let j = i23; j < output.length; j += columns){
+            for(let j = i20; j < output.length; j += columns){
                 if (dataLen[j] > lineMaxLength) {
                     lineMaxLength = dataLen[j];
                 }
             }
             lineMaxLength += separatorSpace;
-            maxLineLength[i23] = lineMaxLength;
+            maxLineLength[i20] = lineMaxLength;
         }
         let order = String.prototype.padStart;
         if (value !== undefined) {
-            for(let i24 = 0; i24 < output.length; i24++){
-                if (typeof value[i24] !== "number" && typeof value[i24] !== "bigint") {
+            for(let i21 = 0; i21 < output.length; i21++){
+                if (typeof value[i21] !== "number" && typeof value[i21] !== "bigint") {
                     order = String.prototype.padEnd;
                     break;
                 }
@@ -2843,24 +2777,24 @@ function formatMapIterInner(ctx, recurseTimes, entries, state2) {
     const remaining = len - maxArrayLength;
     const maxLength = Math.min(maxArrayLength, len);
     let output = new Array(maxLength);
-    let i25 = 0;
+    let i22 = 0;
     ctx.indentationLvl += 2;
     if (state2 === 0) {
-        for(; i25 < maxLength; i25++){
-            const pos = i25 * 2;
-            output[i25] = `${formatValue(ctx, entries[pos], recurseTimes)} => ${formatValue(ctx, entries[pos + 1], recurseTimes)}`;
+        for(; i22 < maxLength; i22++){
+            const pos = i22 * 2;
+            output[i22] = `${formatValue(ctx, entries[pos], recurseTimes)} => ${formatValue(ctx, entries[pos + 1], recurseTimes)}`;
         }
         if (!ctx.sorted) {
             output = output.sort();
         }
     } else {
-        for(; i25 < maxLength; i25++){
-            const pos = i25 * 2;
+        for(; i22 < maxLength; i22++){
+            const pos = i22 * 2;
             const res = [
                 formatValue(ctx, entries[pos], recurseTimes),
                 formatValue(ctx, entries[pos + 1], recurseTimes), 
             ];
-            output[i25] = reduceToSingleString(ctx, res, "", [
+            output[i22] = reduceToSingleString(ctx, res, "", [
                 "[",
                 "]"
             ], kArrayExtrasType, recurseTimes);
@@ -2877,8 +2811,8 @@ function formatSetIterInner(ctx, recurseTimes, entries, state3) {
     const maxLength = Math.min(maxArrayLength, entries.length);
     const output = new Array(maxLength);
     ctx.indentationLvl += 2;
-    for(let i26 = 0; i26 < maxLength; i26++){
-        output[i26] = formatValue(ctx, entries[i26], recurseTimes);
+    for(let i23 = 0; i23 < maxLength; i23++){
+        output[i23] = formatValue(ctx, entries[i23], recurseTimes);
     }
     ctx.indentationLvl -= 2;
     if (state3 === 0 && !ctx.sorted) {
@@ -4945,23 +4879,23 @@ const base64abc = [
 ];
 function encode1(data) {
     const uint8 = typeof data === "string" ? new TextEncoder().encode(data) : data instanceof Uint8Array ? data : new Uint8Array(data);
-    let result = "", i27;
+    let result = "", i24;
     const l = uint8.length;
-    for(i27 = 2; i27 < l; i27 += 3){
-        result += base64abc[uint8[i27 - 2] >> 2];
-        result += base64abc[(uint8[i27 - 2] & 0x03) << 4 | uint8[i27 - 1] >> 4];
-        result += base64abc[(uint8[i27 - 1] & 0x0f) << 2 | uint8[i27] >> 6];
-        result += base64abc[uint8[i27] & 0x3f];
+    for(i24 = 2; i24 < l; i24 += 3){
+        result += base64abc[uint8[i24 - 2] >> 2];
+        result += base64abc[(uint8[i24 - 2] & 0x03) << 4 | uint8[i24 - 1] >> 4];
+        result += base64abc[(uint8[i24 - 1] & 0x0f) << 2 | uint8[i24] >> 6];
+        result += base64abc[uint8[i24] & 0x3f];
     }
-    if (i27 === l + 1) {
-        result += base64abc[uint8[i27 - 2] >> 2];
-        result += base64abc[(uint8[i27 - 2] & 0x03) << 4];
+    if (i24 === l + 1) {
+        result += base64abc[uint8[i24 - 2] >> 2];
+        result += base64abc[(uint8[i24 - 2] & 0x03) << 4];
         result += "==";
     }
-    if (i27 === l) {
-        result += base64abc[uint8[i27 - 2] >> 2];
-        result += base64abc[(uint8[i27 - 2] & 0x03) << 4 | uint8[i27 - 1] >> 4];
-        result += base64abc[(uint8[i27 - 1] & 0x0f) << 2];
+    if (i24 === l) {
+        result += base64abc[uint8[i24 - 2] >> 2];
+        result += base64abc[(uint8[i24 - 2] & 0x03) << 4 | uint8[i24 - 1] >> 4];
+        result += base64abc[(uint8[i24 - 1] & 0x0f) << 2];
         result += "=";
     }
     return result;
@@ -4970,8 +4904,8 @@ function decode1(b64) {
     const binString = atob(b64);
     const size = binString.length;
     const bytes = new Uint8Array(size);
-    for(let i28 = 0; i28 < size; i28++){
-        bytes[i28] = binString.charCodeAt(i28);
+    for(let i25 = 0; i25 < size; i25++){
+        bytes[i25] = binString.charCodeAt(i25);
     }
     return bytes;
 }
@@ -5000,8 +4934,8 @@ function decode2(b64url) {
 }
 function asciiToBytes(str) {
     const byteArray = [];
-    for(let i29 = 0; i29 < str.length; ++i29){
-        byteArray.push(str.charCodeAt(i29) & 255);
+    for(let i26 = 0; i26 < str.length; ++i26){
+        byteArray.push(str.charCodeAt(i26) & 255);
     }
     return new Uint8Array(byteArray);
 }
@@ -5027,25 +4961,25 @@ function base64UrlToBytes(str) {
 }
 function hexToBytes(str) {
     const byteArray = new Uint8Array(Math.floor((str || "").length / 2));
-    let i30;
-    for(i30 = 0; i30 < byteArray.length; i30++){
-        const a1 = Number.parseInt(str[i30 * 2], 16);
-        const b = Number.parseInt(str[i30 * 2 + 1], 16);
+    let i27;
+    for(i27 = 0; i27 < byteArray.length; i27++){
+        const a1 = Number.parseInt(str[i27 * 2], 16);
+        const b = Number.parseInt(str[i27 * 2 + 1], 16);
         if (Number.isNaN(a1) && Number.isNaN(b)) {
             break;
         }
-        byteArray[i30] = a1 << 4 | b;
+        byteArray[i27] = a1 << 4 | b;
     }
-    return new Uint8Array(i30 === byteArray.length ? byteArray : byteArray.slice(0, i30));
+    return new Uint8Array(i27 === byteArray.length ? byteArray : byteArray.slice(0, i27));
 }
 function utf16leToBytes(str, units) {
     let c, hi, lo;
     const byteArray = [];
-    for(let i31 = 0; i31 < str.length; ++i31){
+    for(let i28 = 0; i28 < str.length; ++i28){
         if ((units -= 2) < 0) {
             break;
         }
-        c = str.charCodeAt(i31);
+        c = str.charCodeAt(i28);
         hi = c >> 8;
         lo = c % 256;
         byteArray.push(lo);
@@ -5055,15 +4989,15 @@ function utf16leToBytes(str, units) {
 }
 function bytesToAscii(bytes) {
     let ret = "";
-    for(let i32 = 0; i32 < bytes.length; ++i32){
-        ret += String.fromCharCode(bytes[i32] & 127);
+    for(let i29 = 0; i29 < bytes.length; ++i29){
+        ret += String.fromCharCode(bytes[i29] & 127);
     }
     return ret;
 }
 function bytesToUtf16le(bytes) {
     let res = "";
-    for(let i33 = 0; i33 < bytes.length - 1; i33 += 2){
-        res += String.fromCharCode(bytes[i33] + bytes[i33 + 1] * 256);
+    for(let i30 = 0; i30 < bytes.length - 1; i30 += 2){
+        res += String.fromCharCode(bytes[i30] + bytes[i30 + 1] * 256);
     }
     return res;
 }
@@ -5456,9 +5390,9 @@ function getEncodingOps(encoding) {
             break;
     }
 }
-function _copyActual(source, target5, targetStart, sourceStart, sourceEnd) {
-    if (sourceEnd - sourceStart > target5.length - targetStart) {
-        sourceEnd = sourceStart + target5.length - targetStart;
+function _copyActual(source, target2, targetStart, sourceStart, sourceEnd) {
+    if (sourceEnd - sourceStart > target2.length - targetStart) {
+        sourceEnd = sourceStart + target2.length - targetStart;
     }
     let nb = sourceEnd - sourceStart;
     const sourceLen = source.length - sourceStart;
@@ -5468,7 +5402,7 @@ function _copyActual(source, target5, targetStart, sourceStart, sourceEnd) {
     if (sourceStart !== 0 || sourceEnd < source.length) {
         source = new Uint8Array(source.buffer, source.byteOffset + sourceStart, nb);
     }
-    target5.set(source, targetStart);
+    target2.set(source, targetStart);
     return nb;
 }
 function boundsError(value, length, type) {
@@ -5802,8 +5736,8 @@ function fromString(string, encoding) {
 function fromArrayLike(array) {
     const length = array.length < 0 ? 0 : checked(array.length) | 0;
     const buf = createBuffer(length);
-    for(let i34 = 0; i34 < length; i34 += 1){
-        buf[i34] = array[i34] & 255;
+    for(let i31 = 0; i31 < length; i31 += 1){
+        buf[i31] = array[i31] & 255;
     }
     return buf;
 }
@@ -5848,10 +5782,10 @@ Buffer1.compare = function compare(a2, b) {
     }
     let x = a2.length;
     let y = b.length;
-    for(let i35 = 0, len = Math.min(x, y); i35 < len; ++i35){
-        if (a2[i35] !== b[i35]) {
-            x = a2[i35];
-            y = b[i35];
+    for(let i32 = 0, len = Math.min(x, y); i32 < len; ++i32){
+        if (a2[i32] !== b[i32]) {
+            x = a2[i32];
+            y = b[i32];
             break;
         }
     }
@@ -5875,9 +5809,9 @@ Buffer1.concat = function concat(list, length) {
     }
     if (length === undefined) {
         length = 0;
-        for(let i36 = 0; i36 < list.length; i36++){
-            if (list[i36].length) {
-                length += list[i36].length;
+        for(let i33 = 0; i33 < list.length; i33++){
+            if (list[i33].length) {
+                length += list[i33].length;
             }
         }
     } else {
@@ -5885,13 +5819,13 @@ Buffer1.concat = function concat(list, length) {
     }
     const buffer = Buffer1.allocUnsafe(length);
     let pos = 0;
-    for(let i37 = 0; i37 < list.length; i37++){
-        const buf = list[i37];
+    for(let i34 = 0; i34 < list.length; i34++){
+        const buf = list[i34];
         if (!isUint8Array(buf)) {
-            throw new codes.ERR_INVALID_ARG_TYPE(`list[${i37}]`, [
+            throw new codes.ERR_INVALID_ARG_TYPE(`list[${i34}]`, [
                 "Buffer",
                 "Uint8Array"
-            ], list[i37]);
+            ], list[i34]);
         }
         pos += _copyActual(buf, buffer, pos, 0, buf.length);
     }
@@ -5928,17 +5862,17 @@ function byteLength(string, encoding) {
 Buffer1.byteLength = byteLength;
 Buffer1.prototype._isBuffer = true;
 function swap(b, n7, m) {
-    const i38 = b[n7];
+    const i35 = b[n7];
     b[n7] = b[m];
-    b[m] = i38;
+    b[m] = i35;
 }
 Buffer1.prototype.swap16 = function swap16() {
     const len = this.length;
     if (len % 2 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 16-bits");
     }
-    for(let i39 = 0; i39 < len; i39 += 2){
-        swap(this, i39, i39 + 1);
+    for(let i36 = 0; i36 < len; i36 += 2){
+        swap(this, i36, i36 + 1);
     }
     return this;
 };
@@ -5947,9 +5881,9 @@ Buffer1.prototype.swap32 = function swap32() {
     if (len % 4 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 32-bits");
     }
-    for(let i40 = 0; i40 < len; i40 += 4){
-        swap(this, i40, i40 + 3);
-        swap(this, i40 + 1, i40 + 2);
+    for(let i37 = 0; i37 < len; i37 += 4){
+        swap(this, i37, i37 + 3);
+        swap(this, i37 + 1, i37 + 2);
     }
     return this;
 };
@@ -5958,11 +5892,11 @@ Buffer1.prototype.swap64 = function swap64() {
     if (len % 8 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 64-bits");
     }
-    for(let i41 = 0; i41 < len; i41 += 8){
-        swap(this, i41, i41 + 7);
-        swap(this, i41 + 1, i41 + 6);
-        swap(this, i41 + 2, i41 + 5);
-        swap(this, i41 + 3, i41 + 4);
+    for(let i38 = 0; i38 < len; i38 += 8){
+        swap(this, i38, i38 + 7);
+        swap(this, i38 + 1, i38 + 6);
+        swap(this, i38 + 2, i38 + 5);
+        swap(this, i38 + 3, i38 + 4);
     }
     return this;
 };
@@ -6020,15 +5954,15 @@ Buffer1.prototype.inspect = function inspect() {
 if (customInspectSymbol1) {
     Buffer1.prototype[customInspectSymbol1] = Buffer1.prototype.inspect;
 }
-Buffer1.prototype.compare = function compare(target6, start, end, thisStart, thisEnd) {
-    if (isInstance(target6, Uint8Array)) {
-        target6 = Buffer1.from(target6, target6.offset, target6.byteLength);
+Buffer1.prototype.compare = function compare(target3, start, end, thisStart, thisEnd) {
+    if (isInstance(target3, Uint8Array)) {
+        target3 = Buffer1.from(target3, target3.offset, target3.byteLength);
     }
-    if (!Buffer1.isBuffer(target6)) {
+    if (!Buffer1.isBuffer(target3)) {
         throw new codes.ERR_INVALID_ARG_TYPE("target", [
             "Buffer",
             "Uint8Array"
-        ], target6);
+        ], target3);
     }
     if (start === undefined) {
         start = 0;
@@ -6036,9 +5970,9 @@ Buffer1.prototype.compare = function compare(target6, start, end, thisStart, thi
         validateOffset(start, "targetStart", 0, kMaxLength);
     }
     if (end === undefined) {
-        end = target6.length;
+        end = target3.length;
     } else {
-        validateOffset(end, "targetEnd", 0, target6.length);
+        validateOffset(end, "targetEnd", 0, target3.length);
     }
     if (thisStart === undefined) {
         thisStart = 0;
@@ -6050,7 +5984,7 @@ Buffer1.prototype.compare = function compare(target6, start, end, thisStart, thi
     } else {
         validateOffset(end, "sourceEnd", 0, this.length);
     }
-    if (start < 0 || end > target6.length || thisStart < 0 || thisEnd > this.length) {
+    if (start < 0 || end > target3.length || thisStart < 0 || thisEnd > this.length) {
         throw new codes.ERR_OUT_OF_RANGE("out of range index", "range");
     }
     if (thisStart >= thisEnd && start >= end) {
@@ -6066,18 +6000,18 @@ Buffer1.prototype.compare = function compare(target6, start, end, thisStart, thi
     end >>>= 0;
     thisStart >>>= 0;
     thisEnd >>>= 0;
-    if (this === target6) {
+    if (this === target3) {
         return 0;
     }
     let x = thisEnd - thisStart;
     let y = end - start;
     const len = Math.min(x, y);
     const thisCopy = this.slice(thisStart, thisEnd);
-    const targetCopy = target6.slice(start, end);
-    for(let i42 = 0; i42 < len; ++i42){
-        if (thisCopy[i42] !== targetCopy[i42]) {
-            x = thisCopy[i42];
-            y = targetCopy[i42];
+    const targetCopy = target3.slice(start, end);
+    for(let i39 = 0; i39 < len; ++i39){
+        if (thisCopy[i39] !== targetCopy[i39]) {
+            x = thisCopy[i39];
+            y = targetCopy[i39];
             break;
         }
     }
@@ -6267,12 +6201,12 @@ function fromArrayBuffer(obj, byteOffset, length) {
 function _utf8Slice(buf, start, end) {
     end = Math.min(buf.length, end);
     const res = [];
-    let i43 = start;
-    while(i43 < end){
-        const firstByte = buf[i43];
+    let i40 = start;
+    while(i40 < end){
+        const firstByte = buf[i40];
         let codePoint = null;
         let bytesPerSequence = firstByte > 239 ? 4 : firstByte > 223 ? 3 : firstByte > 191 ? 2 : 1;
-        if (i43 + bytesPerSequence <= end) {
+        if (i40 + bytesPerSequence <= end) {
             let secondByte, thirdByte, fourthByte, tempCodePoint;
             switch(bytesPerSequence){
                 case 1:
@@ -6281,7 +6215,7 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 2:
-                    secondByte = buf[i43 + 1];
+                    secondByte = buf[i40 + 1];
                     if ((secondByte & 192) === 128) {
                         tempCodePoint = (firstByte & 31) << 6 | secondByte & 63;
                         if (tempCodePoint > 127) {
@@ -6290,8 +6224,8 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 3:
-                    secondByte = buf[i43 + 1];
-                    thirdByte = buf[i43 + 2];
+                    secondByte = buf[i40 + 1];
+                    thirdByte = buf[i40 + 2];
                     if ((secondByte & 192) === 128 && (thirdByte & 192) === 128) {
                         tempCodePoint = (firstByte & 15) << 12 | (secondByte & 63) << 6 | thirdByte & 63;
                         if (tempCodePoint > 2047 && (tempCodePoint < 55296 || tempCodePoint > 57343)) {
@@ -6300,9 +6234,9 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 4:
-                    secondByte = buf[i43 + 1];
-                    thirdByte = buf[i43 + 2];
-                    fourthByte = buf[i43 + 3];
+                    secondByte = buf[i40 + 1];
+                    thirdByte = buf[i40 + 2];
+                    fourthByte = buf[i40 + 3];
                     if ((secondByte & 192) === 128 && (thirdByte & 192) === 128 && (fourthByte & 192) === 128) {
                         tempCodePoint = (firstByte & 15) << 18 | (secondByte & 63) << 12 | (thirdByte & 63) << 6 | fourthByte & 63;
                         if (tempCodePoint > 65535 && tempCodePoint < 1114112) {
@@ -6320,7 +6254,7 @@ function _utf8Slice(buf, start, end) {
             codePoint = 56320 | codePoint & 1023;
         }
         res.push(codePoint);
-        i43 += bytesPerSequence;
+        i40 += bytesPerSequence;
     }
     return decodeCodePointsArray(res);
 }
@@ -6331,17 +6265,17 @@ function decodeCodePointsArray(codePoints) {
         return String.fromCharCode.apply(String, codePoints);
     }
     let res = "";
-    let i44 = 0;
-    while(i44 < len){
-        res += String.fromCharCode.apply(String, codePoints.slice(i44, i44 += MAX_ARGUMENTS_LENGTH));
+    let i41 = 0;
+    while(i41 < len){
+        res += String.fromCharCode.apply(String, codePoints.slice(i41, i41 += MAX_ARGUMENTS_LENGTH));
     }
     return res;
 }
 function _latin1Slice(buf, start, end) {
     let ret = "";
     end = Math.min(buf.length, end);
-    for(let i45 = start; i45 < end; ++i45){
-        ret += String.fromCharCode(buf[i45]);
+    for(let i42 = start; i42 < end; ++i42){
+        ret += String.fromCharCode(buf[i42]);
     }
     return ret;
 }
@@ -6354,8 +6288,8 @@ function _hexSlice(buf, start, end) {
         end = len;
     }
     let out = "";
-    for(let i46 = start; i46 < end; ++i46){
-        out += hexSliceLookupTable[buf[i46]];
+    for(let i43 = start; i43 < end; ++i43){
+        out += hexSliceLookupTable[buf[i43]];
     }
     return out;
 }
@@ -6792,18 +6726,18 @@ Buffer1.prototype.writeDoubleLE = function writeDoubleLE(value, offset) {
 Buffer1.prototype.writeDoubleBE = function writeDoubleBE(value, offset) {
     return bigEndian ? writeDoubleForwards(this, value, offset) : writeDoubleBackwards(this, value, offset);
 };
-Buffer1.prototype.copy = function copy(target7, targetStart, sourceStart, sourceEnd) {
+Buffer1.prototype.copy = function copy(target4, targetStart, sourceStart, sourceEnd) {
     if (!isUint8Array(this)) {
         throw new codes.ERR_INVALID_ARG_TYPE("source", [
             "Buffer",
             "Uint8Array"
         ], this);
     }
-    if (!isUint8Array(target7)) {
+    if (!isUint8Array(target4)) {
         throw new codes.ERR_INVALID_ARG_TYPE("target", [
             "Buffer",
             "Uint8Array"
-        ], target7);
+        ], target4);
     }
     if (targetStart === undefined) {
         targetStart = 0;
@@ -6835,7 +6769,7 @@ Buffer1.prototype.copy = function copy(target7, targetStart, sourceStart, source
             throw new codes.ERR_OUT_OF_RANGE("sourceEnd", `< ${MAX_UINT32}`, sourceEnd);
         }
     }
-    if (targetStart >= target7.length) {
+    if (targetStart >= target4.length) {
         return 0;
     }
     if (sourceEnd > 0 && sourceEnd < sourceStart) {
@@ -6844,20 +6778,20 @@ Buffer1.prototype.copy = function copy(target7, targetStart, sourceStart, source
     if (sourceEnd === sourceStart) {
         return 0;
     }
-    if (target7.length === 0 || this.length === 0) {
+    if (target4.length === 0 || this.length === 0) {
         return 0;
     }
     if (sourceEnd > this.length) {
         sourceEnd = this.length;
     }
-    if (target7.length - targetStart < sourceEnd - sourceStart) {
-        sourceEnd = target7.length - targetStart + sourceStart;
+    if (target4.length - targetStart < sourceEnd - sourceStart) {
+        sourceEnd = target4.length - targetStart + sourceStart;
     }
     const len = sourceEnd - sourceStart;
-    if (this === target7 && typeof Uint8Array.prototype.copyWithin === "function") {
+    if (this === target4 && typeof Uint8Array.prototype.copyWithin === "function") {
         this.copyWithin(targetStart, sourceStart, sourceEnd);
     } else {
-        Uint8Array.prototype.set.call(target7, this.subarray(sourceStart, sourceEnd), targetStart);
+        Uint8Array.prototype.set.call(target4, this.subarray(sourceStart, sourceEnd), targetStart);
     }
     return len;
 };
@@ -6899,10 +6833,10 @@ Buffer1.prototype.fill = function fill(val, start, end, encoding) {
     if (!val) {
         val = 0;
     }
-    let i47;
+    let i44;
     if (typeof val === "number") {
-        for(i47 = start; i47 < end; ++i47){
-            this[i47] = val;
+        for(i44 = start; i44 < end; ++i44){
+            this[i44] = val;
         }
     } else {
         const bytes = Buffer1.isBuffer(val) ? val : Buffer1.from(val, encoding);
@@ -6910,8 +6844,8 @@ Buffer1.prototype.fill = function fill(val, start, end, encoding) {
         if (len === 0) {
             throw new codes.ERR_INVALID_ARG_VALUE("value", val);
         }
-        for(i47 = 0; i47 < end - start; ++i47){
-            this[i47 + start] = bytes[i47 % len];
+        for(i44 = 0; i44 < end - start; ++i44){
+            this[i44 + start] = bytes[i44 % len];
         }
     }
     return this;
@@ -6945,8 +6879,8 @@ function utf8ToBytes(string, units) {
     const length = string.length;
     let leadSurrogate = null;
     const bytes = [];
-    for(let i48 = 0; i48 < length; ++i48){
-        codePoint = string.charCodeAt(i48);
+    for(let i45 = 0; i45 < length; ++i45){
+        codePoint = string.charCodeAt(i45);
         if (codePoint > 55295 && codePoint < 57344) {
             if (!leadSurrogate) {
                 if (codePoint > 56319) {
@@ -6954,7 +6888,7 @@ function utf8ToBytes(string, units) {
                         bytes.push(239, 191, 189);
                     }
                     continue;
-                } else if (i48 + 1 === length) {
+                } else if (i45 + 1 === length) {
                     if ((units -= 3) > -1) {
                         bytes.push(239, 191, 189);
                     }
@@ -7004,14 +6938,14 @@ function utf8ToBytes(string, units) {
     return bytes;
 }
 function blitBuffer(src2, dst, offset, length) {
-    let i49;
-    for(i49 = 0; i49 < length; ++i49){
-        if (i49 + offset >= dst.length || i49 >= src2.length) {
+    let i46;
+    for(i46 = 0; i46 < length; ++i46){
+        if (i46 + offset >= dst.length || i46 >= src2.length) {
             break;
         }
-        dst[i49 + offset] = src2[i49];
+        dst[i46 + offset] = src2[i46];
     }
-    return i49;
+    return i46;
 }
 function isInstance(obj, type) {
     return obj instanceof type || obj != null && obj.constructor != null && obj.constructor.name != null && obj.constructor.name === type.name;
@@ -7019,10 +6953,10 @@ function isInstance(obj, type) {
 const hexSliceLookupTable = function() {
     const alphabet = "0123456789abcdef";
     const table = new Array(256);
-    for(let i50 = 0; i50 < 16; ++i50){
-        const i16 = i50 * 16;
+    for(let i47 = 0; i47 < 16; ++i47){
+        const i16 = i47 * 16;
         for(let j = 0; j < 16; ++j){
-            table[i16 + j] = alphabet[i50] + alphabet[j];
+            table[i16 + j] = alphabet[i47] + alphabet[j];
         }
     }
     return table;
@@ -7152,9 +7086,9 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys = []) {
             return false;
         }
     }
-    let i51 = 0;
-    for(; i51 < aKeys.length; i51++){
-        if (!val2.propertyIsEnumerable(aKeys[i51])) {
+    let i48 = 0;
+    for(; i48 < aKeys.length; i48++){
+        if (!val2.propertyIsEnumerable(aKeys[i48])) {
             return false;
         }
     }
@@ -7162,8 +7096,8 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys = []) {
         const symbolKeysA = Object.getOwnPropertySymbols(val1);
         if (symbolKeysA.length !== 0) {
             let count = 0;
-            for(i51 = 0; i51 < symbolKeysA.length; i51++){
-                const key = symbolKeysA[i51];
+            for(i48 = 0; i48 < symbolKeysA.length; i48++){
+                const key = symbolKeysA[i48];
                 if (val1.propertyIsEnumerable(key)) {
                     if (!val2.propertyIsEnumerable(key)) {
                         return false;
@@ -7218,8 +7152,8 @@ function areSimilarFloatArrays(arr1, arr2) {
     if (arr1.byteLength !== arr2.byteLength) {
         return false;
     }
-    for(let i52 = 0; i52 < arr1.byteLength; i52++){
-        if (arr1[i52] !== arr2[i52]) {
+    for(let i49 = 0; i49 < arr1.byteLength; i49++){
+        if (arr1[i49] !== arr2[i49]) {
             return false;
         }
     }
@@ -7263,7 +7197,7 @@ function getEnumerables(val, keys) {
     );
 }
 function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
-    let i53 = 0;
+    let i50 = 0;
     if (iterationType === valueType.isSet) {
         if (!setEquiv(obj1, obj2, strict, memos)) {
             return false;
@@ -7273,17 +7207,17 @@ function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
             return false;
         }
     } else if (iterationType === valueType.isArray) {
-        for(; i53 < obj1.length; i53++){
-            if (obj1.hasOwnProperty(i53)) {
-                if (!obj2.hasOwnProperty(i53) || !innerDeepEqual(obj1[i53], obj2[i53], strict, memos)) {
+        for(; i50 < obj1.length; i50++){
+            if (obj1.hasOwnProperty(i50)) {
+                if (!obj2.hasOwnProperty(i50) || !innerDeepEqual(obj1[i50], obj2[i50], strict, memos)) {
                     return false;
                 }
-            } else if (obj2.hasOwnProperty(i53)) {
+            } else if (obj2.hasOwnProperty(i50)) {
                 return false;
             } else {
                 const keys1 = Object.keys(obj1);
-                for(; i53 < keys1.length; i53++){
-                    const key = keys1[i53];
+                for(; i50 < keys1.length; i50++){
+                    const key = keys1[i50];
                     if (!obj2.hasOwnProperty(key) || !innerDeepEqual(obj1[key], obj2[key], strict, memos)) {
                         return false;
                     }
@@ -7298,8 +7232,8 @@ function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
             }
         }
     }
-    for(i53 = 0; i53 < keys.length; i53++){
-        const key = keys[i53];
+    for(i50 = 0; i50 < keys.length; i50++){
+        const key = keys[i50];
         if (!innerDeepEqual(obj1[key], obj2[key], strict, memos)) {
             return false;
         }
@@ -7450,12 +7384,12 @@ const kTypes = [
 ];
 function addNumericalSeparator(val) {
     let res = "";
-    let i54 = val.length;
+    let i51 = val.length;
     const start = val[0] === "-" ? 1 : 0;
-    for(; i54 >= start + 4; i54 -= 3){
-        res = `_${val.slice(i54 - 3, i54)}${res}`;
+    for(; i51 >= start + 4; i51 -= 3){
+        res = `_${val.slice(i51 - 3, i51)}${res}`;
     }
-    return `${val.slice(0, i54)}${res}`;
+    return `${val.slice(0, i51)}${res}`;
 }
 const captureLargerStackTrace = hideStackFrames(function captureLargerStackTrace(err) {
     Error.captureStackTrace(err);
@@ -7905,12 +7839,12 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
     let lastSlash = -1;
     let dots = 0;
     let code;
-    for(let i55 = 0, len = path4.length; i55 <= len; ++i55){
-        if (i55 < len) code = path4.charCodeAt(i55);
+    for(let i52 = 0, len = path4.length; i52 <= len; ++i52){
+        if (i52 < len) code = path4.charCodeAt(i52);
         else if (isPathSeparator1(code)) break;
         else code = CHAR_FORWARD_SLASH1;
         if (isPathSeparator1(code)) {
-            if (lastSlash === i55 - 1 || dots === 1) {} else if (lastSlash !== i55 - 1 && dots === 2) {
+            if (lastSlash === i52 - 1 || dots === 1) {} else if (lastSlash !== i52 - 1 && dots === 2) {
                 if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 || res.charCodeAt(res.length - 2) !== 46) {
                     if (res.length > 2) {
                         const lastSlashIndex = res.lastIndexOf(separator);
@@ -7921,13 +7855,13 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
                             res = res.slice(0, lastSlashIndex);
                             lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
                         }
-                        lastSlash = i55;
+                        lastSlash = i52;
                         dots = 0;
                         continue;
                     } else if (res.length === 2 || res.length === 1) {
                         res = "";
                         lastSegmentLength = 0;
-                        lastSlash = i55;
+                        lastSlash = i52;
                         dots = 0;
                         continue;
                     }
@@ -7938,11 +7872,11 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
                     lastSegmentLength = 2;
                 }
             } else {
-                if (res.length > 0) res += separator + path4.slice(lastSlash + 1, i55);
-                else res = path4.slice(lastSlash + 1, i55);
-                lastSegmentLength = i55 - lastSlash - 1;
+                if (res.length > 0) res += separator + path4.slice(lastSlash + 1, i52);
+                else res = path4.slice(lastSlash + 1, i52);
+                lastSegmentLength = i52 - lastSlash - 1;
             }
-            lastSlash = i55;
+            lastSlash = i52;
             dots = 0;
         } else if (code === 46 && dots !== -1) {
             ++dots;
@@ -7978,11 +7912,11 @@ function resolve(...pathSegments) {
     let resolvedDevice = "";
     let resolvedTail = "";
     let resolvedAbsolute = false;
-    for(let i56 = pathSegments.length - 1; i56 >= -1; i56--){
+    for(let i53 = pathSegments.length - 1; i53 >= -1; i53--){
         let path5;
         const { Deno  } = globalThis;
-        if (i56 >= 0) {
-            path5 = pathSegments[i56];
+        if (i53 >= 0) {
+            path5 = pathSegments[i53];
         } else if (!resolvedDevice) {
             if (typeof Deno?.cwd !== "function") {
                 throw new TypeError("Resolved a drive-letter-less path without a CWD.");
@@ -8168,8 +8102,8 @@ function join1(...paths) {
     if (pathsCount === 0) return ".";
     let joined;
     let firstPart = null;
-    for(let i57 = 0; i57 < pathsCount; ++i57){
-        const path8 = paths[i57];
+    for(let i54 = 0; i54 < pathsCount; ++i54){
+        const path8 = paths[i54];
         assertPath(path8);
         if (path8.length > 0) {
             if (joined === undefined) joined = firstPart = path8;
@@ -8233,37 +8167,37 @@ function relative(from, to) {
     const toLen = toEnd - toStart;
     const length = fromLen < toLen ? fromLen : toLen;
     let lastCommonSep = -1;
-    let i58 = 0;
-    for(; i58 <= length; ++i58){
-        if (i58 === length) {
+    let i55 = 0;
+    for(; i55 <= length; ++i55){
+        if (i55 === length) {
             if (toLen > length) {
-                if (to.charCodeAt(toStart + i58) === 92) {
-                    return toOrig.slice(toStart + i58 + 1);
-                } else if (i58 === 2) {
-                    return toOrig.slice(toStart + i58);
+                if (to.charCodeAt(toStart + i55) === 92) {
+                    return toOrig.slice(toStart + i55 + 1);
+                } else if (i55 === 2) {
+                    return toOrig.slice(toStart + i55);
                 }
             }
             if (fromLen > length) {
-                if (from.charCodeAt(fromStart + i58) === 92) {
-                    lastCommonSep = i58;
-                } else if (i58 === 2) {
+                if (from.charCodeAt(fromStart + i55) === 92) {
+                    lastCommonSep = i55;
+                } else if (i55 === 2) {
                     lastCommonSep = 3;
                 }
             }
             break;
         }
-        const fromCode = from.charCodeAt(fromStart + i58);
-        const toCode = to.charCodeAt(toStart + i58);
+        const fromCode = from.charCodeAt(fromStart + i55);
+        const toCode = to.charCodeAt(toStart + i55);
         if (fromCode !== toCode) break;
-        else if (fromCode === 92) lastCommonSep = i58;
+        else if (fromCode === 92) lastCommonSep = i55;
     }
-    if (i58 !== length && lastCommonSep === -1) {
+    if (i55 !== length && lastCommonSep === -1) {
         return toOrig;
     }
     let out = "";
     if (lastCommonSep === -1) lastCommonSep = 0;
-    for(i58 = fromStart + lastCommonSep + 1; i58 <= fromEnd; ++i58){
-        if (i58 === fromEnd || from.charCodeAt(i58) === 92) {
+    for(i55 = fromStart + lastCommonSep + 1; i55 <= fromEnd; ++i55){
+        if (i55 === fromEnd || from.charCodeAt(i55) === 92) {
             if (out.length === 0) out += "..";
             else out += "\\..";
         }
@@ -8344,10 +8278,10 @@ function dirname(path10) {
     } else if (isPathSeparator(code)) {
         return path10;
     }
-    for(let i59 = len - 1; i59 >= offset; --i59){
-        if (isPathSeparator(path10.charCodeAt(i59))) {
+    for(let i56 = len - 1; i56 >= offset; --i56){
+        if (isPathSeparator(path10.charCodeAt(i56))) {
             if (!matchedSlash) {
-                end = i59;
+                end = i56;
                 break;
             }
         } else {
@@ -8370,7 +8304,7 @@ function basename(path11, ext = "") {
     let start = 0;
     let end = -1;
     let matchedSlash = true;
-    let i60;
+    let i57;
     if (path11.length >= 2) {
         const drive = path11.charCodeAt(0);
         if (isWindowsDeviceRoot(drive)) {
@@ -8381,22 +8315,22 @@ function basename(path11, ext = "") {
         if (ext.length === path11.length && ext === path11) return "";
         let extIdx = ext.length - 1;
         let firstNonSlashEnd = -1;
-        for(i60 = path11.length - 1; i60 >= start; --i60){
-            const code = path11.charCodeAt(i60);
+        for(i57 = path11.length - 1; i57 >= start; --i57){
+            const code = path11.charCodeAt(i57);
             if (isPathSeparator(code)) {
                 if (!matchedSlash) {
-                    start = i60 + 1;
+                    start = i57 + 1;
                     break;
                 }
             } else {
                 if (firstNonSlashEnd === -1) {
                     matchedSlash = false;
-                    firstNonSlashEnd = i60 + 1;
+                    firstNonSlashEnd = i57 + 1;
                 }
                 if (extIdx >= 0) {
                     if (code === ext.charCodeAt(extIdx)) {
                         if (--extIdx === -1) {
-                            end = i60;
+                            end = i57;
                         }
                     } else {
                         extIdx = -1;
@@ -8409,15 +8343,15 @@ function basename(path11, ext = "") {
         else if (end === -1) end = path11.length;
         return path11.slice(start, end);
     } else {
-        for(i60 = path11.length - 1; i60 >= start; --i60){
-            if (isPathSeparator(path11.charCodeAt(i60))) {
+        for(i57 = path11.length - 1; i57 >= start; --i57){
+            if (isPathSeparator(path11.charCodeAt(i57))) {
                 if (!matchedSlash) {
-                    start = i60 + 1;
+                    start = i57 + 1;
                     break;
                 }
             } else if (end === -1) {
                 matchedSlash = false;
-                end = i60 + 1;
+                end = i57 + 1;
             }
         }
         if (end === -1) return "";
@@ -8435,21 +8369,21 @@ function extname(path12) {
     if (path12.length >= 2 && path12.charCodeAt(1) === 58 && isWindowsDeviceRoot(path12.charCodeAt(0))) {
         start = startPart = 2;
     }
-    for(let i61 = path12.length - 1; i61 >= start; --i61){
-        const code = path12.charCodeAt(i61);
+    for(let i58 = path12.length - 1; i58 >= start; --i58){
+        const code = path12.charCodeAt(i58);
         if (isPathSeparator(code)) {
             if (!matchedSlash) {
-                startPart = i61 + 1;
+                startPart = i58 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i61 + 1;
+            end = i58 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i61;
+            if (startDot === -1) startDot = i58;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8534,23 +8468,23 @@ function parse(path13) {
     let startPart = rootEnd;
     let end = -1;
     let matchedSlash = true;
-    let i62 = path13.length - 1;
+    let i59 = path13.length - 1;
     let preDotState = 0;
-    for(; i62 >= rootEnd; --i62){
-        code = path13.charCodeAt(i62);
+    for(; i59 >= rootEnd; --i59){
+        code = path13.charCodeAt(i59);
         if (isPathSeparator(code)) {
             if (!matchedSlash) {
-                startPart = i62 + 1;
+                startPart = i59 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i62 + 1;
+            end = i59 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i62;
+            if (startDot === -1) startDot = i59;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8636,9 +8570,9 @@ const delimiter2 = ":";
 function resolve1(...pathSegments) {
     let resolvedPath = "";
     let resolvedAbsolute = false;
-    for(let i63 = pathSegments.length - 1; i63 >= -1 && !resolvedAbsolute; i63--){
+    for(let i60 = pathSegments.length - 1; i60 >= -1 && !resolvedAbsolute; i60--){
         let path16;
-        if (i63 >= 0) path16 = pathSegments[i63];
+        if (i60 >= 0) path16 = pathSegments[i60];
         else {
             const { Deno  } = globalThis;
             if (typeof Deno?.cwd !== "function") {
@@ -8678,8 +8612,8 @@ function isAbsolute1(path18) {
 function join2(...paths) {
     if (paths.length === 0) return ".";
     let joined;
-    for(let i64 = 0, len = paths.length; i64 < len; ++i64){
-        const path19 = paths[i64];
+    for(let i61 = 0, len = paths.length; i61 < len; ++i61){
+        const path19 = paths[i61];
         assertPath(path19);
         if (path19.length > 0) {
             if (!joined) joined = path19;
@@ -8710,32 +8644,32 @@ function relative1(from, to) {
     const toLen = toEnd - toStart;
     const length = fromLen < toLen ? fromLen : toLen;
     let lastCommonSep = -1;
-    let i65 = 0;
-    for(; i65 <= length; ++i65){
-        if (i65 === length) {
+    let i62 = 0;
+    for(; i62 <= length; ++i62){
+        if (i62 === length) {
             if (toLen > length) {
-                if (to.charCodeAt(toStart + i65) === 47) {
-                    return to.slice(toStart + i65 + 1);
-                } else if (i65 === 0) {
-                    return to.slice(toStart + i65);
+                if (to.charCodeAt(toStart + i62) === 47) {
+                    return to.slice(toStart + i62 + 1);
+                } else if (i62 === 0) {
+                    return to.slice(toStart + i62);
                 }
             } else if (fromLen > length) {
-                if (from.charCodeAt(fromStart + i65) === 47) {
-                    lastCommonSep = i65;
-                } else if (i65 === 0) {
+                if (from.charCodeAt(fromStart + i62) === 47) {
+                    lastCommonSep = i62;
+                } else if (i62 === 0) {
                     lastCommonSep = 0;
                 }
             }
             break;
         }
-        const fromCode = from.charCodeAt(fromStart + i65);
-        const toCode = to.charCodeAt(toStart + i65);
+        const fromCode = from.charCodeAt(fromStart + i62);
+        const toCode = to.charCodeAt(toStart + i62);
         if (fromCode !== toCode) break;
-        else if (fromCode === 47) lastCommonSep = i65;
+        else if (fromCode === 47) lastCommonSep = i62;
     }
     let out = "";
-    for(i65 = fromStart + lastCommonSep + 1; i65 <= fromEnd; ++i65){
-        if (i65 === fromEnd || from.charCodeAt(i65) === 47) {
+    for(i62 = fromStart + lastCommonSep + 1; i62 <= fromEnd; ++i62){
+        if (i62 === fromEnd || from.charCodeAt(i62) === 47) {
             if (out.length === 0) out += "..";
             else out += "/..";
         }
@@ -8756,10 +8690,10 @@ function dirname1(path21) {
     const hasRoot = path21.charCodeAt(0) === 47;
     let end = -1;
     let matchedSlash = true;
-    for(let i66 = path21.length - 1; i66 >= 1; --i66){
-        if (path21.charCodeAt(i66) === 47) {
+    for(let i63 = path21.length - 1; i63 >= 1; --i63){
+        if (path21.charCodeAt(i63) === 47) {
             if (!matchedSlash) {
-                end = i66;
+                end = i63;
                 break;
             }
         } else {
@@ -8780,27 +8714,27 @@ function basename1(path22, ext = "") {
     let start = 0;
     let end = -1;
     let matchedSlash = true;
-    let i67;
+    let i64;
     if (ext !== undefined && ext.length > 0 && ext.length <= path22.length) {
         if (ext.length === path22.length && ext === path22) return "";
         let extIdx = ext.length - 1;
         let firstNonSlashEnd = -1;
-        for(i67 = path22.length - 1; i67 >= 0; --i67){
-            const code = path22.charCodeAt(i67);
+        for(i64 = path22.length - 1; i64 >= 0; --i64){
+            const code = path22.charCodeAt(i64);
             if (code === 47) {
                 if (!matchedSlash) {
-                    start = i67 + 1;
+                    start = i64 + 1;
                     break;
                 }
             } else {
                 if (firstNonSlashEnd === -1) {
                     matchedSlash = false;
-                    firstNonSlashEnd = i67 + 1;
+                    firstNonSlashEnd = i64 + 1;
                 }
                 if (extIdx >= 0) {
                     if (code === ext.charCodeAt(extIdx)) {
                         if (--extIdx === -1) {
-                            end = i67;
+                            end = i64;
                         }
                     } else {
                         extIdx = -1;
@@ -8813,15 +8747,15 @@ function basename1(path22, ext = "") {
         else if (end === -1) end = path22.length;
         return path22.slice(start, end);
     } else {
-        for(i67 = path22.length - 1; i67 >= 0; --i67){
-            if (path22.charCodeAt(i67) === 47) {
+        for(i64 = path22.length - 1; i64 >= 0; --i64){
+            if (path22.charCodeAt(i64) === 47) {
                 if (!matchedSlash) {
-                    start = i67 + 1;
+                    start = i64 + 1;
                     break;
                 }
             } else if (end === -1) {
                 matchedSlash = false;
-                end = i67 + 1;
+                end = i64 + 1;
             }
         }
         if (end === -1) return "";
@@ -8835,21 +8769,21 @@ function extname1(path23) {
     let end = -1;
     let matchedSlash = true;
     let preDotState = 0;
-    for(let i68 = path23.length - 1; i68 >= 0; --i68){
-        const code = path23.charCodeAt(i68);
+    for(let i65 = path23.length - 1; i65 >= 0; --i65){
+        const code = path23.charCodeAt(i65);
         if (code === 47) {
             if (!matchedSlash) {
-                startPart = i68 + 1;
+                startPart = i65 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i68 + 1;
+            end = i65 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i68;
+            if (startDot === -1) startDot = i65;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8890,23 +8824,23 @@ function parse1(path24) {
     let startPart = 0;
     let end = -1;
     let matchedSlash = true;
-    let i69 = path24.length - 1;
+    let i66 = path24.length - 1;
     let preDotState = 0;
-    for(; i69 >= start; --i69){
-        const code = path24.charCodeAt(i69);
+    for(; i66 >= start; --i66){
+        const code = path24.charCodeAt(i66);
         if (code === 47) {
             if (!matchedSlash) {
-                startPart = i69 + 1;
+                startPart = i66 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i69 + 1;
+            end = i66 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i69;
+            if (startDot === -1) startDot = i66;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -9680,8 +9614,8 @@ const isHexTable = new Int8Array([
 ]);
 function charCodes(str) {
     const ret = new Array(str.length);
-    for(let i70 = 0; i70 < str.length; ++i70){
-        ret[i70] = str.charCodeAt(i70);
+    for(let i67 = 0; i67 < str.length; ++i67){
+        ret[i67] = str.charCodeAt(i67);
     }
     return ret;
 }
@@ -9737,11 +9671,11 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
     let valEncoded = customDecode;
     const plusChar = customDecode ? "%20" : " ";
     let encodeCheck = 0;
-    for(let i71 = 0; i71 < str.length; ++i71){
-        const code = str.charCodeAt(i71);
+    for(let i68 = 0; i68 < str.length; ++i68){
+        const code = str.charCodeAt(i68);
         if (code === sepCodes[sepIdx]) {
             if (++sepIdx === sepLen) {
-                const end = i71 - sepIdx + 1;
+                const end = i68 - sepIdx + 1;
                 if (eqIdx < eqLen) {
                     if (lastPos < end) {
                         key += str.slice(lastPos, end);
@@ -9749,7 +9683,7 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                         if (--pairs === 0) {
                             return obj;
                         }
-                        lastPos = i71 + 1;
+                        lastPos = i68 + 1;
                         sepIdx = eqIdx = 0;
                         continue;
                     }
@@ -9762,7 +9696,7 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                 }
                 key = value = "";
                 encodeCheck = 0;
-                lastPos = i71 + 1;
+                lastPos = i68 + 1;
                 sepIdx = eqIdx = 0;
             }
         } else {
@@ -9770,12 +9704,12 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
             if (eqIdx < eqLen) {
                 if (code === eqCodes[eqIdx]) {
                     if (++eqIdx === eqLen) {
-                        const end = i71 - eqIdx + 1;
+                        const end = i68 - eqIdx + 1;
                         if (lastPos < end) {
                             key += str.slice(lastPos, end);
                         }
                         encodeCheck = 0;
-                        lastPos = i71 + 1;
+                        lastPos = i68 + 1;
                     }
                     continue;
                 } else {
@@ -9797,20 +9731,20 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                     }
                 }
                 if (code === 43) {
-                    if (lastPos < i71) {
-                        key += str.slice(lastPos, i71);
+                    if (lastPos < i68) {
+                        key += str.slice(lastPos, i68);
                     }
                     key += plusChar;
-                    lastPos = i71 + 1;
+                    lastPos = i68 + 1;
                     continue;
                 }
             }
             if (code === 43) {
-                if (lastPos < i71) {
-                    value += str.slice(lastPos, i71);
+                if (lastPos < i68) {
+                    value += str.slice(lastPos, i68);
                 }
                 value += plusChar;
-                lastPos = i71 + 1;
+                lastPos = i68 + 1;
             } else if (!valEncoded) {
                 if (code === 37) {
                     encodeCheck = 1;
@@ -10010,8 +9944,8 @@ function stringify(obj, sep5, eq, options) {
         const keys = Object.keys(obj);
         const len = keys.length;
         let fields = "";
-        for(let i72 = 0; i72 < len; ++i72){
-            const k = keys[i72];
+        for(let i69 = 0; i69 < len; ++i69){
+            const k = keys[i69];
             const v = obj[k];
             let ks = convert(k, encode31);
             ks += eq;
@@ -10698,15 +10632,15 @@ class Url {
         let last = srcPath.slice(-1)[0];
         const hasTrailingSlash = (result.host || relative4.host || srcPath.length > 1) && (last === "." || last === "..") || last === "";
         let up = 0;
-        for(let i73 = srcPath.length - 1; i73 >= 0; i73--){
-            last = srcPath[i73];
+        for(let i70 = srcPath.length - 1; i70 >= 0; i70--){
+            last = srcPath[i70];
             if (last === ".") {
-                srcPath.splice(i73, 1);
+                srcPath.splice(i70, 1);
             } else if (last === "..") {
-                srcPath.splice(i73, 1);
+                srcPath.splice(i70, 1);
                 up++;
             } else if (up) {
-                srcPath.splice(i73, 1);
+                srcPath.splice(i70, 1);
                 up--;
             }
         }
@@ -10776,21 +10710,21 @@ class Url {
         }
         let newPathname = "";
         let lastPos = 0;
-        for(let i74 = 0; i74 < pathname.length; ++i74){
-            switch(pathname.charCodeAt(i74)){
+        for(let i71 = 0; i71 < pathname.length; ++i71){
+            switch(pathname.charCodeAt(i71)){
                 case 35:
-                    if (i74 - lastPos > 0) {
-                        newPathname += pathname.slice(lastPos, i74);
+                    if (i71 - lastPos > 0) {
+                        newPathname += pathname.slice(lastPos, i71);
                     }
                     newPathname += "%23";
-                    lastPos = i74 + 1;
+                    lastPos = i71 + 1;
                     break;
                 case 63:
-                    if (i74 - lastPos > 0) {
-                        newPathname += pathname.slice(lastPos, i74);
+                    if (i71 - lastPos > 0) {
+                        newPathname += pathname.slice(lastPos, i71);
                     }
                     newPathname += "%3F";
-                    lastPos = i74 + 1;
+                    lastPos = i71 + 1;
                     break;
             }
         }
@@ -10824,19 +10758,19 @@ class Url {
         let end = -1;
         let rest = "";
         let lastPos = 0;
-        for(let i75 = 0, inWs = false, split = false; i75 < url.length; ++i75){
-            const code = url.charCodeAt(i75);
+        for(let i72 = 0, inWs = false, split = false; i72 < url.length; ++i72){
+            const code = url.charCodeAt(i72);
             const isWs = code === 32 || code === 9 || code === 13 || code === 10 || code === 12 || code === 160 || code === 65279;
             if (start === -1) {
                 if (isWs) continue;
-                lastPos = start = i75;
+                lastPos = start = i72;
             } else if (inWs) {
                 if (!isWs) {
                     end = -1;
                     inWs = false;
                 }
             } else if (isWs) {
-                end = i75;
+                end = i72;
                 inWs = true;
             }
             if (!split) {
@@ -10847,9 +10781,9 @@ class Url {
                         split = true;
                         break;
                     case 92:
-                        if (i75 - lastPos > 0) rest += url.slice(lastPos, i75);
+                        if (i72 - lastPos > 0) rest += url.slice(lastPos, i72);
                         rest += "/";
-                        lastPos = i75 + 1;
+                        lastPos = i72 + 1;
                         break;
                 }
             } else if (!hasHash && code === 35) {
@@ -10910,8 +10844,8 @@ class Url {
             let hostEnd = -1;
             let atSign = -1;
             let nonHost = -1;
-            for(let i76 = 0; i76 < rest.length; ++i76){
-                switch(rest.charCodeAt(i76)){
+            for(let i73 = 0; i73 < rest.length; ++i73){
+                switch(rest.charCodeAt(i73)){
                     case 9:
                     case 10:
                     case 13:
@@ -10928,16 +10862,16 @@ class Url {
                     case 123:
                     case 124:
                     case 125:
-                        if (nonHost === -1) nonHost = i76;
+                        if (nonHost === -1) nonHost = i73;
                         break;
                     case 35:
                     case 47:
                     case 63:
-                        if (nonHost === -1) nonHost = i76;
-                        hostEnd = i76;
+                        if (nonHost === -1) nonHost = i73;
+                        hostEnd = i73;
                         break;
                     case 64:
-                        atSign = i76;
+                        atSign = i73;
                         nonHost = -1;
                         break;
                 }
@@ -11033,12 +10967,12 @@ function isIpv6Hostname(hostname) {
     return hostname.charCodeAt(0) === 91 && hostname.charCodeAt(hostname.length - 1) === 93;
 }
 function getHostname(self, rest, hostname) {
-    for(let i77 = 0; i77 < hostname.length; ++i77){
-        const code = hostname.charCodeAt(i77);
+    for(let i74 = 0; i74 < hostname.length; ++i74){
+        const code = hostname.charCodeAt(i74);
         const isValid = code >= 97 && code <= 122 || code === 46 || code >= 65 && code <= 90 || code >= 48 && code <= 57 || code === 45 || code === 43 || code === 95 || code > 127;
         if (!isValid) {
-            self.hostname = hostname.slice(0, i77);
-            return `/${hostname.slice(i77)}${rest}`;
+            self.hostname = hostname.slice(0, i74);
+            return `/${hostname.slice(i74)}${rest}`;
         }
     }
     return rest;
@@ -11174,14 +11108,14 @@ const escapedCodes = [
 function autoEscapeStr(rest) {
     let escaped = "";
     let lastEscapedPos = 0;
-    for(let i78 = 0; i78 < rest.length; ++i78){
-        const escapedChar = escapedCodes[rest.charCodeAt(i78)];
+    for(let i75 = 0; i75 < rest.length; ++i75){
+        const escapedChar = escapedCodes[rest.charCodeAt(i75)];
         if (escapedChar) {
-            if (i78 > lastEscapedPos) {
-                escaped += rest.slice(lastEscapedPos, i78);
+            if (i75 > lastEscapedPos) {
+                escaped += rest.slice(lastEscapedPos, i75);
             }
             escaped += escapedChar;
-            lastEscapedPos = i78 + 1;
+            lastEscapedPos = i75 + 1;
         }
     }
     if (lastEscapedPos === 0) {
@@ -23147,10 +23081,10 @@ function concat(...buffers) {
     const size = buffers.reduce((acc, { length  })=>acc + length
     , 0);
     const buf = new Uint8Array(size);
-    let i79 = 0;
+    let i76 = 0;
     buffers.forEach((buffer)=>{
-        buf.set(buffer, i79);
-        i79 += buffer.length;
+        buf.set(buffer, i76);
+        i76 += buffer.length;
     });
     return buf;
 }
@@ -23161,16 +23095,16 @@ const encodeBase64 = (input)=>{
     }
     const CHUNK_SIZE = 0x8000;
     const arr = [];
-    for(let i80 = 0; i80 < unencoded.length; i80 += CHUNK_SIZE){
-        arr.push(String.fromCharCode.apply(null, unencoded.subarray(i80, i80 + 0x8000)));
+    for(let i77 = 0; i77 < unencoded.length; i77 += CHUNK_SIZE){
+        arr.push(String.fromCharCode.apply(null, unencoded.subarray(i77, i77 + 0x8000)));
     }
     return btoa(arr.join(''));
 };
 const decodeBase64 = (encoded)=>{
     const binary = atob(encoded);
     const bytes = new Uint8Array(binary.length);
-    for(let i81 = 0; i81 < binary.length; i81++){
-        bytes[i81] = binary.charCodeAt(i81);
+    for(let i78 = 0; i78 < binary.length; i78++){
+        bytes[i78] = binary.charCodeAt(i78);
     }
     return bytes;
 };
@@ -23454,12 +23388,12 @@ const findOid = (keyData, oid, from = 0)=>{
         oid.unshift(oid.length);
         oid.unshift(0x06);
     }
-    let i82 = keyData.indexOf(oid[0], from);
-    if (i82 === -1) return false;
-    const sub = keyData.subarray(i82, i82 + oid.length);
+    let i79 = keyData.indexOf(oid[0], from);
+    if (i79 === -1) return false;
+    const sub = keyData.subarray(i79, i79 + oid.length);
     if (sub.length !== oid.length) return false;
     return sub.every((value, index)=>value === oid[index]
-    ) || findOid(keyData, oid, i82 + 1);
+    ) || findOid(keyData, oid, i79 + 1);
 };
 const getNamedCurve1 = (keyData)=>{
     switch(true){
@@ -24390,8 +24324,8 @@ function utilFromBase(inputBuffer, inputBase) {
     if (inputBuffer.length === 1) {
         return inputBuffer[0];
     }
-    for(let i83 = inputBuffer.length - 1; i83 >= 0; i83--){
-        result += inputBuffer[inputBuffer.length - 1 - i83] * Math.pow(2, inputBase * i83);
+    for(let i80 = inputBuffer.length - 1; i80 >= 0; i80--){
+        result += inputBuffer[inputBuffer.length - 1 - i80] * Math.pow(2, inputBase * i80);
     }
     return result;
 }
@@ -24400,21 +24334,21 @@ function utilToBase(value, base9, reserved = -1) {
     let internalValue = value;
     let result = 0;
     let biggest = Math.pow(2, base9);
-    for(let i84 = 1; i84 < 8; i84++){
+    for(let i81 = 1; i81 < 8; i81++){
         if (value < biggest) {
             let retBuf;
             if (internalReserved < 0) {
-                retBuf = new ArrayBuffer(i84);
-                result = i84;
+                retBuf = new ArrayBuffer(i81);
+                result = i81;
             } else {
-                if (internalReserved < i84) {
+                if (internalReserved < i81) {
                     return new ArrayBuffer(0);
                 }
                 retBuf = new ArrayBuffer(internalReserved);
                 result = internalReserved;
             }
             const retView = new Uint8Array(retBuf);
-            for(let j = i84 - 1; j >= 0; j--){
+            for(let j = i81 - 1; j >= 0; j--){
                 const basis = Math.pow(2, j * base9);
                 retView[result - j - 1] = Math.floor(internalValue / basis);
                 internalValue -= retView[result - j - 1] * basis;
@@ -24464,8 +24398,8 @@ function utilDecodeTC() {
     }
     const bigIntBuffer = new ArrayBuffer(this.valueHex.byteLength);
     const bigIntView = new Uint8Array(bigIntBuffer);
-    for(let i85 = 0; i85 < this.valueHex.byteLength; i85++){
-        bigIntView[i85] = 0;
+    for(let i82 = 0; i82 < this.valueHex.byteLength; i82++){
+        bigIntView[i82] = 0;
     }
     bigIntView[0] = buf[0] & 0x80;
     const bigInt = utilFromBase(bigIntView, 8);
@@ -24481,16 +24415,16 @@ function utilDecodeTC() {
 function utilEncodeTC(value) {
     const modValue = value < 0 ? value * -1 : value;
     let bigInt = 128;
-    for(let i86 = 1; i86 < 8; i86++){
+    for(let i83 = 1; i83 < 8; i83++){
         if (modValue <= bigInt) {
             if (value < 0) {
                 const smallInt = bigInt - modValue;
-                const retBuf = utilToBase(smallInt, 8, i86);
+                const retBuf = utilToBase(smallInt, 8, i83);
                 const retView = new Uint8Array(retBuf);
                 retView[0] |= 0x80;
                 return retBuf;
             }
-            let retBuf = utilToBase(modValue, 8, i86);
+            let retBuf = utilToBase(modValue, 8, i83);
             let retView = new Uint8Array(retBuf);
             if (retView[0] & 0x80) {
                 const tempBuf = retBuf.slice(0);
@@ -24514,8 +24448,8 @@ function isEqualBuffer(inputBuffer1, inputBuffer2) {
     }
     const view1 = new Uint8Array(inputBuffer1);
     const view2 = new Uint8Array(inputBuffer2);
-    for(let i87 = 0; i87 < view1.length; i87++){
-        if (view1[i87] !== view2[i87]) {
+    for(let i84 = 0; i84 < view1.length; i84++){
+        if (view1[i84] !== view2[i84]) {
             return false;
         }
     }
@@ -24528,8 +24462,8 @@ function padNumber(inputNumber, fullLength) {
     }
     const dif = fullLength - str.length;
     const padding = new Array(dif);
-    for(let i88 = 0; i88 < dif; i88++){
-        padding[i88] = "0";
+    for(let i85 = 0; i85 < dif; i85++){
+        padding[i85] = "0";
     }
     const paddingString = padding.join("");
     return paddingString.concat(str);
@@ -24537,31 +24471,31 @@ function padNumber(inputNumber, fullLength) {
 const base64Template = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 const base64UrlTemplate = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
 function toBase64(input, useUrlTemplate = false, skipPadding = false, skipLeadingZeros = false) {
-    let i90 = 0;
+    let i87 = 0;
     let flag1 = 0;
     let flag2 = 0;
     let output = "";
     const template = useUrlTemplate ? base64UrlTemplate : base64Template;
     if (skipLeadingZeros) {
         let nonZeroPosition = 0;
-        for(let i89 = 0; i89 < input.length; i89++){
-            if (input.charCodeAt(i89) !== 0) {
-                nonZeroPosition = i89;
+        for(let i86 = 0; i86 < input.length; i86++){
+            if (input.charCodeAt(i86) !== 0) {
+                nonZeroPosition = i86;
                 break;
             }
         }
         input = input.slice(nonZeroPosition);
     }
-    while(i90 < input.length){
-        const chr1 = input.charCodeAt(i90++);
-        if (i90 >= input.length) {
+    while(i87 < input.length){
+        const chr1 = input.charCodeAt(i87++);
+        if (i87 >= input.length) {
             flag1 = 1;
         }
-        const chr2 = input.charCodeAt(i90++);
-        if (i90 >= input.length) {
+        const chr2 = input.charCodeAt(i87++);
+        if (i87 >= input.length) {
             flag2 = 1;
         }
-        const chr3 = input.charCodeAt(i90++);
+        const chr3 = input.charCodeAt(i87++);
         const enc1 = chr1 >> 2;
         const enc2 = (chr1 & 0x03) << 4 | chr2 >> 4;
         let enc3 = (chr2 & 0x0F) << 2 | chr3 >> 6;
@@ -24592,8 +24526,8 @@ function toBase64(input, useUrlTemplate = false, skipPadding = false, skipLeadin
 function fromBase64(input, useUrlTemplate = false, cutTailZeros = false) {
     const template = useUrlTemplate ? base64UrlTemplate : base64Template;
     function indexOf(toSearch) {
-        for(let i91 = 0; i91 < 64; i91++){
-            if (template.charAt(i91) === toSearch) return i91;
+        for(let i88 = 0; i88 < 64; i88++){
+            if (template.charAt(i88) === toSearch) return i88;
         }
         return 64;
     }
@@ -24621,9 +24555,9 @@ function fromBase64(input, useUrlTemplate = false, cutTailZeros = false) {
     if (cutTailZeros) {
         const outputLength = output.length;
         let nonZeroStart = -1;
-        for(let i92 = outputLength - 1; i92 >= 0; i92--){
-            if (output.charCodeAt(i92) !== 0) {
-                nonZeroStart = i92;
+        for(let i89 = outputLength - 1; i89 >= 0; i89--){
+            if (output.charCodeAt(i89) !== 0) {
+                nonZeroStart = i89;
                 break;
             }
         }
@@ -24647,8 +24581,8 @@ function stringToArrayBuffer(str) {
     const stringLength = str.length;
     const resultBuffer = new ArrayBuffer(stringLength);
     const resultView = new Uint8Array(resultBuffer);
-    for(let i93 = 0; i93 < stringLength; i93++){
-        resultView[i93] = str.charCodeAt(i93);
+    for(let i90 = 0; i90 < stringLength; i90++){
+        resultView[i90] = str.charCodeAt(i90);
     }
     return resultBuffer;
 }
@@ -24796,7 +24730,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) {
             retView = new Uint8Array(retBuf);
             retView[0] = firstOctet | 0x1F;
             if (!sizeOnly) {
-                for(let i94 = 0; i94 < size - 1; i94++)retView[i94 + 1] = encodedView[i94] | 0x80;
+                for(let i91 = 0; i91 < size - 1; i91++)retView[i91 + 1] = encodedView[i91] | 0x80;
                 retView[size] = encodedView[size - 1];
             }
             return retBuf;
@@ -24806,7 +24740,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) {
         retView[0] = firstOctet | 0x1F;
         if (sizeOnly === false) {
             const curView = new Uint8Array(this.valueHex);
-            for(let i95 = 0; i95 < curView.length - 1; i95++)retView[i95 + 1] = curView[i95] | 0x80;
+            for(let i92 = 0; i92 < curView.length - 1; i92++)retView[i92 + 1] = curView[i92] | 0x80;
             retView[this.valueHex.byteLength] = curView[curView.length - 1];
         }
         return retBuf;
@@ -24858,7 +24792,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) {
                     tagNumberBufferMaxLength += 255;
                     const tempBuffer = new ArrayBuffer(tagNumberBufferMaxLength);
                     const tempBufferView = new Uint8Array(tempBuffer);
-                    for(let i96 = 0; i96 < intTagNumberBuffer.length; i96++)tempBufferView[i96] = intTagNumberBuffer[i96];
+                    for(let i93 = 0; i93 < intTagNumberBuffer.length; i93++)tempBufferView[i93] = intTagNumberBuffer[i93];
                     this.valueHex = new ArrayBuffer(tagNumberBufferMaxLength);
                     intTagNumberBuffer = new Uint8Array(this.valueHex);
                 }
@@ -24867,7 +24801,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) {
             intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F;
             const tempBuffer = new ArrayBuffer(count);
             const tempBufferView = new Uint8Array(tempBuffer);
-            for(let i97 = 0; i97 < count; i97++)tempBufferView[i97] = intTagNumberBuffer[i97];
+            for(let i94 = 0; i94 < count; i94++)tempBufferView[i94] = intTagNumberBuffer[i94];
             this.valueHex = new ArrayBuffer(count);
             intTagNumberBuffer = new Uint8Array(this.valueHex);
             intTagNumberBuffer.set(tempBufferView);
@@ -24959,7 +24893,7 @@ class LocalLengthBlock extends LocalBaseBlock {
             return -1;
         }
         const lengthBufferView = new Uint8Array(count);
-        for(let i98 = 0; i98 < count; i98++)lengthBufferView[i98] = intBuffer[i98 + 1];
+        for(let i95 = 0; i95 < count; i95++)lengthBufferView[i95] = intBuffer[i95 + 1];
         if (lengthBufferView[count - 1] === 0x00) this.warnings.push("Needlessly long encoded length");
         this.length = utilFromBase(lengthBufferView, 8);
         if (this.longFormUsed && this.length <= 127) this.warnings.push("Unnecessary usage of long length form");
@@ -24989,7 +24923,7 @@ class LocalLengthBlock extends LocalBaseBlock {
             const encodedView = new Uint8Array(encodedBuf);
             retView = new Uint8Array(retBuf);
             retView[0] = encodedBuf.byteLength | 0x80;
-            for(let i99 = 0; i99 < encodedBuf.byteLength; i99++)retView[i99 + 1] = encodedView[i99];
+            for(let i96 = 0; i96 < encodedBuf.byteLength; i96++)retView[i96 + 1] = encodedView[i96];
             return retBuf;
         }
         retBuf = new ArrayBuffer(1);
@@ -25104,7 +25038,7 @@ class LocalPrimitiveValueBlock extends ValueBlock {
         }
         this.valueHex = new ArrayBuffer(intBuffer.length);
         const valueHexView = new Uint8Array(this.valueHex);
-        for(let i100 = 0; i100 < intBuffer.length; i100++)valueHexView[i100] = intBuffer[i100];
+        for(let i97 = 0; i97 < intBuffer.length; i97++)valueHexView[i97] = intBuffer[i97];
         this.blockLength = inputLength;
         return inputOffset + inputLength;
     }
@@ -25175,8 +25109,8 @@ class LocalConstructedValueBlock extends ValueBlock {
     }
     toBER(sizeOnly = false) {
         let retBuf = new ArrayBuffer(0);
-        for(let i101 = 0; i101 < this.value.length; i101++){
-            const valueBuf = this.value[i101].toBER(sizeOnly);
+        for(let i98 = 0; i98 < this.value.length; i98++){
+            const valueBuf = this.value[i98].toBER(sizeOnly);
             retBuf = utilConcatBuf(retBuf, valueBuf);
         }
         return retBuf;
@@ -25191,7 +25125,7 @@ class LocalConstructedValueBlock extends ValueBlock {
         } catch (ex) {}
         object.isIndefiniteForm = this.isIndefiniteForm;
         object.value = [];
-        for(let i102 = 0; i102 < this.value.length; i102++)object.value.push(this.value[i102].toJSON());
+        for(let i99 = 0; i99 < this.value.length; i99++)object.value.push(this.value[i99].toJSON());
         return object;
     }
 }
@@ -25270,7 +25204,7 @@ class LocalBooleanValueBlock extends ValueBlock {
         this.isHexOnly = true;
         this.valueHex = new ArrayBuffer(intBuffer.length);
         const view = new Uint8Array(this.valueHex);
-        for(let i103 = 0; i103 < intBuffer.length; i103++)view[i103] = intBuffer[i103];
+        for(let i100 = 0; i100 < intBuffer.length; i100++)view[i100] = intBuffer[i100];
         if (utilDecodeTC.call(this) !== 0) this.value = true;
         else this.value = false;
         this.blockLength = inputLength;
@@ -25369,8 +25303,8 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
             this.isHexOnly = false;
             resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength);
             if (resultOffset === -1) return resultOffset;
-            for(let i104 = 0; i104 < this.value.length; i104++){
-                const currentBlockName = this.value[i104].constructor.blockName();
+            for(let i101 = 0; i101 < this.value.length; i101++){
+                const currentBlockName = this.value[i101].constructor.blockName();
                 if (currentBlockName === EndOfContent.blockName()) {
                     if (this.isIndefiniteForm === true) break;
                     else {
@@ -25468,8 +25402,8 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
         if (this.isConstructed === true) {
             resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength);
             if (resultOffset === -1) return resultOffset;
-            for(let i105 = 0; i105 < this.value.length; i105++){
-                const currentBlockName = this.value[i105].constructor.blockName();
+            for(let i102 = 0; i102 < this.value.length; i102++){
+                const currentBlockName = this.value[i102].constructor.blockName();
                 if (currentBlockName === EndOfContent.blockName()) {
                     if (this.isIndefiniteForm === true) break;
                     else {
@@ -25481,11 +25415,11 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
                     this.error = "BIT STRING may consists of BIT STRINGs only";
                     return -1;
                 }
-                if (this.unusedBits > 0 && this.value[i105].valueBlock.unusedBits > 0) {
+                if (this.unusedBits > 0 && this.value[i102].valueBlock.unusedBits > 0) {
                     this.error = "Using of \"unused bits\" inside constructive BIT STRING allowed for least one only";
                     return -1;
                 }
-                this.unusedBits = this.value[i105].valueBlock.unusedBits;
+                this.unusedBits = this.value[i102].valueBlock.unusedBits;
                 if (this.unusedBits > 7) {
                     this.error = "Unused bits for BitString must be in range 0-7";
                     return -1;
@@ -25513,7 +25447,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
         }
         this.valueHex = new ArrayBuffer(intBuffer.length - 1);
         const view = new Uint8Array(this.valueHex);
-        for(let i106 = 0; i106 < inputLength - 1; i106++)view[i106] = intBuffer[i106 + 1];
+        for(let i103 = 0; i103 < inputLength - 1; i103++)view[i103] = intBuffer[i103 + 1];
         this.blockLength = intBuffer.length;
         return inputOffset + inputLength;
     }
@@ -25525,7 +25459,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
         const retBuf = new ArrayBuffer(this.valueHex.byteLength + 1);
         const retView = new Uint8Array(retBuf);
         retView[0] = this.unusedBits;
-        for(let i107 = 0; i107 < this.valueHex.byteLength; i107++)retView[i107 + 1] = curView[i107];
+        for(let i104 = 0; i104 < this.valueHex.byteLength; i104++)retView[i104 + 1] = curView[i104];
         return retBuf;
     }
     static blockName() {
@@ -25683,7 +25617,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
             let value = 0;
             const max = secondViewCopyLength < firstViewCopyLength ? firstViewCopyLength : secondViewCopyLength;
             let counter = 0;
-            for(let i108 = max; i108 >= 0; i108--, counter++){
+            for(let i105 = max; i105 >= 0; i105--, counter++){
                 switch(true){
                     case counter < secondViewCopy.length:
                         value = firstViewCopy[firstViewCopyLength - counter] + secondViewCopy[secondViewCopyLength - counter] + c[0];
@@ -25712,12 +25646,12 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
                         0
                     ]);
                     let digits = powers2[p - 1].slice(0);
-                    for(let i109 = digits.length - 1; i109 >= 0; i109--){
+                    for(let i106 = digits.length - 1; i106 >= 0; i106--){
                         const newValue = new Uint8Array([
-                            (digits[i109] << 1) + c[0]
+                            (digits[i106] << 1) + c[0]
                         ]);
                         c[0] = newValue[0] / 10;
-                        digits[i109] = newValue[0] % 10;
+                        digits[i106] = newValue[0] % 10;
                     }
                     if (c[0] > 0) digits = utilConcatView(c, digits);
                     powers2.push(digits);
@@ -25735,7 +25669,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
             const secondViewCopyLength = secondViewCopy.length - 1;
             let value;
             let counter = 0;
-            for(let i113 = secondViewCopyLength; i113 >= 0; i113--, counter++){
+            for(let i107 = secondViewCopyLength; i107 >= 0; i107--, counter++){
                 value = firstViewCopy[firstViewCopyLength - counter] - secondViewCopy[secondViewCopyLength - counter] - b;
                 switch(true){
                     case value < 0:
@@ -25748,7 +25682,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
                 }
             }
             if (b > 0) {
-                for(let i114 = firstViewCopyLength - secondViewCopyLength + 1; i114 >= 0; i114--, counter++){
+                for(let i108 = firstViewCopyLength - secondViewCopyLength + 1; i108 >= 0; i108--, counter++){
                     value = firstViewCopy[firstViewCopyLength - counter] - b;
                     if (value < 0) {
                         b = 1;
@@ -25771,7 +25705,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
         let flag = false;
         for(let byteNumber = this._valueHex.byteLength - 1; byteNumber >= 0; byteNumber--){
             currentByte = asn1View[byteNumber];
-            for(let i115 = 0; i115 < 8; i115++){
+            for(let i109 = 0; i109 < 8; i109++){
                 if ((currentByte & 1) === 1) {
                     switch(bitNumber){
                         case firstBit:
@@ -25859,10 +25793,10 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock) {
         const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
         this.valueHex = new ArrayBuffer(inputLength);
         let view = new Uint8Array(this.valueHex);
-        for(let i116 = 0; i116 < inputLength; i116++){
-            view[i116] = intBuffer[i116] & 0x7F;
+        for(let i113 = 0; i113 < inputLength; i113++){
+            view[i113] = intBuffer[i113] & 0x7F;
             this.blockLength++;
-            if ((intBuffer[i116] & 0x80) === 0x00) break;
+            if ((intBuffer[i113] & 0x80) === 0x00) break;
         }
         const tempValueHex = new ArrayBuffer(this.blockLength);
         const tempView = new Uint8Array(tempValueHex);
@@ -25888,8 +25822,8 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock) {
             bits = '0' + bits;
         }
         const bytes = new Uint8Array(bits.length / 7);
-        for(let i117 = 0; i117 < bytes.length; i117++){
-            bytes[i117] = parseInt(bits.slice(i117 * 7, i117 * 7 + 7), 2) + (i117 + 1 < bytes.length ? 0x80 : 0);
+        for(let i114 = 0; i114 < bytes.length; i114++){
+            bytes[i114] = parseInt(bits.slice(i114 * 7, i114 * 7 + 7), 2) + (i114 + 1 < bytes.length ? 0x80 : 0);
         }
         this.fromBER(bytes.buffer, 0, bytes.length);
     }
@@ -25901,7 +25835,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock) {
             const curView = new Uint8Array(this.valueHex);
             retBuf = new ArrayBuffer(this.blockLength);
             retView = new Uint8Array(retBuf);
-            for(let i118 = 0; i118 < this.blockLength - 1; i118++)retView[i118] = curView[i118] | 0x80;
+            for(let i115 = 0; i115 < this.blockLength - 1; i115++)retView[i115] = curView[i115] | 0x80;
             retView[this.blockLength - 1] = curView[this.blockLength - 1];
             return retBuf;
         }
@@ -25914,7 +25848,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock) {
         if (sizeOnly === false) {
             const encodedView = new Uint8Array(encodedBuf);
             retView = new Uint8Array(retBuf);
-            for(let i119 = 0; i119 < encodedBuf.byteLength - 1; i119++)retView[i119] = encodedView[i119] | 0x80;
+            for(let i116 = 0; i116 < encodedBuf.byteLength - 1; i116++)retView[i116] = encodedView[i116] | 0x80;
             retView[encodedBuf.byteLength - 1] = encodedView[encodedBuf.byteLength - 1];
         }
         return retBuf;
@@ -25974,10 +25908,10 @@ class LocalObjectIdentifierValueBlock extends ValueBlock {
     }
     toBER(sizeOnly = false) {
         let retBuf = new ArrayBuffer(0);
-        for(let i120 = 0; i120 < this.value.length; i120++){
-            const valueBuf = this.value[i120].toBER(sizeOnly);
+        for(let i117 = 0; i117 < this.value.length; i117++){
+            const valueBuf = this.value[i117].toBER(sizeOnly);
             if (valueBuf.byteLength === 0) {
-                this.error = this.value[i120].error;
+                this.error = this.value[i117].error;
                 return new ArrayBuffer(0);
             }
             retBuf = utilConcatBuf(retBuf, valueBuf);
@@ -26037,13 +25971,13 @@ class LocalObjectIdentifierValueBlock extends ValueBlock {
     toString() {
         let result = "";
         let isHexOnly = false;
-        for(let i121 = 0; i121 < this.value.length; i121++){
-            isHexOnly = this.value[i121].isHexOnly;
-            let sidStr = this.value[i121].toString();
-            if (i121 !== 0) result = `${result}.`;
+        for(let i118 = 0; i118 < this.value.length; i118++){
+            isHexOnly = this.value[i118].isHexOnly;
+            let sidStr = this.value[i118].toString();
+            if (i118 !== 0) result = `${result}.`;
             if (isHexOnly) {
                 sidStr = `{${sidStr}}`;
-                if (this.value[i121].isFirstSid) result = `2.{${sidStr} - 80}`;
+                if (this.value[i118].isFirstSid) result = `2.{${sidStr} - 80}`;
                 else result += sidStr;
             } else result += sidStr;
         }
@@ -26059,7 +25993,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock {
         } catch (ex) {}
         object.value = this.toString();
         object.sidArray = [];
-        for(let i122 = 0; i122 < this.value.length; i122++)object.sidArray.push(this.value[i122].toJSON());
+        for(let i119 = 0; i119 < this.value.length; i119++)object.sidArray.push(this.value[i119].toJSON());
         return object;
     }
 }
@@ -26129,7 +26063,7 @@ class Utf8String extends BaseBlock {
         const strLen = str.length;
         this.valueBlock.valueHex = new ArrayBuffer(strLen);
         const view = new Uint8Array(this.valueBlock.valueHex);
-        for(let i123 = 0; i123 < strLen; i123++)view[i123] = str.charCodeAt(i123);
+        for(let i120 = 0; i120 < strLen; i120++)view[i120] = str.charCodeAt(i120);
         this.valueBlock.value = inputString;
     }
     toString() {
@@ -26150,10 +26084,10 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) {
         const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
         this.valueHex = new ArrayBuffer(inputLength);
         let view = new Uint8Array(this.valueHex);
-        for(let i124 = 0; i124 < inputLength; i124++){
-            view[i124] = intBuffer[i124] & 0x7F;
+        for(let i121 = 0; i121 < inputLength; i121++){
+            view[i121] = intBuffer[i121] & 0x7F;
             this.blockLength++;
-            if ((intBuffer[i124] & 0x80) === 0x00) break;
+            if ((intBuffer[i121] & 0x80) === 0x00) break;
         }
         const tempValueHex = new ArrayBuffer(this.blockLength);
         const tempView = new Uint8Array(tempValueHex);
@@ -26180,7 +26114,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) {
             const curView = new Uint8Array(this.valueHex);
             retBuf = new ArrayBuffer(this.blockLength);
             retView = new Uint8Array(retBuf);
-            for(let i125 = 0; i125 < this.blockLength - 1; i125++)retView[i125] = curView[i125] | 0x80;
+            for(let i122 = 0; i122 < this.blockLength - 1; i122++)retView[i122] = curView[i122] | 0x80;
             retView[this.blockLength - 1] = curView[this.blockLength - 1];
             return retBuf;
         }
@@ -26193,7 +26127,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) {
         if (sizeOnly === false) {
             const encodedView = new Uint8Array(encodedBuf);
             retView = new Uint8Array(retBuf);
-            for(let i126 = 0; i126 < encodedBuf.byteLength - 1; i126++)retView[i126] = encodedView[i126] | 0x80;
+            for(let i123 = 0; i123 < encodedBuf.byteLength - 1; i123++)retView[i123] = encodedView[i123] | 0x80;
             retView[encodedBuf.byteLength - 1] = encodedView[encodedBuf.byteLength - 1];
         }
         return retBuf;
@@ -26238,10 +26172,10 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
     }
     toBER(sizeOnly = false) {
         let retBuf = new ArrayBuffer(0);
-        for(let i127 = 0; i127 < this.value.length; i127++){
-            const valueBuf = this.value[i127].toBER(sizeOnly);
+        for(let i124 = 0; i124 < this.value.length; i124++){
+            const valueBuf = this.value[i124].toBER(sizeOnly);
             if (valueBuf.byteLength === 0) {
-                this.error = this.value[i127].error;
+                this.error = this.value[i124].error;
                 return new ArrayBuffer(0);
             }
             retBuf = utilConcatBuf(retBuf, valueBuf);
@@ -26268,10 +26202,10 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
     toString() {
         let result = "";
         let isHexOnly = false;
-        for(let i128 = 0; i128 < this.value.length; i128++){
-            isHexOnly = this.value[i128].isHexOnly;
-            let sidStr = this.value[i128].toString();
-            if (i128 !== 0) result = `${result}.`;
+        for(let i125 = 0; i125 < this.value.length; i125++){
+            isHexOnly = this.value[i125].isHexOnly;
+            let sidStr = this.value[i125].toString();
+            if (i125 !== 0) result = `${result}.`;
             if (isHexOnly) {
                 sidStr = `{${sidStr}}`;
                 result += sidStr;
@@ -26289,7 +26223,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
         } catch (ex) {}
         object.value = this.toString();
         object.sidArray = [];
-        for(let i129 = 0; i129 < this.value.length; i129++)object.sidArray.push(this.value[i129].toJSON());
+        for(let i126 = 0; i126 < this.value.length; i126++)object.sidArray.push(this.value[i126].toJSON());
         return object;
     }
 }
@@ -26346,10 +26280,10 @@ class BmpString extends BaseBlock {
     fromBuffer(inputBuffer) {
         const copyBuffer = inputBuffer.slice(0);
         const valueView = new Uint8Array(copyBuffer);
-        for(let i130 = 0; i130 < valueView.length; i130 += 2){
-            const temp = valueView[i130];
-            valueView[i130] = valueView[i130 + 1];
-            valueView[i130 + 1] = temp;
+        for(let i127 = 0; i127 < valueView.length; i127 += 2){
+            const temp = valueView[i127];
+            valueView[i127] = valueView[i127 + 1];
+            valueView[i127 + 1] = temp;
         }
         this.valueBlock.value = String.fromCharCode.apply(null, new Uint16Array(copyBuffer));
     }
@@ -26357,12 +26291,12 @@ class BmpString extends BaseBlock {
         const strLength = inputString.length;
         this.valueBlock.valueHex = new ArrayBuffer(strLength * 2);
         const valueHexView = new Uint8Array(this.valueBlock.valueHex);
-        for(let i131 = 0; i131 < strLength; i131++){
-            const codeBuf = utilToBase(inputString.charCodeAt(i131), 8);
+        for(let i128 = 0; i128 < strLength; i128++){
+            const codeBuf = utilToBase(inputString.charCodeAt(i128), 8);
             const codeView = new Uint8Array(codeBuf);
             if (codeView.length > 2) continue;
             const dif = 2 - codeView.length;
-            for(let j = codeView.length - 1; j >= 0; j--)valueHexView[i131 * 2 + j + dif] = codeView[j];
+            for(let j = codeView.length - 1; j >= 0; j--)valueHexView[i128 * 2 + j + dif] = codeView[j];
         }
         this.valueBlock.value = inputString;
     }
@@ -26413,11 +26347,11 @@ class UniversalString extends BaseBlock {
     fromBuffer(inputBuffer) {
         const copyBuffer = inputBuffer.slice(0);
         const valueView = new Uint8Array(copyBuffer);
-        for(let i132 = 0; i132 < valueView.length; i132 += 4){
-            valueView[i132] = valueView[i132 + 3];
-            valueView[i132 + 1] = valueView[i132 + 2];
-            valueView[i132 + 2] = 0x00;
-            valueView[i132 + 3] = 0x00;
+        for(let i129 = 0; i129 < valueView.length; i129 += 4){
+            valueView[i129] = valueView[i129 + 3];
+            valueView[i129 + 1] = valueView[i129 + 2];
+            valueView[i129 + 2] = 0x00;
+            valueView[i129 + 3] = 0x00;
         }
         this.valueBlock.value = String.fromCharCode.apply(null, new Uint32Array(copyBuffer));
     }
@@ -26425,12 +26359,12 @@ class UniversalString extends BaseBlock {
         const strLength = inputString.length;
         this.valueBlock.valueHex = new ArrayBuffer(strLength * 4);
         const valueHexView = new Uint8Array(this.valueBlock.valueHex);
-        for(let i133 = 0; i133 < strLength; i133++){
-            const codeBuf = utilToBase(inputString.charCodeAt(i133), 8);
+        for(let i130 = 0; i130 < strLength; i130++){
+            const codeBuf = utilToBase(inputString.charCodeAt(i130), 8);
             const codeView = new Uint8Array(codeBuf);
             if (codeView.length > 4) continue;
             const dif = 4 - codeView.length;
-            for(let j = codeView.length - 1; j >= 0; j--)valueHexView[i133 * 4 + j + dif] = codeView[j];
+            for(let j = codeView.length - 1; j >= 0; j--)valueHexView[i130 * 4 + j + dif] = codeView[j];
         }
         this.valueBlock.value = inputString;
     }
@@ -26483,7 +26417,7 @@ class LocalSimpleStringBlock extends BaseBlock {
         const strLen = inputString.length;
         this.valueBlock.valueHex = new ArrayBuffer(strLen);
         const view = new Uint8Array(this.valueBlock.valueHex);
-        for(let i134 = 0; i134 < strLen; i134++)view[i134] = inputString.charCodeAt(i134);
+        for(let i131 = 0; i131 < strLen; i131++)view[i131] = inputString.charCodeAt(i131);
         this.valueBlock.value = inputString;
     }
     toString() {
@@ -26593,7 +26527,7 @@ class UTCTime extends VisibleString {
             this.fromString(parameters.value);
             this.valueBlock.valueHex = new ArrayBuffer(parameters.value.length);
             const view = new Uint8Array(this.valueBlock.valueHex);
-            for(let i135 = 0; i135 < parameters.value.length; i135++)view[i135] = parameters.value.charCodeAt(i135);
+            for(let i132 = 0; i132 < parameters.value.length; i132++)view[i132] = parameters.value.charCodeAt(i132);
         }
         if ("valueDate" in parameters) {
             this.fromDate(parameters.valueDate);
@@ -26621,7 +26555,7 @@ class UTCTime extends VisibleString {
         const str = this.toString();
         const buffer = new ArrayBuffer(str.length);
         const view = new Uint8Array(buffer);
-        for(let i136 = 0; i136 < str.length; i136++)view[i136] = str.charCodeAt(i136);
+        for(let i133 = 0; i133 < str.length; i133++)view[i133] = str.charCodeAt(i133);
         return buffer;
     }
     fromDate(inputDate) {
@@ -26693,7 +26627,7 @@ class GeneralizedTime extends VisibleString {
             this.fromString(parameters.value);
             this.valueBlock.valueHex = new ArrayBuffer(parameters.value.length);
             const view = new Uint8Array(this.valueBlock.valueHex);
-            for(let i137 = 0; i137 < parameters.value.length; i137++)view[i137] = parameters.value.charCodeAt(i137);
+            for(let i134 = 0; i134 < parameters.value.length; i134++)view[i134] = parameters.value.charCodeAt(i134);
         }
         if ("valueDate" in parameters) {
             this.fromDate(parameters.valueDate);
@@ -26721,7 +26655,7 @@ class GeneralizedTime extends VisibleString {
         const str = this.toString();
         const buffer = new ArrayBuffer(str.length);
         const view = new Uint8Array(buffer);
-        for(let i138 = 0; i138 < str.length; i138++)view[i138] = str.charCodeAt(i138);
+        for(let i135 = 0; i135 < str.length; i135++)view[i135] = str.charCodeAt(i135);
         return buffer;
     }
     fromDate(inputDate) {
@@ -27351,8 +27285,8 @@ function compareSchema(root, inputData, inputSchema) {
                 result: root
             };
         }
-        for(let i139 = 0; i139 < schemaView.length; i139++){
-            if (schemaView[i139] !== asn1View[1]) {
+        for(let i136 = 0; i136 < schemaView.length; i136++){
+            if (schemaView[i136] !== asn1View[1]) {
                 return {
                     verified: false,
                     result: root
@@ -27381,7 +27315,7 @@ function compareSchema(root, inputData, inputSchema) {
         }
         if (inputData.valueBlock.value.length === 0 && inputSchema.valueBlock.value.length !== 0) {
             let _optional = true;
-            for(let i140 = 0; i140 < inputSchema.valueBlock.value.length; i140++)_optional = _optional && (inputSchema.valueBlock.value[i140].optional || false);
+            for(let i137 = 0; i137 < inputSchema.valueBlock.value.length; i137++)_optional = _optional && (inputSchema.valueBlock.value[i137].optional || false);
             if (_optional === true) {
                 return {
                     verified: true,
@@ -27398,9 +27332,9 @@ function compareSchema(root, inputData, inputSchema) {
                 result: root
             };
         }
-        for(let i141 = 0; i141 < maxLength; i141++){
-            if (i141 - admission >= inputData.valueBlock.value.length) {
-                if (inputSchema.valueBlock.value[i141].optional === false) {
+        for(let i138 = 0; i138 < maxLength; i138++){
+            if (i138 - admission >= inputData.valueBlock.value.length) {
+                if (inputSchema.valueBlock.value[i138].optional === false) {
                     const _result = {
                         verified: false,
                         result: root
@@ -27417,7 +27351,7 @@ function compareSchema(root, inputData, inputSchema) {
                 }
             } else {
                 if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-                    result = compareSchema(root, inputData.valueBlock.value[i141], inputSchema.valueBlock.value[0].value);
+                    result = compareSchema(root, inputData.valueBlock.value[i138], inputSchema.valueBlock.value[0].value);
                     if (result.verified === false) {
                         if (inputSchema.valueBlock.value[0].optional === true) admission++;
                         else {
@@ -27433,12 +27367,12 @@ function compareSchema(root, inputData, inputSchema) {
                         if ("local" in inputSchema.valueBlock.value[0] && inputSchema.valueBlock.value[0].local === true) arrayRoot = inputData;
                         else arrayRoot = root;
                         if (typeof arrayRoot[inputSchema.valueBlock.value[0].name] === "undefined") arrayRoot[inputSchema.valueBlock.value[0].name] = [];
-                        arrayRoot[inputSchema.valueBlock.value[0].name].push(inputData.valueBlock.value[i141]);
+                        arrayRoot[inputSchema.valueBlock.value[0].name].push(inputData.valueBlock.value[i138]);
                     }
                 } else {
-                    result = compareSchema(root, inputData.valueBlock.value[i141 - admission], inputSchema.valueBlock.value[i141]);
+                    result = compareSchema(root, inputData.valueBlock.value[i138 - admission], inputSchema.valueBlock.value[i138]);
                     if (result.verified === false) {
-                        if (inputSchema.valueBlock.value[i141].optional === true) admission++;
+                        if (inputSchema.valueBlock.value[i138].optional === true) admission++;
                         else {
                             if (inputSchema.hasOwnProperty("name")) {
                                 inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
@@ -28557,7 +28491,7 @@ class EncryptedContentInfo {
                         const pieceView = new Uint8Array(this.encryptedContent.valueBlock.valueHex, offset, offset + 1024 > this.encryptedContent.valueBlock.valueHex.byteLength ? this.encryptedContent.valueBlock.valueHex.byteLength - offset : 1024);
                         const _array = new ArrayBuffer(pieceView.length);
                         const _view = new Uint8Array(_array);
-                        for(let i142 = 0; i142 < _view.length; i142++)_view[i142] = pieceView[i142];
+                        for(let i139 = 0; i139 < _view.length; i139++)_view[i139] = pieceView[i139];
                         constrString.valueBlock.value.push(new OctetString({
                             valueHex: _array
                         }));
@@ -29085,9 +29019,9 @@ function makePKCS12B2Key(cryptoEngine, hashAlgorithm, keyLength, password, salt,
     const passwordViewInitial = new Uint8Array(password);
     const passwordTransformed = new ArrayBuffer(password.byteLength * 2 + 2);
     const passwordTransformedView = new Uint8Array(passwordTransformed);
-    for(let i143 = 0; i143 < passwordViewInitial.length; i143++){
-        passwordTransformedView[i143 * 2] = 0x00;
-        passwordTransformedView[i143 * 2 + 1] = passwordViewInitial[i143];
+    for(let i140 = 0; i140 < passwordViewInitial.length; i140++){
+        passwordTransformedView[i140 * 2] = 0x00;
+        passwordTransformedView[i140 * 2 + 1] = passwordViewInitial[i140];
     }
     passwordTransformedView[passwordTransformedView.length - 2] = 0x00;
     passwordTransformedView[passwordTransformedView.length - 1] = 0x00;
@@ -31213,15 +31147,15 @@ function stringPrep(inputString) {
     let isSpace = false;
     let cuttedResult = "";
     const result = inputString.trim();
-    for(let i144 = 0; i144 < result.length; i144++){
-        if (result.charCodeAt(i144) === 32) {
+    for(let i141 = 0; i141 < result.length; i141++){
+        if (result.charCodeAt(i141) === 32) {
             if (isSpace === false) isSpace = true;
         } else {
             if (isSpace) {
                 cuttedResult += " ";
                 isSpace = false;
             }
-            cuttedResult += result[i144];
+            cuttedResult += result[i141];
         }
     }
     return cuttedResult.toLowerCase();
@@ -31312,7 +31246,7 @@ function kdf(hashFunction, Zbuffer, keydatalen, SharedInfo) {
             const newBuffer = new ArrayBuffer(keydatalen);
             const newView = new Uint8Array(newBuffer);
             const combinedView = new Uint8Array(combinedBuffer);
-            for(let i145 = 0; i145 < keydatalen; i145++)newView[i145] = combinedView[i145];
+            for(let i142 = 0; i142 < keydatalen; i142++)newView[i142] = combinedView[i142];
             return newBuffer;
         }
         return combinedBuffer;
@@ -34325,7 +34259,7 @@ class ByteStream {
                     this.length = parameters.length;
                     break;
                 case "stub":
-                    for(let i146 = 0; i146 < this._view.length; i146++)this._view[i146] = parameters.stub;
+                    for(let i143 = 0; i143 < this._view.length; i143++)this._view[i143] = parameters.stub;
                     break;
                 case "view":
                     this.fromUint8Array(parameters.view);
@@ -34380,7 +34314,7 @@ class ByteStream {
     fromString(string) {
         const stringLength = string.length;
         this.length = stringLength;
-        for(let i147 = 0; i147 < stringLength; i147++)this.view[i147] = string.charCodeAt(i147);
+        for(let i144 = 0; i144 < stringLength; i144++)this.view[i144] = string.charCodeAt(i144);
     }
     toString(start = 0, length = this.view.length - start) {
         let result = "";
@@ -34390,7 +34324,7 @@ class ByteStream {
         if (length >= this.view.length || length < 0) {
             length = this.view.length - start;
         }
-        for(let i148 = start; i148 < start + length; i148++)result += String.fromCharCode(this.view[i148]);
+        for(let i145 = start; i145 < start + length; i145++)result += String.fromCharCode(this.view[i145]);
         return result;
     }
     fromHexString(hexString) {
@@ -34422,11 +34356,11 @@ class ByteStream {
         hexMap.set("f", 0x0F);
         let j = 0;
         let temp = 0x00;
-        for(let i149 = 0; i149 < stringLength; i149++){
-            if (!(i149 % 2)) {
-                temp = hexMap.get(hexString.charAt(i149)) << 4;
+        for(let i146 = 0; i146 < stringLength; i146++){
+            if (!(i146 % 2)) {
+                temp = hexMap.get(hexString.charAt(i146)) << 4;
             } else {
-                temp |= hexMap.get(hexString.charAt(i149));
+                temp |= hexMap.get(hexString.charAt(i146));
                 this.view[j] = temp;
                 j++;
             }
@@ -34440,8 +34374,8 @@ class ByteStream {
         if (length >= this.view.length || length < 0) {
             length = this.view.length - start;
         }
-        for(let i150 = start; i150 < start + length; i150++){
-            const str = this.view[i150].toString(16).toUpperCase();
+        for(let i147 = start; i147 < start + length; i147++){
+            const str = this.view[i147].toString(16).toUpperCase();
             result = result + (str.length == 1 ? "0" : "") + str;
         }
         return result;
@@ -34495,15 +34429,15 @@ class ByteStream {
     }
     isEqual(stream) {
         if (this._buffer.byteLength != stream._buffer.byteLength) return false;
-        for(let i151 = 0; i151 < stream._buffer.byteLength; i151++){
-            if (this.view[i151] != stream.view[i151]) return false;
+        for(let i148 = 0; i148 < stream._buffer.byteLength; i148++){
+            if (this.view[i148] != stream.view[i148]) return false;
         }
         return true;
     }
     isEqualView(view) {
         if (view.length != this.view.length) return false;
-        for(let i152 = 0; i152 < view.length; i152++){
-            if (this.view[i152] != view[i152]) return false;
+        for(let i149 = 0; i149 < view.length; i149++){
+            if (this.view[i149] != view[i149]) return false;
         }
         return true;
     }
@@ -34532,7 +34466,7 @@ class ByteStream {
         const patternLength = pattern.buffer.byteLength;
         if (patternLength > length) return -1;
         const patternArray = [];
-        for(let i153 = 0; i153 < patternLength; i153++)patternArray.push(pattern.view[i153]);
+        for(let i150 = 0; i150 < patternLength; i150++)patternArray.push(pattern.view[i150]);
         for(let i1 = 0; i1 <= length - patternLength; i1++){
             let equal = true;
             const equalStart = backward ? start - patternLength - i1 : start + i1;
@@ -34575,11 +34509,11 @@ class ByteStream {
             position: backward ? 0 : start + length,
             length: 0
         };
-        for(let i154 = 0; i154 < patterns.length; i154++){
-            const position2 = this.findPattern(patterns[i154], start, length, backward);
+        for(let i151 = 0; i151 < patterns.length; i151++){
+            const position2 = this.findPattern(patterns[i151], start, length, backward);
             if (position2 != -1) {
                 let valid = false;
-                const patternLength = patterns[i154].length;
+                const patternLength = patterns[i151].length;
                 if (backward) {
                     if (position2 - patternLength >= result.position - result.length) valid = true;
                 } else {
@@ -34587,7 +34521,7 @@ class ByteStream {
                 }
                 if (valid) {
                     result.position = position2;
-                    result.id = i154;
+                    result.id = i151;
                     result.length = patternLength;
                 }
             }
@@ -34641,9 +34575,9 @@ class ByteStream {
         const patternLength = pattern.buffer.byteLength;
         if (patternLength > length) return -1;
         const patternArray = Array.from(pattern.view);
-        for(let i155 = 0; i155 <= length - patternLength; i155++){
+        for(let i152 = 0; i152 <= length - patternLength; i152++){
             let equal = true;
-            const equalStart = start + i155;
+            const equalStart = start + i152;
             for(let j = 0; j < patternLength; j++){
                 if (this.view[j + equalStart] != patternArray[j]) {
                     equal = false;
@@ -34651,8 +34585,8 @@ class ByteStream {
                 }
             }
             if (equal) {
-                result.push(start + patternLength + i155);
-                i155 += patternLength - 1;
+                result.push(start + patternLength + i152);
+                i152 += patternLength - 1;
             }
         }
         return result;
@@ -34948,7 +34882,7 @@ class ByteStream {
     }
     replacePattern(searchPattern, replacePattern, start = null, length = null, findAllResult = null) {
         let result;
-        let i156;
+        let i153;
         const output = {
             status: -1,
             searchPatternPositions: [],
@@ -34976,14 +34910,14 @@ class ByteStream {
         const changedBuffer = new ArrayBuffer(this.view.length - result.length * patternDifference);
         const changedView = new Uint8Array(changedBuffer);
         changedView.set(new Uint8Array(this.buffer, 0, start));
-        for(i156 = 0; i156 < result.length; i156++){
-            const currentPosition = i156 == 0 ? start : result[i156 - 1].position;
-            changedView.set(new Uint8Array(this.buffer, currentPosition, result[i156].position - searchPattern.buffer.byteLength - currentPosition), currentPosition - i156 * patternDifference);
-            changedView.set(replacePattern.view, result[i156].position - searchPattern.buffer.byteLength - i156 * patternDifference);
-            output.replacePatternPositions.push(result[i156].position - searchPattern.buffer.byteLength - i156 * patternDifference);
+        for(i153 = 0; i153 < result.length; i153++){
+            const currentPosition = i153 == 0 ? start : result[i153 - 1].position;
+            changedView.set(new Uint8Array(this.buffer, currentPosition, result[i153].position - searchPattern.buffer.byteLength - currentPosition), currentPosition - i153 * patternDifference);
+            changedView.set(replacePattern.view, result[i153].position - searchPattern.buffer.byteLength - i153 * patternDifference);
+            output.replacePatternPositions.push(result[i153].position - searchPattern.buffer.byteLength - i153 * patternDifference);
         }
-        i156--;
-        changedView.set(new Uint8Array(this.buffer, result[i156].position, this.buffer.byteLength - result[i156].position), result[i156].position - searchPattern.buffer.byteLength + replacePattern.buffer.byteLength - i156 * patternDifference);
+        i153--;
+        changedView.set(new Uint8Array(this.buffer, result[i153].position, this.buffer.byteLength - result[i153].position), result[i153].position - searchPattern.buffer.byteLength + replacePattern.buffer.byteLength - i153 * patternDifference);
         this.buffer = changedBuffer;
         this.view = new Uint8Array(this.buffer);
         output.status = 1;
@@ -35058,10 +34992,10 @@ class ByteStream {
             }
         }
         let result = -1;
-        for(let i157 = 0; i157 < length; i157++){
+        for(let i154 = 0; i154 < length; i154++){
             for(let k = 0; k < patterns.length; k++){
                 const patternLength = patterns[k].buffer.byteLength;
-                const equalStart = backward ? start - i157 - patternLength : start + i157;
+                const equalStart = backward ? start - i154 - patternLength : start + i154;
                 let equal = true;
                 for(let j = 0; j < patternLength; j++){
                     if (this.view[j + equalStart] != patterns[k].view[j]) {
@@ -35070,7 +35004,7 @@ class ByteStream {
                     }
                 }
                 if (equal) {
-                    result = backward ? start - i157 : start + i157;
+                    result = backward ? start - i154 : start + i154;
                     break;
                 }
             }
@@ -35437,7 +35371,7 @@ class SeqStream {
             const buffer = this._stream._buffer.slice(this._length - size, this._length);
             const view = new Uint8Array(buffer);
             result = new Array(size);
-            for(let i158 = 0; i158 < size; i158++)result[size - 1 - i158] = view[i158];
+            for(let i155 = 0; i155 < size; i155++)result[size - 1 - i155] = view[i155];
         } else {
             const buffer = this._stream._buffer.slice(this._start, this._start + size);
             result = Array.from(new Uint8Array(buffer));
@@ -35470,7 +35404,7 @@ class SeqStream {
         if (block.length < 3) return 0;
         const value = new Uint32Array(1);
         const view = new Uint8Array(value.buffer);
-        for(let i159 = 3; i159 >= 1; i159--)view[3 - i159] = block[i159 - 1];
+        for(let i156 = 3; i156 >= 1; i156--)view[3 - i156] = block[i156 - 1];
         return value[0];
     }
     getUint32(changeLength = true) {
@@ -35478,7 +35412,7 @@ class SeqStream {
         if (block.length < 4) return 0;
         const value = new Uint32Array(1);
         const view = new Uint8Array(value.buffer);
-        for(let i160 = 3; i160 >= 0; i160--)view[3 - i160] = block[i160];
+        for(let i157 = 3; i157 >= 0; i157--)view[3 - i157] = block[i157];
         return value[0];
     }
     getInt32(changeLength = true) {
@@ -35486,7 +35420,7 @@ class SeqStream {
         if (block.length < 4) return 0;
         const value = new Int32Array(1);
         const view = new Uint8Array(value.buffer);
-        for(let i161 = 3; i161 >= 0; i161--)view[3 - i161] = block[i161];
+        for(let i158 = 3; i158 >= 0; i158--)view[3 - i158] = block[i158];
         return value[0];
     }
 }
@@ -35804,9 +35738,9 @@ class BitStream {
         this.view = new Uint8Array(this.buffer);
         this.bitsCount = (stringLength >> 3) + 1 << 3;
         let byteIndex = 0;
-        for(let i162 = 0; i162 < stringLength; i162++){
-            if (string[i162] == "1") this.view[byteIndex] |= 1 << 7 - i162 % 8;
-            if (i162 && (i162 + 1) % 8 == 0) byteIndex++;
+        for(let i159 = 0; i159 < stringLength; i159++){
+            if (string[i159] == "1") this.view[byteIndex] |= 1 << 7 - i159 % 8;
+            if (i159 && (i159 + 1) % 8 == 0) byteIndex++;
         }
         if (stringLength % 8) this.shiftRight(8 - stringLength % 8);
         this.bitsCount = stringLength;
@@ -35818,7 +35752,7 @@ class BitStream {
             uint32
         ]);
         const view = new Uint8Array(value.buffer);
-        for(let i163 = 3; i163 >= 0; i163--)this.view[i163] = view[3 - i163];
+        for(let i160 = 3; i160 >= 0; i160--)this.view[i160] = view[3 - i160];
         this.bitsCount = 32;
     }
     toString(start = null, length = null) {
@@ -35835,7 +35769,7 @@ class BitStream {
             length = this.view.length - start;
         }
         const result = [];
-        for(let i164 = start; i164 < start + length; i164++)result.push(bitsToStringArray[this.view[i164]]);
+        for(let i161 = start; i161 < start + length; i161++)result.push(bitsToStringArray[this.view[i161]]);
         return result.join("").slice((this.view.length << 3) - this.bitsCount);
     }
     shiftRight(shift, needShrink = true) {
@@ -35844,9 +35778,9 @@ class BitStream {
         if (shift > this.bitsCount) throw new Error("The \"shift\" parameter can not be bigger than \"this.bitsCount\"");
         const shiftMask = 0xFF >> 8 - shift;
         this.view[this.view.length - 1] >>= shift;
-        for(let i165 = this.view.length - 2; i165 >= 0; i165--){
-            this.view[i165 + 1] |= (this.view[i165] & shiftMask) << 8 - shift;
-            this.view[i165] >>= shift;
+        for(let i162 = this.view.length - 2; i162 >= 0; i162--){
+            this.view[i162 + 1] |= (this.view[i162] & shiftMask) << 8 - shift;
+            this.view[i162] >>= shift;
         }
         this.bitsCount -= shift;
         if (this.bitsCount == 0) this.clear();
@@ -35920,8 +35854,8 @@ class BitStream {
         }
     }
     reverseBytes() {
-        for(let i166 = 0; i166 < this.view.length; i166++){
-            this.view[i166] = (this.view[i166] * 0x0802 & 0x22110 | this.view[i166] * 0x8020 & 0x88440) * 0x10101 >> 16;
+        for(let i163 = 0; i163 < this.view.length; i163++){
+            this.view[i163] = (this.view[i163] * 0x0802 & 0x22110 | this.view[i163] * 0x8020 & 0x88440) * 0x10101 >> 16;
         }
         if (this.bitsCount % 8) {
             const currentLength = (this.bitsCount >> 3) + (this.bitsCount % 8 ? 1 : 0);
@@ -35932,7 +35866,7 @@ class BitStream {
         const initialValue = this.toString();
         const initialValueLength = initialValue.length;
         const reversedValue = new Array(initialValueLength);
-        for(let i167 = 0; i167 < initialValueLength; i167++)reversedValue[initialValueLength - 1 - i167] = initialValue[i167];
+        for(let i164 = 0; i164 < initialValueLength; i164++)reversedValue[initialValueLength - 1 - i164] = initialValue[i164];
         this.fromString(reversedValue.join(""));
     }
     getNumberValue() {
@@ -35941,7 +35875,7 @@ class BitStream {
         if (byteLength9 == -1) return 0;
         const value = new Uint32Array(1);
         const view = new Uint8Array(value.buffer);
-        for(let i168 = byteLength9; i168 >= 0; i168--)view[byteLength9 - i168] = this.view[i168];
+        for(let i165 = byteLength9; i165 >= 0; i165--)view[byteLength9 - i165] = this.view[i165];
         return value[0];
     }
     findPattern(pattern, start = null, length = null, backward = false) {
@@ -35958,9 +35892,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i169 = 0; i169 < patterns.length; i169++){
-            stringPatterns[i169] = new ByteStream({
-                string: patterns[i169].toString()
+        for(let i166 = 0; i166 < patterns.length; i166++){
+            stringPatterns[i166] = new ByteStream({
+                string: patterns[i166].toString()
             });
         }
         return stringStream.findFirstIn(stringPatterns, start, length, backward);
@@ -35970,9 +35904,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i170 = 0; i170 < patterns.length; i170++){
-            stringPatterns[i170] = new ByteStream({
-                string: patterns[i170].toString()
+        for(let i167 = 0; i167 < patterns.length; i167++){
+            stringPatterns[i167] = new ByteStream({
+                string: patterns[i167].toString()
             });
         }
         return stringStream.findAllIn(stringPatterns, start, length);
@@ -35991,9 +35925,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i171 = 0; i171 < patterns.length; i171++){
-            stringPatterns[i171] = new ByteStream({
-                string: patterns[i171].toString()
+        for(let i168 = 0; i168 < patterns.length; i168++){
+            stringPatterns[i168] = new ByteStream({
+                string: patterns[i168].toString()
             });
         }
         return stringStream.findFirstNotIn(stringPatterns, start, length, backward);
@@ -36003,9 +35937,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i172 = 0; i172 < patterns.length; i172++){
-            stringPatterns[i172] = new ByteStream({
-                string: patterns[i172].toString()
+        for(let i169 = 0; i169 < patterns.length; i169++){
+            stringPatterns[i169] = new ByteStream({
+                string: patterns[i169].toString()
             });
         }
         return stringStream.findAllNotIn(stringPatterns, start, length);
@@ -36015,9 +35949,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i173 = 0; i173 < patterns.length; i173++){
-            stringPatterns[i173] = new ByteStream({
-                string: patterns[i173].toString()
+        for(let i170 = 0; i170 < patterns.length; i170++){
+            stringPatterns[i170] = new ByteStream({
+                string: patterns[i170].toString()
             });
         }
         return stringStream.findFirstSequence(stringPatterns, start, length, backward);
@@ -36027,9 +35961,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i174 = 0; i174 < patterns.length; i174++){
-            stringPatterns[i174] = new ByteStream({
-                string: patterns[i174].toString()
+        for(let i171 = 0; i171 < patterns.length; i171++){
+            stringPatterns[i171] = new ByteStream({
+                string: patterns[i171].toString()
             });
         }
         return stringStream.findAllSequences(stringPatterns, start, length);
@@ -36051,9 +35985,9 @@ class BitStream {
             string: this.toString()
         });
         const stringLeftPatterns = new Array(inputLeftPatterns.length);
-        for(let i175 = 0; i175 < inputLeftPatterns.length; i175++){
-            stringLeftPatterns[i175] = new ByteStream({
-                string: inputLeftPatterns[i175].toString()
+        for(let i172 = 0; i172 < inputLeftPatterns.length; i172++){
+            stringLeftPatterns[i172] = new ByteStream({
+                string: inputLeftPatterns[i172].toString()
             });
         }
         const stringRightPatterns = new Array(inputRightPatterns.length);
@@ -36085,9 +36019,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i176 = 0; i176 < patterns.length; i176++){
-            stringPatterns[i176] = new ByteStream({
-                string: patterns[i176].toString()
+        for(let i173 = 0; i173 < patterns.length; i173++){
+            stringPatterns[i173] = new ByteStream({
+                string: patterns[i173].toString()
             });
         }
         return stringStream.skipPatterns(stringPatterns, start, length, backward);
@@ -36097,9 +36031,9 @@ class BitStream {
             string: this.toString()
         });
         const stringPatterns = new Array(patterns.length);
-        for(let i177 = 0; i177 < patterns.length; i177++){
-            stringPatterns[i177] = new ByteStream({
-                string: patterns[i177].toString()
+        for(let i174 = 0; i174 < patterns.length; i174++){
+            stringPatterns[i174] = new ByteStream({
+                string: patterns[i174].toString()
             });
         }
         return stringStream.skipNotPatterns(stringPatterns, start, length, backward);
@@ -41915,23 +41849,23 @@ class EnvelopedData {
             return currentSequence;
         }
         sequence = sequence.then(()=>{
-            for(let i178 = 0; i178 < this.recipientInfos.length; i178++){
+            for(let i175 = 0; i175 < this.recipientInfos.length; i175++){
                 let currentSequence = Promise.resolve();
-                switch(this.recipientInfos[i178].variant){
+                switch(this.recipientInfos[i175].variant){
                     case 1:
-                        currentSequence = SubKeyTransRecipientInfo(i178);
+                        currentSequence = SubKeyTransRecipientInfo(i175);
                         break;
                     case 2:
-                        currentSequence = SubKeyAgreeRecipientInfo(i178);
+                        currentSequence = SubKeyAgreeRecipientInfo(i175);
                         break;
                     case 3:
-                        currentSequence = SubKEKRecipientInfo(i178);
+                        currentSequence = SubKEKRecipientInfo(i175);
                         break;
                     case 4:
-                        currentSequence = SubPasswordRecipientinfo(i178);
+                        currentSequence = SubPasswordRecipientinfo(i175);
                         break;
                     default:
-                        return Promise.reject(`Uknown recipient type in array with index ${i178}`);
+                        return Promise.reject(`Uknown recipient type in array with index ${i175}`);
                 }
                 recipientsPromises.push(currentSequence);
             }
@@ -43047,12 +42981,12 @@ class CertificateChainValidationEngine {
         }
         for (const trustedCert of validationEngine.trustedCerts)checkCertificate(trustedCert);
         for (const intermediateCert of validationEngine.certs)checkCertificate(intermediateCert);
-        for(let i179 = 0; i179 < result.length; i179++){
+        for(let i176 = 0; i176 < result.length; i176++){
             try {
-                const verificationResult = await certificate.verify(result[i179]);
-                if (verificationResult === false) result.splice(i179, 1);
+                const verificationResult = await certificate.verify(result[i176]);
+                if (verificationResult === false) result.splice(i176, 1);
             } catch (ex) {
-                result.splice(i179, 1);
+                result.splice(i176, 1);
             }
         }
         return result;
@@ -43084,10 +43018,10 @@ class CertificateChainValidationEngine {
             const result = [];
             function checkUnique(array) {
                 let unique = true;
-                for(let i180 = 0; i180 < array.length; i180++){
+                for(let i177 = 0; i177 < array.length; i177++){
                     for(let j = 0; j < array.length; j++){
-                        if (j === i180) continue;
-                        if (array[i180] === array[j]) {
+                        if (j === i177) continue;
+                        if (array[i177] === array[j]) {
                             unique = false;
                             break;
                         }
@@ -43135,16 +43069,16 @@ class CertificateChainValidationEngine {
                     statusMessage: "No CRLs for specific certificate issuer"
                 };
             }
-            for(let i181 = 0; i181 < crls.length; i181++){
-                if (crls[i181].nextUpdate.value < _this.checkDate) continue;
+            for(let i178 = 0; i178 < crls.length; i178++){
+                if (crls[i178].nextUpdate.value < _this.checkDate) continue;
                 for(let j = 0; j < issuerCertificates.length; j++){
                     try {
-                        const result = await crls[i181].verify({
+                        const result = await crls[i178].verify({
                             issuerCertificate: issuerCertificates[j]
                         });
                         if (result) {
                             crlsAndCertificates.push({
-                                crl: crls[i181],
+                                crl: crls[i178],
                                 certificate: issuerCertificates[j]
                             });
                             break;
@@ -43168,8 +43102,8 @@ class CertificateChainValidationEngine {
             const hashAlgorithm = getAlgorithmByOID(certificate.signatureAlgorithm.algorithmId);
             if ("name" in hashAlgorithm === false) return 1;
             if ("hash" in hashAlgorithm === false) return 1;
-            for(let i182 = 0; i182 < _this.ocsps.length; i182++){
-                const result = await _this.ocsps[i182].getCertificateStatus(certificate, issuerCertificate);
+            for(let i179 = 0; i179 < _this.ocsps.length; i179++){
+                const result = await _this.ocsps[i179].getCertificateStatus(certificate, issuerCertificate);
                 if (result.isForCertificate) {
                     if (result.status === 0) return 0;
                     return 1;
@@ -43239,8 +43173,8 @@ class CertificateChainValidationEngine {
             };
         }
         async function basicCheck(path26, checkDate) {
-            for(let i183 = 0; i183 < path26.length; i183++){
-                if (path26[i183].notBefore.value > checkDate || path26[i183].notAfter.value < checkDate) {
+            for(let i180 = 0; i180 < path26.length; i180++){
+                if (path26[i180].notBefore.value > checkDate || path26[i180].notAfter.value < checkDate) {
                     return {
                         result: false,
                         resultCode: 8,
@@ -43267,11 +43201,11 @@ class CertificateChainValidationEngine {
                 }
             }
             if (_this.crls.length !== 0 || _this.ocsps.length !== 0) {
-                for(let i184 = 0; i184 < path26.length - 2; i184++){
+                for(let i181 = 0; i181 < path26.length - 2; i181++){
                     let ocspResult;
                     let crlResult;
                     if (_this.ocsps.length !== 0) {
-                        ocspResult = await findOCSP(path26[i184], path26[i184 + 1]);
+                        ocspResult = await findOCSP(path26[i181], path26[i181 + 1]);
                         switch(ocspResult){
                             case 0:
                                 continue;
@@ -43287,7 +43221,7 @@ class CertificateChainValidationEngine {
                         }
                     }
                     if (_this.crls.length !== 0) {
-                        crlResult = await findCRL(path26[i184]);
+                        crlResult = await findCRL(path26[i181]);
                         if (crlResult.status) {
                             throw {
                                 result: false,
@@ -43296,7 +43230,7 @@ class CertificateChainValidationEngine {
                             };
                         }
                         for(let j = 0; j < crlResult.result.length; j++){
-                            const isCertificateRevoked = crlResult.result[j].crl.isCertificateRevoked(path26[i184]);
+                            const isCertificateRevoked = crlResult.result[j].crl.isCertificateRevoked(path26[i181]);
                             if (isCertificateRevoked) {
                                 return {
                                     result: false,
@@ -43408,8 +43342,8 @@ class CertificateChainValidationEngine {
             const nameLen = nameSplitted.length;
             const constrLen = constraintSplitted.length;
             if (nameLen === 0 || constrLen === 0 || nameLen < constrLen) return false;
-            for(let i185 = 0; i185 < nameLen; i185++){
-                if (nameSplitted[i185].length === 0) return false;
+            for(let i182 = 0; i182 < nameLen; i182++){
+                if (nameSplitted[i182].length === 0) return false;
             }
             for(let i8 = 0; i8 < constrLen; i8++){
                 if (constraintSplitted[i8].length === 0) {
@@ -43451,9 +43385,9 @@ class CertificateChainValidationEngine {
             const cs = constraintPrepared.split("/");
             if (cs.length > 1) return false;
             if (ns.length > 1) {
-                for(let i186 = 0; i186 < ns.length; i186++){
-                    if (ns[i186].length > 0 && ns[i186].charAt(ns[i186].length - 1) !== ":") {
-                        const nsPort = ns[i186].split(":");
+                for(let i183 = 0; i183 < ns.length; i183++){
+                    if (ns[i183].length > 0 && ns[i183].charAt(ns[i183].length - 1) !== ":") {
+                        const nsPort = ns[i183].split(":");
                         namePrepared = nsPort[0];
                         break;
                     }
@@ -43472,14 +43406,14 @@ class CertificateChainValidationEngine {
             const nameView = new Uint8Array(name.valueBlock.valueHex);
             const constraintView = new Uint8Array(constraint.valueBlock.valueHex);
             if (nameView.length === 4 && constraintView.length === 8) {
-                for(let i187 = 0; i187 < 4; i187++){
-                    if ((nameView[i187] ^ constraintView[i187]) & constraintView[i187 + 4]) return false;
+                for(let i184 = 0; i184 < 4; i184++){
+                    if ((nameView[i184] ^ constraintView[i184]) & constraintView[i184 + 4]) return false;
                 }
                 return true;
             }
             if (nameView.length === 16 && constraintView.length === 32) {
-                for(let i188 = 0; i188 < 16; i188++){
-                    if ((nameView[i188] ^ constraintView[i188]) & constraintView[i188 + 16]) return false;
+                for(let i185 = 0; i185 < 16; i185++){
+                    if ((nameView[i185] ^ constraintView[i185]) & constraintView[i185 + 16]) return false;
                 }
                 return true;
             }
@@ -43490,11 +43424,11 @@ class CertificateChainValidationEngine {
             if (name.typesAndValues.length < constraint.typesAndValues.length) return false;
             let result = true;
             let nameStart = 0;
-            for(let i189 = 0; i189 < constraint.typesAndValues.length; i189++){
+            for(let i186 = 0; i186 < constraint.typesAndValues.length; i186++){
                 let localResult = false;
                 for(let j = nameStart; j < name.typesAndValues.length; j++){
-                    localResult = name.typesAndValues[j].isEqual(constraint.typesAndValues[i189]);
-                    if (name.typesAndValues[j].type === constraint.typesAndValues[i189].type) result = result && localResult;
+                    localResult = name.typesAndValues[j].isEqual(constraint.typesAndValues[i186]);
+                    if (name.typesAndValues[j].type === constraint.typesAndValues[i186].type) result = result && localResult;
                     if (localResult === true) {
                         if (nameStart === 0 || nameStart === j) {
                             nameStart = j + 1;
@@ -43547,34 +43481,34 @@ class CertificateChainValidationEngine {
             const policyMappings = new Array(this.certs.length - 1);
             const certPolicies = new Array(this.certs.length - 1);
             let explicitPolicyStart = explicitPolicyIndicator ? this.certs.length - 1 : -1;
-            for(let i190 = this.certs.length - 2; i190 >= 0; i190--, pathDepth++){
-                if ("extensions" in this.certs[i190]) {
-                    for(let j = 0; j < this.certs[i190].extensions.length; j++){
-                        if (this.certs[i190].extensions[j].extnID === "2.5.29.32") {
-                            certPolicies[i190] = this.certs[i190].extensions[j].parsedValue;
+            for(let i187 = this.certs.length - 2; i187 >= 0; i187--, pathDepth++){
+                if ("extensions" in this.certs[i187]) {
+                    for(let j = 0; j < this.certs[i187].extensions.length; j++){
+                        if (this.certs[i187].extensions[j].extnID === "2.5.29.32") {
+                            certPolicies[i187] = this.certs[i187].extensions[j].parsedValue;
                             for(let s12 = 0; s12 < allPolicies.length; s12++){
                                 if (allPolicies[s12] === "2.5.29.32.0") {
-                                    delete policiesAndCerts[s12][i190];
+                                    delete policiesAndCerts[s12][i187];
                                     break;
                                 }
                             }
-                            for(let k = 0; k < this.certs[i190].extensions[j].parsedValue.certificatePolicies.length; k++){
+                            for(let k = 0; k < this.certs[i187].extensions[j].parsedValue.certificatePolicies.length; k++){
                                 let policyIndex = -1;
                                 for(let s13 = 0; s13 < allPolicies.length; s13++){
-                                    if (this.certs[i190].extensions[j].parsedValue.certificatePolicies[k].policyIdentifier === allPolicies[s13]) {
+                                    if (this.certs[i187].extensions[j].parsedValue.certificatePolicies[k].policyIdentifier === allPolicies[s13]) {
                                         policyIndex = s13;
                                         break;
                                     }
                                 }
                                 if (policyIndex === -1) {
-                                    allPolicies.push(this.certs[i190].extensions[j].parsedValue.certificatePolicies[k].policyIdentifier);
+                                    allPolicies.push(this.certs[i187].extensions[j].parsedValue.certificatePolicies[k].policyIdentifier);
                                     const certArray = new Array(this.certs.length - 1);
-                                    certArray[i190] = true;
+                                    certArray[i187] = true;
                                     policiesAndCerts.push(certArray);
-                                } else policiesAndCerts[policyIndex][i190] = true;
+                                } else policiesAndCerts[policyIndex][i187] = true;
                             }
                         }
-                        if (this.certs[i190].extensions[j].extnID === "2.5.29.33") {
+                        if (this.certs[i187].extensions[j].extnID === "2.5.29.33") {
                             if (policyMappingInhibitIndicator) {
                                 return {
                                     result: false,
@@ -43582,36 +43516,36 @@ class CertificateChainValidationEngine {
                                     resultMessage: "Policy mapping prohibited"
                                 };
                             }
-                            policyMappings[i190] = this.certs[i190].extensions[j].parsedValue;
+                            policyMappings[i187] = this.certs[i187].extensions[j].parsedValue;
                         }
-                        if (this.certs[i190].extensions[j].extnID === "2.5.29.36") {
+                        if (this.certs[i187].extensions[j].extnID === "2.5.29.36") {
                             if (explicitPolicyIndicator === false) {
-                                if (this.certs[i190].extensions[j].parsedValue.requireExplicitPolicy === 0) {
+                                if (this.certs[i187].extensions[j].parsedValue.requireExplicitPolicy === 0) {
                                     explicitPolicyIndicator = true;
-                                    explicitPolicyStart = i190;
+                                    explicitPolicyStart = i187;
                                 } else {
                                     if (pendingConstraints[0] === false) {
                                         pendingConstraints[0] = true;
-                                        explicitPolicyPending = this.certs[i190].extensions[j].parsedValue.requireExplicitPolicy;
-                                    } else explicitPolicyPending = explicitPolicyPending > this.certs[i190].extensions[j].parsedValue.requireExplicitPolicy ? this.certs[i190].extensions[j].parsedValue.requireExplicitPolicy : explicitPolicyPending;
+                                        explicitPolicyPending = this.certs[i187].extensions[j].parsedValue.requireExplicitPolicy;
+                                    } else explicitPolicyPending = explicitPolicyPending > this.certs[i187].extensions[j].parsedValue.requireExplicitPolicy ? this.certs[i187].extensions[j].parsedValue.requireExplicitPolicy : explicitPolicyPending;
                                 }
-                                if (this.certs[i190].extensions[j].parsedValue.inhibitPolicyMapping === 0) policyMappingInhibitIndicator = true;
+                                if (this.certs[i187].extensions[j].parsedValue.inhibitPolicyMapping === 0) policyMappingInhibitIndicator = true;
                                 else {
                                     if (pendingConstraints[1] === false) {
                                         pendingConstraints[1] = true;
-                                        policyMappingInhibitPending = this.certs[i190].extensions[j].parsedValue.inhibitPolicyMapping + 1;
-                                    } else policyMappingInhibitPending = policyMappingInhibitPending > this.certs[i190].extensions[j].parsedValue.inhibitPolicyMapping + 1 ? this.certs[i190].extensions[j].parsedValue.inhibitPolicyMapping + 1 : policyMappingInhibitPending;
+                                        policyMappingInhibitPending = this.certs[i187].extensions[j].parsedValue.inhibitPolicyMapping + 1;
+                                    } else policyMappingInhibitPending = policyMappingInhibitPending > this.certs[i187].extensions[j].parsedValue.inhibitPolicyMapping + 1 ? this.certs[i187].extensions[j].parsedValue.inhibitPolicyMapping + 1 : policyMappingInhibitPending;
                                 }
                             }
                         }
-                        if (this.certs[i190].extensions[j].extnID === "2.5.29.54") {
+                        if (this.certs[i187].extensions[j].extnID === "2.5.29.54") {
                             if (inhibitAnyPolicyIndicator === false) {
-                                if (this.certs[i190].extensions[j].parsedValue.valueBlock.valueDec === 0) inhibitAnyPolicyIndicator = true;
+                                if (this.certs[i187].extensions[j].parsedValue.valueBlock.valueDec === 0) inhibitAnyPolicyIndicator = true;
                                 else {
                                     if (pendingConstraints[2] === false) {
                                         pendingConstraints[2] = true;
-                                        inhibitAnyPolicyPending = this.certs[i190].extensions[j].parsedValue.valueBlock.valueDec;
-                                    } else inhibitAnyPolicyPending = inhibitAnyPolicyPending > this.certs[i190].extensions[j].parsedValue.valueBlock.valueDec ? this.certs[i190].extensions[j].parsedValue.valueBlock.valueDec : inhibitAnyPolicyPending;
+                                        inhibitAnyPolicyPending = this.certs[i187].extensions[j].parsedValue.valueBlock.valueDec;
+                                    } else inhibitAnyPolicyPending = inhibitAnyPolicyPending > this.certs[i187].extensions[j].parsedValue.valueBlock.valueDec ? this.certs[i187].extensions[j].parsedValue.valueBlock.valueDec : inhibitAnyPolicyPending;
                                 }
                             }
                         }
@@ -43624,14 +43558,14 @@ class CertificateChainValidationEngine {
                                 break;
                             }
                         }
-                        if (policyIndex !== -1) delete policiesAndCerts[0][i190];
+                        if (policyIndex !== -1) delete policiesAndCerts[0][i187];
                     }
                     if (explicitPolicyIndicator === false) {
                         if (pendingConstraints[0] === true) {
                             explicitPolicyPending--;
                             if (explicitPolicyPending === 0) {
                                 explicitPolicyIndicator = true;
-                                explicitPolicyStart = i190;
+                                explicitPolicyStart = i187;
                                 pendingConstraints[0] = false;
                             }
                         }
@@ -43724,10 +43658,10 @@ class CertificateChainValidationEngine {
             else {
                 if (authConstrPolicies.length === 1 && authConstrPolicies[0] === "2.5.29.32.0") userConstrPolicies = initialPolicySet;
                 else {
-                    for(let i191 = 0; i191 < authConstrPolicies.length; i191++){
+                    for(let i188 = 0; i188 < authConstrPolicies.length; i188++){
                         for(let j = 0; j < initialPolicySet.length; j++){
-                            if (initialPolicySet[j] === authConstrPolicies[i191] || initialPolicySet[j] === "2.5.29.32.0") {
-                                userConstrPolicies.push(authConstrPolicies[i191]);
+                            if (initialPolicySet[j] === authConstrPolicies[i188] || initialPolicySet[j] === "2.5.29.32.0") {
+                                userConstrPolicies.push(authConstrPolicies[i188]);
                                 break;
                             }
                         }
@@ -44531,7 +44465,7 @@ class EncapsulatedContentInfo {
                         const pieceView = new Uint8Array(this.eContent.valueBlock.valueHex, offset, offset + 65536 > this.eContent.valueBlock.valueHex.byteLength ? this.eContent.valueBlock.valueHex.byteLength - offset : 65536);
                         const _array = new ArrayBuffer(pieceView.length);
                         const _view = new Uint8Array(_array);
-                        for(let i192 = 0; i192 < _view.length; i192++)_view[i192] = pieceView[i192];
+                        for(let i189 = 0; i189 < _view.length; i189++)_view[i189] = pieceView[i189];
                         constrString.valueBlock.value.push(new OctetString({
                             valueHex: _array
                         }));
@@ -46972,7 +46906,7 @@ class PFX {
                     let data = new ArrayBuffer(0);
                     if (cmsSigned.encapContentInfo.eContent.idBlock.isConstructed === false) data = cmsSigned.encapContentInfo.eContent.valueBlock.valueHex;
                     else {
-                        for(let i193 = 0; i193 < cmsSigned.encapContentInfo.eContent.valueBlock.value.length; i193++)data = utilConcatBuf(data, cmsSigned.encapContentInfo.eContent.valueBlock.value[i193].valueBlock.valueHex);
+                        for(let i190 = 0; i190 < cmsSigned.encapContentInfo.eContent.valueBlock.value.length; i190++)data = utilConcatBuf(data, cmsSigned.encapContentInfo.eContent.valueBlock.value[i190].valueBlock.valueHex);
                     }
                     const asn1 = fromBER(data);
                     if (asn1.offset === -1) return Promise.reject("Error during parsing of ASN.1 data inside \"this.authSafe.content\"");
@@ -48059,15 +47993,15 @@ currentExtensions[28] = (read3)=>{
     }
     let id = referenceMap.id++;
     let token = src[position];
-    let target8;
-    if (token >> 5 == 4) target8 = [];
-    else target8 = {};
+    let target5;
+    if (token >> 5 == 4) target5 = [];
+    else target5 = {};
     let refEntry = {
-        target: target8
+        target: target5
     };
     referenceMap.set(id, refEntry);
     let targetProperties = read3();
-    if (refEntry.used) return Object.assign(target8, targetProperties);
+    if (refEntry.used) return Object.assign(target5, targetProperties);
     refEntry.target = targetProperties;
     return targetProperties;
 };
@@ -48321,8 +48255,8 @@ class Encoder extends Decoder {
         let sharedPackedObjectMap;
         if (sharedValues1) {
             sharedPackedObjectMap = Object.create(null);
-            for(let i194 = 0, l = sharedValues1.length; i194 < l; i194++){
-                sharedPackedObjectMap[sharedValues1[i194]] = i194;
+            for(let i191 = 0, l = sharedValues1.length; i191 < l; i191++){
+                sharedPackedObjectMap[sharedValues1[i191]] = i191;
             }
         }
         let recordIdsToRemove = [];
@@ -48371,19 +48305,19 @@ class Encoder extends Decoder {
                     let sharedValues = encoder1.sharedValues = sharedData.packedValues;
                     if (sharedValues) {
                         sharedPackedObjectMap = {};
-                        for(let i195 = 0, l = sharedValues.length; i195 < l; i195++)sharedPackedObjectMap[sharedValues[i195]] = i195;
+                        for(let i192 = 0, l = sharedValues.length; i192 < l; i192++)sharedPackedObjectMap[sharedValues[i192]] = i192;
                     }
                 }
                 let sharedStructuresLength = sharedStructures.length;
                 if (sharedStructuresLength > maxSharedStructures && !isSequential) sharedStructuresLength = maxSharedStructures;
                 if (!sharedStructures.transitions) {
                     sharedStructures.transitions = Object.create(null);
-                    for(let i196 = 0; i196 < sharedStructuresLength; i196++){
-                        let keys = sharedStructures[i196];
+                    for(let i193 = 0; i193 < sharedStructuresLength; i193++){
+                        let keys = sharedStructures[i193];
                         if (!keys) continue;
                         let nextTransition, transition = sharedStructures.transitions;
                         for(let j = 0, l = keys.length; j < l; j++){
-                            if (transition[RECORD_SYMBOL] === undefined) transition[RECORD_SYMBOL] = i196;
+                            if (transition[RECORD_SYMBOL] === undefined) transition[RECORD_SYMBOL] = i193;
                             let key = keys[j];
                             nextTransition = transition[key];
                             if (!nextTransition) {
@@ -48391,7 +48325,7 @@ class Encoder extends Decoder {
                             }
                             transition = nextTransition;
                         }
-                        transition[RECORD_SYMBOL] = i196 | 0x100000;
+                        transition[RECORD_SYMBOL] = i193 | 0x100000;
                     }
                 }
                 if (!isSequential) sharedStructures.nextId = sharedStructuresLength;
@@ -48416,8 +48350,8 @@ class Encoder extends Decoder {
                     writeArrayHeader(0);
                     writeArrayHeader(0);
                     packedObjectMap = Object.create(sharedPackedObjectMap || null);
-                    for(let i197 = 0, l = valuesArray.length; i197 < l; i197++){
-                        packedObjectMap[valuesArray[i197]] = i197;
+                    for(let i194 = 0, l = valuesArray.length; i194 < l; i194++){
+                        packedObjectMap[valuesArray[i194]] = i194;
                     }
                 }
             }
@@ -48451,8 +48385,8 @@ class Encoder extends Decoder {
                         transitionsCount = 0;
                         if (recordIdsToRemove.length > 0) recordIdsToRemove = [];
                     } else if (recordIdsToRemove.length > 0 && !isSequential) {
-                        for(let i198 = 0, l = recordIdsToRemove.length; i198 < l; i198++){
-                            recordIdsToRemove[i198][RECORD_SYMBOL] = undefined;
+                        for(let i195 = 0, l = recordIdsToRemove.length; i195 < l; i195++){
+                            recordIdsToRemove[i195][RECORD_SYMBOL] = undefined;
                         }
                         recordIdsToRemove = [];
                     }
@@ -48551,17 +48485,17 @@ class Encoder extends Decoder {
                 let maxBytes = strLength * 3;
                 if (position1 + maxBytes > safeEnd) target = makeRoom(position1 + maxBytes);
                 if (strLength < 0x40 || !encodeUtf8) {
-                    let i199, c1, c2, strPosition = position1 + headerSize;
-                    for(i199 = 0; i199 < strLength; i199++){
-                        c1 = value.charCodeAt(i199);
+                    let i196, c1, c2, strPosition = position1 + headerSize;
+                    for(i196 = 0; i196 < strLength; i196++){
+                        c1 = value.charCodeAt(i196);
                         if (c1 < 0x80) {
                             target[strPosition++] = c1;
                         } else if (c1 < 0x800) {
                             target[strPosition++] = c1 >> 6 | 0xc0;
                             target[strPosition++] = c1 & 0x3f | 0x80;
-                        } else if ((c1 & 0xfc00) === 0xd800 && ((c2 = value.charCodeAt(i199 + 1)) & 0xfc00) === 0xdc00) {
+                        } else if ((c1 & 0xfc00) === 0xd800 && ((c2 = value.charCodeAt(i196 + 1)) & 0xfc00) === 0xdc00) {
                             c1 = 0x10000 + ((c1 & 0x03ff) << 10) + (c2 & 0x03ff);
-                            i199++;
+                            i196++;
                             target[strPosition++] = c1 >> 18 | 0xf0;
                             target[strPosition++] = c1 >> 12 & 0x3f | 0x80;
                             target[strPosition++] = c1 >> 6 & 0x3f | 0x80;
@@ -48677,8 +48611,8 @@ class Encoder extends Decoder {
                         } else {
                             writeArrayHeader(length);
                         }
-                        for(let i200 = 0; i200 < length; i200++){
-                            encode12(value[i200]);
+                        for(let i197 = 0; i197 < length; i197++){
+                            encode12(value[i197]);
                         }
                     } else if (constructor === Map) {
                         if (this.mapsAsObjects ? this.useTag259ForMaps !== false : this.useTag259ForMaps) {
@@ -48713,10 +48647,10 @@ class Encoder extends Decoder {
                             }
                         }
                     } else {
-                        for(let i201 = 0, l = extensions.length; i201 < l; i201++){
-                            let extensionClass = extensionClasses[i201];
+                        for(let i198 = 0, l = extensions.length; i198 < l; i198++){
+                            let extensionClass = extensionClasses[i198];
                             if (value instanceof extensionClass) {
-                                let extension = extensions[i201];
+                                let extension = extensions[i198];
                                 let tag = extension.tag;
                                 if (tag == undefined) tag = extension.getTag && extension.getTag(value);
                                 if (tag < 0x18) {
@@ -48791,14 +48725,14 @@ class Encoder extends Decoder {
                 position1 += 4;
             }
             if (encoder1.keyMap) {
-                for(let i202 = 0; i202 < length; i202++){
-                    encode12(encodeKey(keys[i202]));
-                    encode12(vals[i202]);
+                for(let i199 = 0; i199 < length; i199++){
+                    encode12(encodeKey(keys[i199]));
+                    encode12(vals[i199]);
                 }
             } else {
-                for(let i203 = 0; i203 < length; i203++){
-                    encode12(keys[i203]);
-                    encode12(vals[i203]);
+                for(let i200 = 0; i200 < length; i200++){
+                    encode12(keys[i200]);
+                    encode12(vals[i200]);
                 }
             }
         } : (object, safePrototype)=>{
@@ -48831,8 +48765,8 @@ class Encoder extends Decoder {
                 keys = Object.keys(object).map((k)=>this.encodeKey(k)
                 );
                 length = keys.length;
-                for(let i204 = 0; i204 < length; i204++){
-                    let key = keys[i204];
+                for(let i201 = 0; i201 < length; i201++){
+                    let key = keys[i201];
                     nextTransition = transition[key];
                     if (!nextTransition) {
                         nextTransition = transition[key] = Object.create(null);
@@ -48880,9 +48814,9 @@ class Encoder extends Decoder {
                     target[position1++] = recordId >> 8 | 0xe0;
                     target[position1++] = recordId & 0xff;
                     transition = structures.transitions;
-                    for(let i205 = 0; i205 < length; i205++){
+                    for(let i202 = 0; i202 < length; i202++){
                         if (transition[RECORD_SYMBOL] === undefined || transition[RECORD_SYMBOL] & 0x100000) transition[RECORD_SYMBOL] = recordId;
-                        transition = transition[keys[i205]];
+                        transition = transition[keys[i202]];
                     }
                     transition[RECORD_SYMBOL] = recordId | 0x100000;
                     hasSharedUpdate = true;
@@ -48946,7 +48880,7 @@ class Encoder extends Decoder {
             this.sharedVersion = sharedData.version;
             this.structures.nextId = this.structures.length;
         } else {
-            structuresCopy.forEach((structure, i206)=>this.structures[i206] = structure
+            structuresCopy.forEach((structure, i203)=>this.structures[i203] = structure
             );
         }
         return saveResults;
@@ -49001,8 +48935,8 @@ function findRepetitiveStrings(value, packedValues2) {
         case 'object':
             if (value) {
                 if (value instanceof Array) {
-                    for(let i207 = 0, l = value.length; i207 < l; i207++){
-                        findRepetitiveStrings(value[i207], packedValues2);
+                    for(let i204 = 0, l = value.length; i204 < l; i204++){
+                        findRepetitiveStrings(value[i204], packedValues2);
                     }
                 } else {
                     let includeKeys = !packedValues2.encoder.useRecords;
@@ -49127,8 +49061,8 @@ extensions = [
                 writeArrayHeader(0);
                 writeArrayHeader(0);
                 packedObjectMap = Object.create(sharedPackedObjectMap || null);
-                for(let i208 = 0, l = valuesArray.length; i208 < l; i208++){
-                    packedObjectMap[valuesArray[i208]] = i208;
+                for(let i205 = 0, l = valuesArray.length; i205 < l; i205++){
+                    packedObjectMap[valuesArray[i205]] = i205;
                 }
             }
             if (sharedStructures) {
@@ -49215,6 +49149,55 @@ const encode5 = defaultEncoder.encode;
 const { NEVER , ALWAYS , DECIMAL_ROUND , DECIMAL_FIT  } = FLOAT32_OPTIONS;
 const REUSE_BUFFER_MODE = 512;
 const RESET_BUFFER_MODE = 1024;
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", charsUrl = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_", genLookup = (target6)=>{
+    let lookupTemp = typeof Uint8Array === "undefined" ? [] : new Uint8Array(256);
+    for(let i206 = 0; i206 < chars.length; i206++){
+        lookupTemp[target6.charCodeAt(i206)] = i206;
+    }
+    return lookupTemp;
+}, lookup = genLookup(chars), lookupUrl = genLookup(charsUrl);
+let base64 = {};
+base64.toArrayBuffer = (data, urlMode)=>{
+    let bufferLength = data.length * .75, len = data.length, i207, p = 0, encoded1, encoded2, encoded3, encoded4;
+    if (data[data.length - 1] === "=") {
+        bufferLength--;
+        if (data[data.length - 2] === "=") {
+            bufferLength--;
+        }
+    }
+    const arraybuffer = new ArrayBuffer(bufferLength), bytes = new Uint8Array(arraybuffer), target7 = urlMode ? lookupUrl : lookup;
+    for(i207 = 0; i207 < len; i207 += 4){
+        encoded1 = target7[data.charCodeAt(i207)];
+        encoded2 = target7[data.charCodeAt(i207 + 1)];
+        encoded3 = target7[data.charCodeAt(i207 + 2)];
+        encoded4 = target7[data.charCodeAt(i207 + 3)];
+        bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+        bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+        bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+    }
+    return arraybuffer;
+};
+base64.fromArrayBuffer = (arrBuf, urlMode)=>{
+    let bytes = new Uint8Array(arrBuf), i208, len = bytes.length, result = "", target8 = urlMode ? charsUrl : chars;
+    for(i208 = 0; i208 < len; i208 += 3){
+        result += target8[bytes[i208] >> 2];
+        result += target8[(bytes[i208] & 3) << 4 | bytes[i208 + 1] >> 4];
+        result += target8[(bytes[i208 + 1] & 15) << 2 | bytes[i208 + 2] >> 6];
+        result += target8[bytes[i208 + 2] & 63];
+    }
+    if (len % 3 === 2) {
+        result = result.substring(0, result.length - 1) + (urlMode ? "" : "=");
+    } else if (len % 3 === 1) {
+        result = result.substring(0, result.length - 2) + (urlMode ? "" : "==");
+    }
+    return result;
+};
+base64.toString = (str, urlMode)=>{
+    return (new TextDecoder).decode(base64.toArrayBuffer(str, urlMode));
+};
+base64.fromString = (str, urlMode)=>{
+    return base64.fromArrayBuffer((new TextEncoder).encode(str), urlMode);
+};
 const pkijs = {
     setEngine,
     CryptoEngine,
@@ -49285,7 +49268,7 @@ function coerceToArrayBuffer(buf, name) {
         buf = new Uint8Array(0);
     } else if (typeof buf === "string") {
         buf = buf.replace(/\+/g, "-").replace(/\//g, "_").replace("=", "");
-        buf = base64.toArrayBuffer(buf, true);
+        buf = mod3.base64.toArrayBuffer(buf, true);
     }
     if (Array.isArray(buf)) {
         buf = new Uint8Array(buf);
@@ -49301,84 +49284,6 @@ function coerceToArrayBuffer(buf, name) {
         throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
     }
     return buf;
-}
-function coerceToBase64(thing, name) {
-    if (!name) {
-        throw new TypeError("name not specified in coerceToBase64");
-    }
-    if (typeof thing !== "string") {
-        try {
-            thing = base64.fromArrayBuffer(coerceToArrayBuffer(thing, name));
-        } catch (_err) {
-            throw new Error(`could not coerce '${name}' to string`);
-        }
-    }
-    if (typeof thing !== "string") {
-        throw new Error(`could not coerce '${name}' to string`);
-    }
-    return thing;
-}
-function strToAb(str) {
-    const buf = new ArrayBuffer(str.length);
-    const bufView = new Uint8Array(buf);
-    for(let i209 = 0, strLen = str.length; i209 < strLen; i209++){
-        bufView[i209] = str.charCodeAt(i209);
-    }
-    return buf;
-}
-function coerceToBase64Url(thing, name) {
-    if (!name) {
-        throw new TypeError("name not specified in coerceToBase64");
-    }
-    if (typeof thing !== "string") {
-        try {
-            thing = base64.fromArrayBuffer(coerceToArrayBuffer(thing, name), true);
-        } catch (_err) {
-            throw new Error(`could not coerce '${name}' to string`);
-        }
-    }
-    if (typeof thing !== "string") {
-        throw new Error(`could not coerce '${name}' to string`);
-    }
-    return thing;
-}
-function abEqual(b1, b2) {
-    if (!(b1 instanceof ArrayBuffer) || !(b2 instanceof ArrayBuffer)) {
-        console.log("not array buffers");
-        return false;
-    }
-    if (b1.byteLength !== b2.byteLength) {
-        console.log("not same length");
-        return false;
-    }
-    b1 = new Uint8Array(b1);
-    b2 = new Uint8Array(b2);
-    for(let i215 = 0; i215 < b1.byteLength; i215++){
-        if (b1[i215] !== b2[i215]) return false;
-    }
-    return true;
-}
-function abToHex(ab) {
-    if (!(ab instanceof ArrayBuffer)) {
-        throw new TypeError("Invalid argument passed to abToHex");
-    }
-    const result = Array.prototype.map.call(new Uint8Array(ab), (x)=>("00" + x.toString(16)).slice(-2)
-    ).join("");
-    return result;
-}
-function b64ToJsObject(b64, desc) {
-    return JSON.parse(abToStr(coerceToArrayBuffer(b64, desc)));
-}
-function jsObjectToB64(obj) {
-    return base64.fromString(JSON.stringify(obj).replace(/[\u{0080}-\u{FFFF}]/gu, ""));
-}
-function pemToBase64(pem) {
-    if (!isPem(pem)) {
-        throw new Error("expected PEM string as input");
-    }
-    let pemArr = pem.split("\n");
-    pemArr = pemArr.slice(1, pemArr.length - 2);
-    return pemArr.join("");
 }
 const cbor = {
     encode: encode5,
@@ -49469,8 +49374,8 @@ function validDomainName(value) {
     }
     const labels = ascii.split('.');
     let label;
-    for(let i216 = 0; i216 < labels.length; ++i216){
-        label = labels[i216];
+    for(let i209 = 0; i209 < labels.length; ++i209){
+        label = labels[i209];
         if (!label.length) {
             return false;
         }
@@ -49574,8 +49479,87 @@ const mod3 = {
     pkijs: pkijs,
     randomValues: randomValues,
     verifySignature: verifySignature,
-    webcrypto: webcrypto
+    webcrypto: webcrypto,
+    base64: base64
 };
+function coerceToBase64(thing, name) {
+    if (!name) {
+        throw new TypeError("name not specified in coerceToBase64");
+    }
+    if (typeof thing !== "string") {
+        try {
+            thing = mod3.base64.fromArrayBuffer(coerceToArrayBuffer(thing, name));
+        } catch (_err) {
+            throw new Error(`could not coerce '${name}' to string`);
+        }
+    }
+    if (typeof thing !== "string") {
+        throw new Error(`could not coerce '${name}' to string`);
+    }
+    return thing;
+}
+function strToAb(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for(let i215 = 0, strLen = str.length; i215 < strLen; i215++){
+        bufView[i215] = str.charCodeAt(i215);
+    }
+    return buf;
+}
+function coerceToBase64Url(thing, name) {
+    if (!name) {
+        throw new TypeError("name not specified in coerceToBase64");
+    }
+    if (typeof thing !== "string") {
+        try {
+            thing = mod3.base64.fromArrayBuffer(coerceToArrayBuffer(thing, name), true);
+        } catch (_err) {
+            throw new Error(`could not coerce '${name}' to string`);
+        }
+    }
+    if (typeof thing !== "string") {
+        throw new Error(`could not coerce '${name}' to string`);
+    }
+    return thing;
+}
+function abEqual(b1, b2) {
+    if (!(b1 instanceof ArrayBuffer) || !(b2 instanceof ArrayBuffer)) {
+        console.log("not array buffers");
+        return false;
+    }
+    if (b1.byteLength !== b2.byteLength) {
+        console.log("not same length");
+        return false;
+    }
+    b1 = new Uint8Array(b1);
+    b2 = new Uint8Array(b2);
+    for(let i216 = 0; i216 < b1.byteLength; i216++){
+        if (b1[i216] !== b2[i216]) return false;
+    }
+    return true;
+}
+function abToHex(ab) {
+    if (!(ab instanceof ArrayBuffer)) {
+        throw new TypeError("Invalid argument passed to abToHex");
+    }
+    const result = Array.prototype.map.call(new Uint8Array(ab), (x)=>("00" + x.toString(16)).slice(-2)
+    ).join("");
+    return result;
+}
+function b64ToJsObject(b64, desc) {
+    return JSON.parse(abToStr(coerceToArrayBuffer(b64, desc)));
+}
+function jsObjectToB64(obj) {
+    return mod3.base64.fromString(JSON.stringify(obj).replace(/[\u{0080}-\u{FFFF}]/gu, ""));
+}
+function pemToBase64(pem) {
+    if (!isPem(pem)) {
+        throw new Error("expected PEM string as input");
+    }
+    let pemArr = pem.split("\n");
+    pemArr = pemArr.slice(1, pemArr.length - 2);
+    return pemArr.join("");
+}
 const mod4 = {
     abEqual: abEqual,
     abToBuf: abToBuf,
@@ -49585,7 +49569,6 @@ const mod4 = {
     abToStr: abToStr,
     appendBuffer: appendBuffer,
     b64ToJsObject: b64ToJsObject,
-    base64: base64,
     coerceToArrayBuffer: coerceToArrayBuffer,
     coerceToBase64: coerceToBase64,
     coerceToBase64Url: coerceToBase64Url,
@@ -50652,7 +50635,7 @@ class MdsCollection {
         if (typeof id !== "string") {
             throw new Error("expected 'id' to be String, got: " + id);
         }
-        return this.entryList.get(id.replace(/-/g, "")) || this.entryList.get(abToHex(base64.toArrayBuffer(id, true)).replace(/-/g, "")) || null;
+        return this.entryList.get(id.replace(/-/g, "")) || this.entryList.get(abToHex(mod3.base64.toArrayBuffer(id, true)).replace(/-/g, "")) || null;
     }
 }
 function getMdsEntryId(obj) {
@@ -50997,7 +50980,7 @@ async function androidSafetyNetValidateFn() {
     const clientDataHashBuf = new Uint8Array(clientDataHash);
     const concatenated = appendBuffer(rawAuthnrDataBuf, clientDataHashBuf);
     const hash = await mod3.hashDigest(concatenated);
-    const nonce = base64.fromArrayBuffer(hash);
+    const nonce = mod3.base64.fromArrayBuffer(hash);
     if (nonce !== parsedJws.payload.nonce) {
         throw new Error("android-safetynet attestation: nonce check hash failed");
     }
@@ -52697,4 +52680,4 @@ export { fidoU2fAttestation as fidoU2fAttestation };
 export { packedAttestation as packedAttestation };
 export { tpmAttestation as tpmAttestation };
 export { androidSafetyNetAttestation as androidSafetyNetAttestation };
-export { abEqual as abEqual, abToBuf as abToBuf, abToHex as abToHex, appendBuffer as appendBuffer, base64 as base64, coerceToArrayBuffer as coerceToArrayBuffer, coerceToBase64 as coerceToBase64, coerceToBase64Url as coerceToBase64Url, isBase64Url as isBase64Url, isPem as isPem, jsObjectToB64 as jsObjectToB64, pemToBase64 as pemToBase64, strToAb as strToAb, mod3 as tools };
+export { abEqual as abEqual, abToBuf as abToBuf, abToHex as abToHex, appendBuffer as appendBuffer, coerceToArrayBuffer as coerceToArrayBuffer, coerceToBase64 as coerceToBase64, coerceToBase64Url as coerceToBase64Url, isBase64Url as isBase64Url, isPem as isPem, jsObjectToB64 as jsObjectToB64, pemToBase64 as pemToBase64, strToAb as strToAb, mod3 as tools };

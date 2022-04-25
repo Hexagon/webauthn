@@ -4,7 +4,6 @@ import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
 import {
-  base64,
   coerceToBase64Url,
   jsObjectToB64,
   strToAb,
@@ -601,7 +600,7 @@ describe("MdsCollection", function () {
       assert.isUndefined(entry.hash);
 
       const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      const tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHash = tools.base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,
@@ -711,7 +710,7 @@ describe("MdsCollection", function () {
       assert.isUndefined(entry.hash);
 
       const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      const tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHash = tools.base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,
@@ -865,7 +864,7 @@ describe("MdsCollection", function () {
       assert.isUndefined(entry.hash);
 
       const tocHashBuf = await tools.hashDigest(jsObjectToB64(entry.raw));
-      const tocHash = base64.fromArrayBuffer(tocHashBuf);
+      const tocHash = tools.base64.fromArrayBuffer(tocHashBuf);
 
       assert.strictEqual(
         tocHash,

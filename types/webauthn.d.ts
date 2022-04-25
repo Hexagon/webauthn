@@ -9,4 +9,4 @@ export { parseAttestationObject, parseAuthenticatorData, parseAuthnrAssertionRes
 export { Certificate, CertManager, CRL, helpers } from "./common/certUtils.js";
 export { Fido2AssertionResult, Fido2AttestationResult, Fido2Result } from "./common/response.js";
 export { MdsCollection, MdsEntry } from "./common/mds.js";
-export { abEqual, abToBuf, abToHex, appendBuffer, base64, coerceToArrayBuffer, coerceToBase64, coerceToBase64Url, isBase64Url, isPem, jsObjectToB64, pemToBase64, strToAb, tools } from "./common/utils.js";
+export { abEqual, abToBuf, abToHex, appendBuffer, coerceToArrayBuffer, coerceToBase64, coerceToBase64Url, isBase64Url, isPem, jsObjectToB64, pemToBase64, strToAb, tools } from "./common/utils.js";
