@@ -49290,8 +49290,8 @@ const cbor = {
     decode: decode5
 };
 const webcrypto = crypto;
-pkijs.setEngine('newEngine', webcrypto, new pkijs.CryptoEngine({
-    name: '',
+pkijs.setEngine("newEngine", webcrypto, new pkijs.CryptoEngine({
+    name: "",
     crypto: webcrypto,
     subtle: webcrypto.subtle
 }));
@@ -49301,29 +49301,29 @@ function derToRaw(signature) {
     const sStart = signature[rEnd + 2] === 0 ? rEnd + 3 : rEnd + 2;
     return new Uint8Array([
         ...signature.slice(rStart, rEnd),
-        ...signature.slice(sStart)
+        ...signature.slice(sStart), 
     ]);
 }
 function checkOrigin(str) {
     const originUrl = new _url(str);
     const origin = originUrl.origin;
     if (origin !== str) {
-        throw new Error('origin was malformatted');
+        throw new Error("origin was malformatted");
     }
-    const isLocalhost = originUrl.hostname == 'localhost' || originUrl.hostname.endsWith('.localhost');
-    if (originUrl.protocol !== 'https:' && !isLocalhost) {
-        throw new Error('origin should be https');
+    const isLocalhost = originUrl.hostname == "localhost" || originUrl.hostname.endsWith(".localhost");
+    if (originUrl.protocol !== "https:" && !isLocalhost) {
+        throw new Error("origin should be https");
     }
     if ((!validDomainName(originUrl.hostname) || !validEtldPlusOne(originUrl.hostname)) && !isLocalhost) {
-        throw new Error('origin is not a valid eTLD+1');
+        throw new Error("origin is not a valid eTLD+1");
     }
     return origin;
 }
 function checkUrl(value, name, rules = {}) {
     if (!name) {
-        throw new TypeError('name not specified in checkUrl');
+        throw new TypeError("name not specified in checkUrl");
     }
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
         throw new Error(`${name} must be a string`);
     }
     let urlValue = null;
@@ -49332,13 +49332,13 @@ function checkUrl(value, name, rules = {}) {
     } catch (_err) {
         throw new Error(`${name} is not a valid eTLD+1/url`);
     }
-    if (!value.startsWith('http')) {
+    if (!value.startsWith("http")) {
         throw new Error(`${name} must be http protocol`);
     }
-    if (!rules.allowHttp && urlValue.protocol !== 'https:') {
+    if (!rules.allowHttp && urlValue.protocol !== "https:") {
         throw new Error(`${name} should be https`);
     }
-    if (!rules.allowPath && (value.endsWith('/') || urlValue.pathname !== '/')) {
+    if (!rules.allowPath && (value.endsWith("/") || urlValue.pathname !== "/")) {
         throw new Error(`${name} should not include path in url`);
     }
     if (!rules.allowHash && urlValue.hash) {
@@ -49372,7 +49372,7 @@ function validDomainName(value) {
     if (ascii.length > 255) {
         return false;
     }
-    const labels = ascii.split('.');
+    const labels = ascii.split(".");
     let label;
     for(let i209 = 0; i209 < labels.length; ++i209){
         label = labels[i209];
@@ -49382,7 +49382,7 @@ function validDomainName(value) {
         if (label.length > 63) {
             return false;
         }
-        if (label.charAt(0) === '-') {
+        if (label.charAt(0) === "-") {
             return false;
         }
         if (!/^[a-z0-9-]+$/.test(label)) {
@@ -49393,9 +49393,9 @@ function validDomainName(value) {
 }
 function checkDomainOrUrl(value, name, rules = {}) {
     if (!name) {
-        throw new TypeError('name not specified in checkDomainOrUrl');
+        throw new TypeError("name not specified in checkDomainOrUrl");
     }
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
         throw new Error(`${name} must be a string`);
     }
     if (validEtldPlusOne(value, name) && validDomainName(value, name)) {
@@ -49404,12 +49404,12 @@ function checkDomainOrUrl(value, name, rules = {}) {
     return checkUrl(value, name, rules);
 }
 function checkRpId(rpId) {
-    if (typeof rpId !== 'string') {
-        throw new Error('rpId must be a string');
+    if (typeof rpId !== "string") {
+        throw new Error("rpId must be a string");
     }
-    const isLocalhost = rpId === 'localhost' || rpId.endsWith('.localhost');
+    const isLocalhost = rpId === "localhost" || rpId.endsWith(".localhost");
     if (isLocalhost) return rpId;
-    return checkDomainOrUrl(rpId, 'rpId');
+    return checkDomainOrUrl(rpId, "rpId");
 }
 async function verifySignature(publicKeyPem, expectedSignature, data, hashName) {
     try {
@@ -49419,10 +49419,10 @@ async function verifySignature(publicKeyPem, expectedSignature, data, hashName) 
         const alg = importedKey.algorithm;
         if (!alg.hash) {
             alg.hash = {
-                name: hashName || 'SHA-256'
+                name: hashName || "SHA-256"
             };
         }
-        if (alg.name === 'ECDSA') {
+        if (alg.name === "ECDSA") {
             uSignature = await derToRaw(uSignature);
         }
         return await crypto.subtle.verify(alg, publicKey.getKey(), new Uint8Array(uSignature), new Uint8Array(data));
@@ -49431,10 +49431,10 @@ async function verifySignature(publicKeyPem, expectedSignature, data, hashName) 
     }
 }
 async function hashDigest(o25, alg) {
-    if (typeof o25 === 'string') {
+    if (typeof o25 === "string") {
         o25 = new TextEncoder().encode(o25);
     }
-    const result = await crypto.subtle.digest(alg || 'sha-256', o25);
+    const result = await crypto.subtle.digest(alg || "sha-256", o25);
     return result;
 }
 function randomValues(n14) {
@@ -49456,12 +49456,13 @@ async function getEmbeddedJwk(jwsHeader, alg) {
         publicKey.kid = publicKey.kid || cert.getCommonName();
     }
     if (!publicKey) {
-        throw new Error('getEmbeddedJwk: JWK not found in JWS.');
+        throw new Error("getEmbeddedJwk: JWK not found in JWS.");
     }
     publicKey.alg = publicKey.alg || jwsHeader.alg || alg;
     return publicKey;
 }
 const mod3 = {
+    base64: base64,
     cbor: cbor,
     checkDomainOrUrl: checkDomainOrUrl,
     checkOrigin: checkOrigin,
@@ -49479,8 +49480,7 @@ const mod3 = {
     pkijs: pkijs,
     randomValues: randomValues,
     verifySignature: verifySignature,
-    webcrypto: webcrypto,
-    base64: base64
+    webcrypto: webcrypto
 };
 function coerceToBase64(thing, name) {
     if (!name) {

@@ -1,3 +1,4 @@
+import { base64 } from "./deps.js";
 export namespace cbor {
     export { encode };
     export { decode };
@@ -26,7 +27,6 @@ export namespace pkijs {
 export function randomValues(n: any): Uint8Array;
 export function verifySignature(publicKeyPem: any, expectedSignature: any, data: any, hashName: any): Promise<any>;
 export const webcrypto: any;
-import { base64 } from "./deps.js";
 import { encode } from "./deps.js";
 import { decode } from "./deps.js";
 import { setEngine } from "./deps.js";
@@ -35,4 +35,4 @@ import { PkijsCertificate } from "./deps.js";
 import { CertificateRevocationList } from "./deps.js";
 import { CertificateChainValidationEngine } from "./deps.js";
 import { PublicKeyInfo } from "./deps.js";
-export { decodeProtectedHeader, exportSPKI, fromBER, importJWK, importSPKI, jwtVerify, base64 };
+export { base64, decodeProtectedHeader, exportSPKI, fromBER, importJWK, importSPKI, jwtVerify };

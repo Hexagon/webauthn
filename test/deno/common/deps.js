@@ -3,5 +3,6 @@ export {
   assertEquals,
   assertRejects,
   assertThrows,
-  klon } from "../../../lib/deps.js";
+  klon,
+} from "../../../lib/deps.js";
 export { Webauthn } from "../../../lib/webauthn.js";

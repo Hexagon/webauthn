@@ -43,7 +43,7 @@ Deno.test("Istantiation and registration", async () => {
   assertEquals(regResult.audit.complete, true);
   const publicKey = regResult.authnrData.get("credentialPublicKeyPem");
   assertEquals(publicKey !== undefined, true);
-  
+
   const counter = regResult.authnrData.get("counter");
   const credId = regResult.authnrData.get("credId");
 
