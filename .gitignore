@@ -16,9 +16,6 @@ coverage
 .nyc_output
 coverage.lcov
 
-# No need to use package.lock when we only have dev dependencies for testing
-package.json
-
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
