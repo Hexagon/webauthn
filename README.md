@@ -2,7 +2,7 @@
 
 NPM: @hexagon\webauthn | Deno.land: webauthn
 
-Slim DWebauthn library with ES6, Deno and Node support. Heavily based on fido2-lib.
+Slim Webauthn library with ES6, Deno and Node support. Heavily based on fido2-lib.
 
 *Currently in pre-release*
 
@@ -11,7 +11,7 @@ Slim DWebauthn library with ES6, Deno and Node support. Heavily based on fido2-l
 [![npm version](https://badge.fury.io/js/@hexagon%2Fwebauthn.svg)](https://badge.fury.io/js/@hexagon%2Fwebauthn) [![NPM Downloads](https://img.shields.io/npm/dm/@hexagon/webauthn.svg)](https://www.npmjs.org/package/@hexagon/webauthn) 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Hexagon/webauthn/blob/master/LICENSE) [![jsdelivr](https://data.jsdelivr.com/v1/package/gh/hexagon/webauthn/badge?style=rounded)](https://www.jsdelivr.com/package/gh/hexagon/webauthn)
 
-Demo/Example for both Deno and Node available at [github.com/Hexagon/webauthn-skeleton/tree/server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno)
+Example for both Deno and Node available at [github.com/Hexagon/webauthn-skeleton](https://github.com/Hexagon/webauthn-skeleton)
 
 Features
 
@@ -31,8 +31,8 @@ JavaScript
 // ESM Import ...
 import { Webauthn } from "@hexagon/webauthn";
 
-// ... or CommonJS Require
-const { Webauthn } = require("@hexagon/webauthn");
+// ... or CommonJS
+const { Webauthn } = await import("@hexagon/webauthn");
 ```
 
 TypeScript
@@ -48,7 +48,7 @@ import { Webauthn } from "@hexagon/webauthn";
 JavaScript
 
 ```javascript
-import webauthn from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/lib/webauthn.js";
+import { Webauthn } from "https://cdn.jsdelivr.net/gh/hexagon/webauthn@0/lib/webauthn.js";
 
 // ...
 ```
@@ -67,11 +67,8 @@ Full documentation available at [hexagon.github.io/webauthn](https://hexagon.git
 
 ### Examples
 
-Assuming you have imported webauthn as described under 'Installation'.
-
-@hexagon/webauthn uses the same interface as `fido2-lib`
-
-Examples from [github.com/webauthn-open-source/fido2-lib](https://github.com/webauthn-open-source/fido2-lib):
+*   All examles assumes you have imported webauthn as described under 'Installation'.
+*   @hexagon/webauthn uses the same interface as `fido2-lib`
 
 #### Instantiate Library (Simple):
 ```js
@@ -83,7 +80,7 @@ var f2l = new Webauthn();
 ```js
 // could also use one or more of the options below,
 // which just makes the options calls easier later on:
-var f2l = new Fido2Lib({
+var f2l = new Webauthn({
     timeout: 42,
     rpId: "example.com",
     rpName: "ACME",
