@@ -36155,7 +36155,7 @@ class SignedCertificateTimestamp {
         const timeBuffer = new ArrayBuffer(8);
         const timeView = new Uint8Array(timeBuffer);
         const baseArray = utilToBase(this.timestamp.valueOf(), 8);
-        timeView.set(baseArray, 8 - baseArray.byteLength);
+        timeView.set(new Uint8Array(baseArray), 8 - baseArray.byteLength);
         stream.appendView(timeView);
         stream.appendUint16(this.extensions.byteLength);
         if (this.extensions.byteLength) stream.appendView(new Uint8Array(this.extensions));
@@ -36776,7 +36776,7 @@ class Certificate {
             schema: asn1.result["tbsCertificate.subjectPublicKeyInfo"]
         });
         if ("tbsCertificate.issuerUniqueID" in asn1.result) this.issuerUniqueID = asn1.result["tbsCertificate.issuerUniqueID"].valueBlock.valueHex;
-        if ("tbsCertificate.subjectUniqueID" in asn1.result) this.issuerUniqueID = asn1.result["tbsCertificate.subjectUniqueID"].valueBlock.valueHex;
+        if ("tbsCertificate.subjectUniqueID" in asn1.result) this.subjectUniqueID = asn1.result["tbsCertificate.subjectUniqueID"].valueBlock.valueHex;
         if ("tbsCertificate.extensions" in asn1.result) this.extensions = Array.from(asn1.result["tbsCertificate.extensions"], (element)=>new Extension({
                 schema: element
             })
@@ -36831,18 +36831,6 @@ class Certificate {
                     tagNumber: 2
                 },
                 valueHex: this.subjectUniqueID
-            }));
-        }
-        if ("subjectUniqueID" in this) {
-            outputArray.push(new Primitive({
-                optional: true,
-                idBlock: {
-                    tagClass: 3,
-                    tagNumber: 3
-                },
-                value: [
-                    this.extensions.toSchema()
-                ]
             }));
         }
         if ("extensions" in this) {
@@ -36994,7 +36982,7 @@ class AttCertValidityPeriod {
                 }),
                 new GeneralizedTime({
                     valueDate: this.notAfterTime
-                })
+                }), 
             ]
         });
     }
@@ -37148,7 +37136,7 @@ class AttributeCertificateInfoV1 {
                                 tagNumber: 1
                             },
                             value: GeneralNames.schema().valueBlock.value
-                        })
+                        }), 
                     ]
                 }),
                 GeneralNames.schema({
@@ -37420,7 +37408,7 @@ class ObjectDigestInfo {
                 AlgorithmIdentifier.schema(names.digestAlgorithm || {}),
                 new BitString({
                     name: names.objectDigest || ""
-                })
+                }), 
             ]
         });
     }
@@ -44135,7 +44123,7 @@ class BasicOCSPResponse {
                             name: "sha-1"
                         }, new Uint8Array(element.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex))
                     )).then((results)=>{
-                        for (const [index] of _this.certs.entries()){
+                        for (const [index, ] of _this.certs.entries()){
                             if (isEqualBuffer(results[index], _this.tbsResponseData.responderID.valueBlock.valueHex)) {
                                 certIndex = index;
                                 break;
