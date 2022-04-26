@@ -1,228 +1,20 @@
+import { base64 } from "@hexagon/base64";
+
 /** ******************************************************************************
  * ********************************************************************************
- * FUNCTIONS
+ * Functions
  * ********************************************************************************
  * ******************************************************************************* */
-
-/* begin helpers */
-function printHex(msg, buf) {
-  // if the buffer was a TypedArray (e.g. Uint8Array), grab its buffer and use that
-  if (ArrayBuffer.isView(buf) && buf.buffer instanceof ArrayBuffer) {
-    buf = buf.buffer;
-  }
-
-  // check the arguments
-  if (
-    (typeof msg !== "string") ||
-    (typeof buf !== "object")
-  ) {
-    console.log("Bad args to printHex"); // eslint-disable-line no-console
-    return;
-  }
-  if (!(buf instanceof ArrayBuffer)) {
-    console.log("Attempted printHex with non-ArrayBuffer:", buf); // eslint-disable-line no-console
-    return;
-  }
-
-  // print the buffer as a 16 byte long hex string
-  const arr = new Uint8Array(buf);
-  const len = buf.byteLength;
-  let i;
-  let str = "";
-  console.log(msg, `(${buf.byteLength} bytes)`); // eslint-disable-line no-console
-  for (i = 0; i < len; i++) {
-    let hexch = arr[i].toString(16);
-    hexch = (hexch.length == 1) ? ("0" + hexch) : hexch;
-    str += hexch.toUpperCase() + " ";
-    if (i && !((i + 1) % 16)) {
-      console.log(str); // eslint-disable-line no-console
-      str = "";
-    }
-  }
-  // print the remaining bytes
-  if ((i) % 16) {
-    console.log(str); // eslint-disable-line no-console
-  }
-}
-
-function hex2ab(hex) {
-  if (typeof hex !== "string") {
-    throw new TypeError("Expected input to be a string");
-  }
-
-  if ((hex.length % 2) !== 0) {
-    throw new RangeError("Expected string to be an even number of characters");
-  }
-
-  const view = new Uint8Array(hex.length / 2);
-
-  for (let i = 0; i < hex.length; i += 2) {
-    view[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  }
-
-  return view.buffer;
-}
-
-function strToAb(str) {
-  const buf = new ArrayBuffer(str.length);
-  const bufView = new Uint8Array(buf);
-  for (let i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-// borrowed from:
-// https://github.com/niklasvh/base64-arraybuffer/blob/master/lib/base64-arraybuffer.js
-// modified to base64url by Yuriy :)
-/*
-     * base64-arraybuffer
-     * https://github.com/niklasvh/base64-arraybuffer
-     *
-     * Copyright (c) 2012 Niklas von Hertzen
-     * Licensed under the MIT license.
-     */
-// var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-const chars =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-// Use a lookup table to find the index.
-const lookup = new Uint8Array(256);
-for (let i = 0; i < chars.length; i++) {
-  lookup[chars.charCodeAt(i)] = i;
-}
-
-function b64decode(base64) {
-  if (typeof base64 !== "string") {
-    throw new TypeError("exepcted base64 to be string, got: " + base64);
-  }
-
-  base64 = base64.replace(/-/g, "+").replace(/_/g, "/");
-  let bufferLength = base64.length * 0.75;
-  const len = base64.length;
-  let i;
-  let p = 0;
-  let encoded1;
-  let encoded2;
-  let encoded3;
-  let encoded4;
-
-  if (base64[base64.length - 1] === "=") {
-    bufferLength--;
-    if (base64[base64.length - 2] === "=") {
-      bufferLength--;
-    }
-  }
-
-  const arraybuffer = new ArrayBuffer(bufferLength);
-  const bytes = new Uint8Array(arraybuffer);
-
-  for (i = 0; i < len; i += 4) {
-    encoded1 = lookup[base64.charCodeAt(i)];
-    encoded2 = lookup[base64.charCodeAt(i + 1)];
-    encoded3 = lookup[base64.charCodeAt(i + 2)];
-    encoded4 = lookup[base64.charCodeAt(i + 3)];
-
-    bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-    bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-    bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-  }
-
-  return arraybuffer;
-}
-
-function b64encode(arraybuffer) {
-  const bytes = new Uint8Array(arraybuffer);
-  let i;
-  const len = bytes.length;
-  let base64 = "";
-
-  for (i = 0; i < len; i += 3) {
-    base64 += chars[bytes[i] >> 2];
-    base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-    base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-    base64 += chars[bytes[i + 2] & 63];
-  }
-
-  if ((len % 3) === 2) {
-    base64 = base64.substring(0, base64.length - 1) + "=";
-  } else if (len % 3 === 1) {
-    base64 = base64.substring(0, base64.length - 2) + "==";
-  }
-
-  return base64;
-}
-
-function abToStr(buf) {
-  return String.fromCharCode.apply(null, new Uint8Array(buf));
-}
-
-function bufEqual(a, b) {
-  const len = a.length;
-
-  if (
-    !(a instanceof Buffer) ||
-    !(b instanceof Buffer)
-  ) {
-    throw new TypeError("bad args: expected Buffers");
-  }
-
-  if (len !== b.length) {
-    return false;
-  }
-
-  for (let i = 0; i < len; i++) {
-    if (a.readUInt8(i) !== b.readUInt8(i)) {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 function cloneObject(obj) {
   if (obj === undefined) {
     throw new TypeError("obj was undefined");
   }
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function coerceToArrayBuffer(buf, name) {
-  if (typeof buf === "string") {
-    // base64url to base64
-    buf = buf.replace(/-/g, "+").replace(/_/g, "/");
-    // base64 to Buffer
-    buf = Buffer.from(buf, "base64");
-  }
-
-  // Buffer or Array to Uint8Array
-  if (buf instanceof Buffer || Array.isArray(buf)) {
-    buf = new Uint8Array(buf);
-  }
-
-  // Uint8Array to ArrayBuffer
-  if (buf instanceof Uint8Array) {
-    buf = buf.buffer;
-  }
-
-  // error if none of the above worked
-  if (!(buf instanceof ArrayBuffer)) {
-    throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
-  }
-
-  return buf;
+  return { ...obj };
 }
 
 const functions = {
-  printHex,
-  hex2ab,
-  strToAb,
-  b64decode,
-  b64encode,
-  abToStr,
-  bufEqual,
   cloneObject,
-  coerceToArrayBuffer,
 };
 
 /** ******************************************************************************
@@ -488,105 +280,146 @@ const server = {
 
 const makeCredentialAttestationNoneResponse = {
   username: challengeResponseAttestationNoneMsgB64Url.username,
-  rawId: b64decode(challengeResponseAttestationNoneMsgB64Url.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationNoneMsgB64Url.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationNoneMsgB64Url.response.attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationNoneMsgB64Url.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const makeCredentialAttestationU2fResponse = {
   username: challengeResponseAttestationU2fMsgB64Url.username,
-  rawId: b64decode(challengeResponseAttestationU2fMsgB64Url.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationU2fMsgB64Url.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationU2fMsgB64Url.response.attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationU2fMsgB64Url.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const makeCredentialAttestationHypersecuU2fResponse = {
-  rawId: b64decode(challengeResponseAttestationU2fHypersecuB64UrlMsg.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationU2fHypersecuB64UrlMsg.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationU2fHypersecuB64UrlMsg.response
         .attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationU2fHypersecuB64UrlMsg.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const makeCredentialAttestationPackedResponse = {
-  rawId: b64decode(challengeResponseAttestationPackedB64UrlMsg.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationPackedB64UrlMsg.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationPackedB64UrlMsg.response.attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationPackedB64UrlMsg.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const makeCredentialAttestationTpmResponse = {
-  rawId: b64decode(challengeResponseAttestationTpmB64UrlMsg.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationTpmB64UrlMsg.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationTpmB64UrlMsg.response.attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationTpmB64UrlMsg.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const makeCredentialAttestationSafetyNetResponse = {
-  rawId: b64decode(challengeResponseAttestationSafetyNetMsgB64Url.rawId),
+  rawId: base64.toArrayBuffer(
+    challengeResponseAttestationSafetyNetMsgB64Url.rawId,
+    true,
+  ),
   response: {
-    attestationObject: b64decode(
+    attestationObject: base64.toArrayBuffer(
       challengeResponseAttestationSafetyNetMsgB64Url.response.attestationObject,
+      true,
     ),
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       challengeResponseAttestationSafetyNetMsgB64Url.response.clientDataJSON,
+      true,
     ),
   },
 };
 
 const assertionResponse = {
   id: assertionResponseMsgB64Url.id,
-  rawId: b64decode(assertionResponseMsgB64Url.rawId),
+  rawId: base64.toArrayBuffer(assertionResponseMsgB64Url.rawId, true),
   response: {
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       assertionResponseMsgB64Url.response.clientDataJSON,
+      true,
     ),
-    authenticatorData: b64decode(
+    authenticatorData: base64.toArrayBuffer(
       assertionResponseMsgB64Url.response.authenticatorData,
+      true,
     ),
-    signature: b64decode(assertionResponseMsgB64Url.response.signature),
+    signature: base64.toArrayBuffer(
+      assertionResponseMsgB64Url.response.signature,
+      true,
+    ),
     userHandle: assertionResponseMsgB64Url.response.userHandle,
   },
 };
 
 const assertionResponseWindowsHello = {
-  rawId: b64decode(assertionResponseWindowsHelloMsgB64Url.rawId),
+  rawId: base64.toArrayBuffer(
+    assertionResponseWindowsHelloMsgB64Url.rawId,
+    true,
+  ),
   response: {
-    clientDataJSON: b64decode(
+    clientDataJSON: base64.toArrayBuffer(
       assertionResponseWindowsHelloMsgB64Url.response.clientDataJSON,
+      true,
     ),
-    authenticatorData: b64decode(
+    authenticatorData: base64.toArrayBuffer(
       assertionResponseWindowsHelloMsgB64Url.response.authenticatorData,
+      true,
     ),
-    signature: b64decode(
+    signature: base64.toArrayBuffer(
       assertionResponseWindowsHelloMsgB64Url.response.signature,
+      true,
     ),
     userHandle: assertionResponseWindowsHelloMsgB64Url.response.userHandle,
   },
@@ -4834,9 +4667,9 @@ const mds = {
 
 export {
   certs,
+  // naked,
   functions,
   lib,
   mds,
   server,
-  // naked
 };

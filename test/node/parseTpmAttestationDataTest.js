@@ -3,7 +3,7 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 import { abEqual, coerceToBase64 } from "../../dist/webauthn.js";
 
@@ -18,7 +18,6 @@ import {
 } from "../../dist/webauthn.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
-const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,

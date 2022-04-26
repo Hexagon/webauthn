@@ -3,7 +3,7 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 import * as sinon from "sinon";
 import { packedSelfAttestationResponse } from "../fixtures/packedSelfAttestationData.js";
 
@@ -28,7 +28,6 @@ import {
 } from "../../dist/webauthn.js";
 chai.use(chaiAsPromised.default);
 const { assert, expect } = chai;
-const h = fido2helpers.default;
 
 // Test subject
 
@@ -575,13 +574,13 @@ describe("Webauthn", function () {
 
       const parsedPackedSelfAttestationResponse = {
         ...packedSelfAttestationResponse,
-        id: h.functions.b64decode(packedSelfAttestationResponse.id),
-        rawId: h.functions.b64decode(packedSelfAttestationResponse.rawId),
+        id: tools.base64.toArrayBuffer(packedSelfAttestationResponse.id),
+        rawId: tools.base64.toArrayBuffer(packedSelfAttestationResponse.rawId),
         response: {
-          attestationObject: h.functions.b64decode(
+          attestationObject: tools.base64.toArrayBuffer(
             packedSelfAttestationResponse.response.attestationObject,
           ),
-          clientDataJSON: h.functions.b64decode(
+          clientDataJSON: tools.base64.toArrayBuffer(
             packedSelfAttestationResponse.response.clientDataJSON,
           ),
         },

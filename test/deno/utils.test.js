@@ -2,7 +2,6 @@
 import { assertEquals, assertThrows } from "./common/deps.js";
 
 // Helpers
-import { klon } from "./common/deps.js";
 import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
@@ -18,7 +17,9 @@ Deno.test("coerceToArrayBuffer with undefined throws typeerror", () => {
   );
 });
 Deno.test("coerceToArrayBuffer", () => {
-  const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
+  const testReq = h.functions.cloneObject(
+    h.lib.makeCredentialAttestationNoneResponse,
+  );
   testReq.response.clientDataJSON = h.lib
     .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
   testReq.response.attestationObject = h.lib
@@ -57,7 +58,9 @@ Deno.test("coerceToArrayBuffer", () => {
 });
 
 Deno.test("coerceToBase64", () => {
-  const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
+  const testReq = h.functions.cloneObject(
+    h.lib.makeCredentialAttestationNoneResponse,
+  );
   testReq.response.clientDataJSON = h.lib
     .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
   testReq.response.attestationObject = h.lib
@@ -80,7 +83,9 @@ Deno.test("coerceToBase64", () => {
 });
 
 Deno.test("coerceToBase64url", () => {
-  const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
+  const testReq = h.functions.cloneObject(
+    h.lib.makeCredentialAttestationNoneResponse,
+  );
   testReq.response.clientDataJSON = h.lib
     .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
   testReq.response.attestationObject = h.lib

@@ -2,8 +2,7 @@
 import * as chai from "chai";
 
 // Helpers
-
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Testing subject
 import {
@@ -12,8 +11,6 @@ import {
   Fido2Result,
 } from "../../dist/webauthn.js";
 const assert = chai.assert;
-const h = fido2helpers.default;
-const { cloneObject } = h.functions;
 
 describe("Fido2Result", function () {
   it("is function", function () {
@@ -34,7 +31,9 @@ describe("Fido2Result", function () {
 describe("Fido2AttestationResult", function () {
   let testReq;
   beforeEach(() => {
-    testReq = cloneObject(h.lib.makeCredentialAttestationNoneResponse);
+    testReq = h.functions.cloneObject(
+      h.lib.makeCredentialAttestationNoneResponse,
+    );
     testReq.response.clientDataJSON = h.lib
       .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
     testReq.response.attestationObject = h.lib
@@ -215,7 +214,9 @@ describe("Fido2AttestationResult", function () {
 describe("Fido2AssertionResult", function () {
   let testReq;
   beforeEach(() => {
-    testReq = cloneObject(h.lib.makeCredentialAttestationNoneResponse);
+    testReq = h.functions.cloneObject(
+      h.lib.makeCredentialAttestationNoneResponse,
+    );
     testReq.response.clientDataJSON = h.lib
       .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
     testReq.response.attestationObject = h.lib

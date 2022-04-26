@@ -2,12 +2,13 @@
 import * as chai from "chai";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 import { appendBuffer, tools } from "../../dist/webauthn.js";
 
 // Test subject
 import {
+  abEqual,
   parseAttestationObject,
   parseAuthenticatorData,
   parseAuthnrAssertionResponse,
@@ -16,8 +17,6 @@ import {
   parseExpectations,
 } from "../../dist/webauthn.js";
 const assert = chai.assert;
-const h = fido2helpers.default;
-const { abEqual } = h.functions;
 
 describe("parseAuthnrAssertionResponse", function () {
   it("parses assertion correctly", async function () {

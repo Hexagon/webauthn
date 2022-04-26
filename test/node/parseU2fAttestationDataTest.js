@@ -3,20 +3,16 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
 import {
+  abEqual,
   parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
   parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
 } from "../../dist/webauthn.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
-const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -129,7 +125,7 @@ runs.forEach(function (run) {
         0xF0,
         0xCA,
       ]).buffer;
-      assert(h.functions.abEqual(sig, expectedSig), "sig contains right bytes");
+      assert(abEqual(sig, expectedSig), "sig contains right bytes");
     });
 
     it("parses x5c", function () {
@@ -728,7 +724,7 @@ runs.forEach(function (run) {
         0xD7,
       ]).buffer;
       assert(
-        h.functions.abEqual(attCert, expectedAttCert),
+        abEqual(attCert, expectedAttCert),
         "attCert contains right bytes",
       );
     });
@@ -935,7 +931,7 @@ runs.forEach(function (run) {
         0x93,
       ]).buffer;
       assert(
-        h.functions.abEqual(rawAuthnrData, expectedRawAuthnrData),
+        abEqual(rawAuthnrData, expectedRawAuthnrData),
         "authData contains right bytes",
       );
     });
@@ -977,7 +973,7 @@ runs.forEach(function (run) {
         0x63,
       ]).buffer;
       assert(
-        h.functions.abEqual(rpIdHash, expectedRpIdHash),
+        abEqual(rpIdHash, expectedRpIdHash),
         "correct rpIdHash",
       );
     });
@@ -1016,7 +1012,7 @@ runs.forEach(function (run) {
         0x00,
         0x00,
       ]).buffer;
-      assert(h.functions.abEqual(aaguid, expectedAaguid), "correct aaguid");
+      assert(abEqual(aaguid, expectedAaguid), "correct aaguid");
     });
 
     it("parses credential ID length", function () {
@@ -1092,7 +1088,7 @@ runs.forEach(function (run) {
         0x22,
         0xAD,
       ]).buffer;
-      assert(h.functions.abEqual(credId, expectedCredId), "correct credId");
+      assert(abEqual(credId, expectedCredId), "correct credId");
     });
 
     it("parses credential public key (COSE)", function () {
@@ -1178,7 +1174,7 @@ runs.forEach(function (run) {
         0x93,
       ]).buffer;
       assert(
-        h.functions.abEqual(
+        abEqual(
           credentialPublicKeyCose,
           expectedCredentialPublicKeyCose,
         ),

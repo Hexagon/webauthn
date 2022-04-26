@@ -3,13 +3,12 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-
-import { coerceToArrayBuffer } from "../../dist/webauthn.js";
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Testing subject
 import {
   attach,
+  coerceToArrayBuffer,
   parseAttestationObject,
   parseAuthnrAssertionResponse,
   parseAuthnrAttestationResponse,
@@ -17,8 +16,6 @@ import {
 } from "../../dist/webauthn.js";
 chai.use(chaiAsPromised.default);
 const assert = chai.assert;
-const h = fido2helpers.default;
-const { cloneObject } = h.functions;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -68,7 +65,7 @@ describe("attestation validation", function () {
                 .attestationObject,
             ),
         };
-        const testReq = cloneObject(
+        const testReq = h.functions.cloneObject(
           h.lib.makeCredentialAttestationNoneResponse,
         );
         testReq.rawId = h.lib.makeCredentialAttestationNoneResponse.rawId;
@@ -1286,7 +1283,8 @@ describe("assertion validation", function () {
         ...await parser.parseAuthnrAssertionResponse(h.lib.assertionResponse),
       ]),
     };
-    const testReq = cloneObject(h.lib.assertionResponse);
+    const testReq = h.lib.assertionResponse;
+    console.log(testReq);
     testReq.rawId = h.lib.assertionResponse.rawId;
     testReq.response.clientDataJSON = h.lib.assertionResponse.response
       .clientDataJSON.slice(0);

@@ -3,12 +3,11 @@ import * as chai from "chai";
 
 // Helpers
 
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
 import { parseClientResponse } from "../../dist/webauthn.js";
 const { assert } = chai;
-const h = fido2helpers.default;
 
 describe("parseClientData", function () {
   it("correctly converts attestation JSON", function () {

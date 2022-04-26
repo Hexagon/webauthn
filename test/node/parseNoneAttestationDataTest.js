@@ -3,21 +3,17 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
 import {
+  abEqual,
+  noneAttestation,
   parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
   parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
 } from "../../dist/webauthn.js";
-import { noneAttestation } from "../../dist/webauthn.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
-const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -354,7 +350,7 @@ runs.forEach(function (run) {
         0xC3,
       ]).buffer;
       assert(
-        h.functions.abEqual(rawAuthnrData, expectedRawAuthnrData),
+        abEqual(rawAuthnrData, expectedRawAuthnrData),
         "authData contains right bytes",
       );
       // parsed the authData CBOR correctly
@@ -397,7 +393,7 @@ runs.forEach(function (run) {
         0x63,
       ]).buffer;
       assert(
-        h.functions.abEqual(rpIdHash, expectedRpIdHash),
+        abEqual(rpIdHash, expectedRpIdHash),
         "correct rpIdHash",
       );
       // flags
@@ -430,7 +426,7 @@ runs.forEach(function (run) {
         0x00,
         0x00,
       ]).buffer;
-      assert(h.functions.abEqual(aaguid, expectedAaguid), "correct aaguid");
+      assert(abEqual(aaguid, expectedAaguid), "correct aaguid");
       // credIdLen
       assert.strictEqual(ret.get("credIdLen"), 162);
       // credId
@@ -600,7 +596,7 @@ runs.forEach(function (run) {
         0xA5,
         0x1C,
       ]).buffer;
-      assert(h.functions.abEqual(credId, expectedCredId), "correct credId");
+      assert(abEqual(credId, expectedCredId), "correct credId");
       // credentialPublicKeyCose
       const credentialPublicKeyCose = ret.get("credentialPublicKeyCose");
       assert.instanceOf(credentialPublicKeyCose, ArrayBuffer);
@@ -684,7 +680,7 @@ runs.forEach(function (run) {
         0xC3,
       ]).buffer;
       assert(
-        h.functions.abEqual(
+        abEqual(
           credentialPublicKeyCose,
           expectedCredentialPublicKeyCose,
         ),
@@ -702,13 +698,13 @@ runs.forEach(function (run) {
       //     0xBB, 0x11, 0xCD, 0xDD, 0x6E, 0x9E, 0x86, 0x9D, 0x15, 0x59, 0x72, 0x9A, 0x30, 0xD8, 0x9E, 0xD4,
       //     0x9F, 0x36, 0x31, 0x52, 0x42, 0x15, 0x96, 0x12, 0x71, 0xAB, 0xBB, 0xE2, 0x8D, 0x7B, 0x73, 0x1F
       // ]).buffer;
-      // assert(h.functions.abEqual(credentialPublicKeyJwk.x, expectedX), "correct 'x' in jwk");
+      // assert(abEqual(credentialPublicKeyJwk.x, expectedX), "correct 'x' in jwk");
       // assert.instanceOf(credentialPublicKeyJwk.y, ArrayBuffer);
       // var expectedY = new Uint8Array([
       //     0xDB, 0xD6, 0x39, 0x13, 0x2E, 0x2E, 0xE5, 0x61, 0x96, 0x5B, 0x83, 0x05, 0x30, 0xA6, 0xA0, 0x24,
       //     0xF1, 0x09, 0x88, 0x88, 0xF3, 0x13, 0x55, 0x05, 0x15, 0x92, 0x11, 0x84, 0xC8, 0x6A, 0xCA, 0xC3
       // ]).buffer;
-      // assert(h.functions.abEqual(credentialPublicKeyJwk.y, expectedY), "correct 'y' in jwk");
+      // assert(abEqual(credentialPublicKeyJwk.y, expectedY), "correct 'y' in jwk");
       assert.strictEqual(
         credentialPublicKeyJwk.x,
         "uxHN3W6ehp0VWXKaMNie1J82MVJCFZYScau74o17cx8",

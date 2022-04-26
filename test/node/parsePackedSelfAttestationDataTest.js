@@ -3,9 +3,7 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as fido2helpers from "fido2-helpers";
-
-import { abEqual } from "../../dist/webauthn.js";
+import { abEqual, tools } from "../../dist/webauthn.js";
 
 // Test subject
 import {
@@ -20,7 +18,6 @@ import {
 import { packedSelfAttestationResponse } from "../fixtures/packedSelfAttestationData.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
-const h = fido2helpers.default;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -34,13 +31,13 @@ const runs = [
 
 const parsedPackedSelfAttestationResponse = {
   ...packedSelfAttestationResponse,
-  id: h.functions.b64decode(packedSelfAttestationResponse.id),
-  rawId: h.functions.b64decode(packedSelfAttestationResponse.rawId),
+  id: tools.base64.toArrayBuffer(packedSelfAttestationResponse.id),
+  rawId: tools.base64.toArrayBuffer(packedSelfAttestationResponse.rawId),
   response: {
-    attestationObject: h.functions.b64decode(
+    attestationObject: tools.base64.toArrayBuffer(
       packedSelfAttestationResponse.response.attestationObject,
     ),
-    clientDataJSON: h.functions.b64decode(
+    clientDataJSON: tools.base64.toArrayBuffer(
       packedSelfAttestationResponse.response.clientDataJSON,
     ),
   },

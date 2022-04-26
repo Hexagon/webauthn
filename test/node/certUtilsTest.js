@@ -11,11 +11,10 @@ import {
   CRL,
   helpers as certHelpers,
 } from "../../dist/webauthn.js";
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 chai.use(chaiAsPromised.default);
 const assert = chai.assert;
-const h = fido2helpers.default;
 
 const { resolveOid } = certHelpers;
 

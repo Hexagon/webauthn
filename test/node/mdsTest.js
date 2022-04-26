@@ -10,7 +10,7 @@ import {
   tools,
 } from "../../dist/webauthn.js";
 
-import * as fido2helpers from "fido2-helpers";
+import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
 import { MdsCollection, MdsEntry } from "../../dist/webauthn.js";
@@ -18,7 +18,6 @@ import { mdsV3jwt } from "../fixtures/mdsV3.jwt.js";
 chai.use(chaiAsPromised.default);
 const assert = chai.assert;
 const expect = chai.expect;
-const h = fido2helpers.default;
 
 describe("MdsCollection", function () {
   it("is a function", function () {

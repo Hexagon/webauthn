@@ -2,14 +2,13 @@
 import { assertEquals, assertThrows } from "./common/deps.js";
 
 // Helpers
-import { klon } from "./common/deps.js";
 import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
 import {
   Fido2AssertionResult,
   Fido2AttestationResult,
-} from "../../dist/webauthn.js";
+} from "../../lib/webauthn.js";
 
 /* Deno.test("Fido2AttestationResult is function", function() {
   assertEquals(typeof Fido2AttestationResult, "function");
@@ -22,7 +21,9 @@ Deno.test("Fido2AttestationResult throws if called with new", function() {
 }); */
 
 Deno.test("Fido2AttestationResult passes with 'none' attestation", async function () {
-  const testReq = klon(h.lib.makeCredentialAttestationNoneResponse);
+  const testReq = h.functions.cloneObject(
+    h.lib.makeCredentialAttestationNoneResponse,
+  );
   testReq.response.clientDataJSON = h.lib
     .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
   testReq.response.attestationObject = h.lib
