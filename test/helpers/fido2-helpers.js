@@ -6,11 +6,88 @@ import { base64 } from "@hexagon/base64";
  * ********************************************************************************
  * ******************************************************************************* */
 
+function klon(source, target, breakCircular, trace) {
+  // No need to copy null, undefined or primitive values
+  // Shortest way first
+  if (
+    source === null ||
+    source === undefined ||
+    (source.valueOf() === source &&
+      source.constructor !== Object &&
+      !Array.isArray(source))
+  ) {
+    return target = source;
+  }
+
+  let seed,
+    key,
+    prop,
+    circularReference;
+
+  // Choose seed for new source.constructor
+  //  - Default seed is undefined
+  if (!target) {
+    // Special case for Date
+    if (source.constructor === Date) seed = source.getTime();
+    // Everything else, but pure objects and arrays, use themselves as seed
+    else if (!(Array.isArray(source) || source.constructor === Object)) {
+      seed = source;
+    }
+  }
+  target = target || new source.constructor(seed);
+
+  // For tracking circular references
+  trace = trace || new WeakMap();
+
+  for (key in source) {
+    prop = source[key];
+
+    // Check that this is an actual property
+    if (
+      // deno-lint-ignore no-prototype-builtins
+      !(key in source) || !source.hasOwnProperty(key) ||
+      !Object.getOwnPropertyDescriptor(source, key).writable
+    ) {
+      continue;
+    }
+
+    // Circular reference? Store the circular reference and move on to next property
+    const ref = circularReference = trace.get(prop);
+    if (ref) {
+      if (!breakCircular) {
+        target[key] = circularReference;
+        continue;
+      } else {
+        target[key] = "[Circular]";
+        continue;
+      }
+    }
+
+    // Pure objects and arrays need tracing
+    if (
+      prop !== null && prop !== undefined &&
+      (Array.isArray(prop) || prop.constructor === Object)
+    ) {
+      trace.set(
+        prop,
+        target[key] = Array.isArray(prop)
+          ? Object.assign([], target[key])
+          : Object.assign({}, target[key]),
+      );
+    }
+
+    // Ok, this seem to be a simple value, assign it
+    target[key] = klon(prop, target[key], breakCircular, trace);
+  }
+
+  return target;
+}
+
 function cloneObject(obj) {
   if (obj === undefined) {
     throw new TypeError("obj was undefined");
   }
-  return { ...obj };
+  return klon(obj);
 }
 
 const functions = {

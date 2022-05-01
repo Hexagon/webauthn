@@ -1,22 +1,12 @@
 // Testing lib
-import * as chai from "chai";
-import * as chaiAsPromised from "chai-as-promised";
-
-// Helpers
-
-import { abEqual, coerceToArrayBuffer } from "../../dist/webauthn.js";
+import { assert, describe, it } from "./common/deps.js";
 
 // Test subject
 import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
+  abEqual,
+  coerceToArrayBuffer,
   parseExpectations,
-} from "../../dist/webauthn.js";
-chai.use(chaiAsPromised.default);
-const { assert } = chai;
+} from "../../lib/webauthn.js";
 
 describe("parseExpectations", function () {
   it("returns Map on good expectations", function () {

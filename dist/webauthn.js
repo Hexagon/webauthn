@@ -50089,13 +50089,13 @@ const coseLabels = {
     }
 };
 const algHashes = {
-    ECDSA_w_SHA256: "SHA256",
-    ECDSA_w_SHA384: "SHA384",
-    ECDSA_w_SHA512: "SHA512",
-    "RSASSA-PKCS1-v1_5_w_SHA256": "SHA256",
-    "RSASSA-PKCS1-v1_5_w_SHA384": "SHA384",
-    "RSASSA-PKCS1-v1_5_w_SHA512": "SHA512",
-    "RSASSA-PKCS1-v1_5_w_SHA1": "SHA1"
+    ECDSA_w_SHA256: "SHA-256",
+    ECDSA_w_SHA384: "SHA-384",
+    ECDSA_w_SHA512: "SHA-512",
+    "RSASSA-PKCS1-v1_5_w_SHA256": "SHA-256",
+    "RSASSA-PKCS1-v1_5_w_SHA384": "SHA-384",
+    "RSASSA-PKCS1-v1_5_w_SHA512": "SHA-512",
+    "RSASSA-PKCS1-v1_5_w_SHA1": "SHA-1"
 };
 const algMap = {
     "RSASSA-PKCS1-v1_5_w_SHA256": "RS256",
@@ -50688,21 +50688,21 @@ const algMap1 = new Map([
         -7,
         {
             algName: "ECDSA_w_SHA256",
-            hashAlg: "SHA256"
+            hashAlg: "SHA-256"
         }
     ],
     [
         -35,
         {
             algName: "ECDSA_w_SHA384",
-            hashAlg: "SHA384"
+            hashAlg: "SHA-384"
         }
     ],
     [
         -36,
         {
             algName: "ECDSA_w_SHA512",
-            hashAlg: "SHA512"
+            hashAlg: "SHA-512"
         }
     ], 
 ]);
@@ -52122,13 +52122,13 @@ class Fido2AttestationResult extends Fido2Result {
         await this.validateCredId();
         await this.validateTransports();
     }
-    static create(req, exp, tools1) {
-        return new Fido2AttestationResult(lockSym).create(req, exp, tools1);
+    static create(req, exp) {
+        return new Fido2AttestationResult(lockSym).create(req, exp);
     }
 }
 class Fido2AssertionResult extends Fido2Result {
-    constructor(sym, tools2){
-        super(sym, tools2);
+    constructor(sym){
+        super(sym);
         this.requiredExpectations = new Set([
             "origin",
             "challenge",
@@ -52154,8 +52154,8 @@ class Fido2AssertionResult extends Fido2Result {
         await this.validateUserHandle();
         await this.validateCounter();
     }
-    static create(req, exp, tools3) {
-        return new Fido2AssertionResult(lockSym).create(req, exp, tools3);
+    static create(req, exp, tools1) {
+        return new Fido2AssertionResult(lockSym).create(req, exp, tools1);
     }
 }
 function validateAssertionResponse() {

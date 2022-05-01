@@ -1,7 +1,3 @@
-// Testing lib
-import * as chai from "chai";
-import * as chaiAsPromised from "chai-as-promised";
-
 // Helpers
 import {
   coerceToBase64Url,
@@ -12,12 +8,12 @@ import {
 
 import * as h from "../helpers/fido2-helpers.js";
 
+// Testing lib
+import { assert, beforeEach, describe, it } from "./common/deps.js";
+
 // Test subject
 import { MdsCollection, MdsEntry } from "../../dist/webauthn.js";
 import { mdsV3jwt } from "../fixtures/mdsV3.jwt.js";
-chai.use(chaiAsPromised.default);
-const assert = chai.assert;
-const expect = chai.expect;
 
 describe("MdsCollection", function () {
   it("is a function", function () {
@@ -78,7 +74,7 @@ describe("MdsCollection", function () {
       );
     });
 
-    it("rejects if TOC is empty string", async function () {
+    it("rejects if TOC is empty string", function () {
       // bad toc
       const toc = "";
       return assert.isRejected(
@@ -88,7 +84,7 @@ describe("MdsCollection", function () {
       );
     });
 
-    it("rejects if TOC is junk string", async function () {
+    it("rejects if TOC is junk string", function () {
       // bad toc
       const toc =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";

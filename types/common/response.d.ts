@@ -4,7 +4,6 @@
  */
 export class Fido2AssertionResult extends Fido2Result {
     static create(req: any, exp: any, tools: any): Promise<Fido2AssertionResult>;
-    constructor(sym: any, tools: any);
     requiredExpectations: Set<string>;
     optionalExpectations: Set<string>;
     parse(): Promise<void>;
@@ -15,7 +14,7 @@ export class Fido2AssertionResult extends Fido2Result {
  * @extends {Fido2Result}
  */
 export class Fido2AttestationResult extends Fido2Result {
-    static create(req: any, exp: any, tools: any): Promise<Fido2AttestationResult>;
+    static create(req: any, exp: any): Promise<Fido2AttestationResult>;
     requiredExpectations: Set<string>;
     optionalExpectations: Set<string>;
     parse(): Promise<void>;

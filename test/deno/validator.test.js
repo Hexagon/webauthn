@@ -1,11 +1,10 @@
 // Testing lib
-import * as chai from "chai";
-import * as chaiAsPromised from "chai-as-promised";
+import { afterEach, assert, beforeEach, describe, it } from "./common/deps.js";
 
 // Helpers
 import * as h from "../helpers/fido2-helpers.js";
 
-// Testing subject
+// Test subject
 import {
   attach,
   coerceToArrayBuffer,
@@ -13,10 +12,7 @@ import {
   parseAuthnrAssertionResponse,
   parseAuthnrAttestationResponse,
   parseClientResponse,
-} from "../../dist/webauthn.js";
-
-chai.use(chaiAsPromised.default);
-const assert = chai.assert;
+} from "../../lib/webauthn.js";
 
 const parser = {
   parseAuthnrAttestationResponse,

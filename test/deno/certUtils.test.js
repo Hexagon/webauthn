@@ -1,586 +1,639 @@
 // Testing lib
-import { assertEquals, assertRejects, assertThrows } from "./common/deps.js";
+import { afterEach, assert, describe, it } from "./common/deps.js";
 
 // Helpers
 import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
-import { Webauthn } from "../../lib/webauthn.js";
-
 import {
+  abEqual,
   Certificate,
   CertManager,
   CRL,
-  helpers as certHelpers,
-} from "../../lib/common/certUtils.js";
+  helpers,
+} from "../../lib/webauthn.js";
+const { resolveOid } = helpers;
 
-import { abEqual } from "../../lib/common/utils.js";
-
-Deno.test("Certificate is function", () => {
-  assertEquals(typeof Certificate, "function");
-});
-Deno.test("Certificate constructor can create new cert", () => {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  assertEquals(cert instanceof Certificate, true);
-  assertEquals(typeof cert._cert, "object");
-});
-Deno.test("Certificate constructor throws if no arg to constructor", function () {
-  assertThrows(
-    () => {
-      new Certificate();
-    },
-    TypeError,
-    "could not coerce 'certificate' to ArrayBuffer",
-  );
-});
-Deno.test("Certificate constructor throws if constructor arg can't be coerced to ArrayBuffer", function () {
-  assertThrows(
-    () => {
-      new Certificate(3);
-    },
-    TypeError,
-    "could not coerce 'certificate' to ArrayBuffer",
-  );
-});
-
-Deno.test("Certificate constructor throws if cert is empty ArrayBuffer", function () {
-  assertThrows(
-    () => {
-      new Certificate([]);
-    },
-    Error,
-    "cert was empty (0 bytes)",
-  );
-});
-
-Deno.test("Certificate verify can verify root cert", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const p = cert.verify();
-  assertEquals(p instanceof Promise, true);
-  return p;
-});
-
-Deno.test("Certificate verify throws if root cert isn't found", async function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  let p;
-  try {
-    p = await cert.verify();
-  } catch (err) {
-    assertEquals(err instanceof Error, true);
-    assertEquals(
-      err.message,
-      "Please provide issuer certificate as a parameter",
-    );
-  }
-  assertEquals(typeof p, "undefined");
-  return Promise.resolve();
-});
-
-Deno.test("Certificate verify can verify cert with root cert", async function () {
-  CertManager.addCert(h.certs.yubicoRoot);
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  await cert.verify();
-});
-
-Deno.test("Certificate getPublicKey can extract public key of attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const p = cert.getPublicKey();
-  assertEquals(p instanceof Promise, true);
-  return p.then((jwk) => {
-    assertEquals(typeof jwk, "object");
-    assertEquals(jwk.kty, "EC");
-    assertEquals(jwk.crv, "P-256");
-    assertEquals(jwk.x, "SzMfdz2BRLmZXL5FhVF-F1g6pHYjaVy-haxILIAZ8sk");
-    assertEquals(jwk.y, "uUZ64EWw5m8TGy6jJDyR_aYC4xjz_F2NKnq65yvRQwk");
+describe("cert utils", function () {
+  afterEach(function () {
+    CertManager.removeAll();
   });
-});
 
-Deno.test("Certificate getPublicKey can extract public key of root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const p = cert.getPublicKey();
-  assertEquals(p instanceof Promise, true);
-  return p.then((jwk) => {
-    assertEquals(typeof jwk, "object");
-    assertEquals(jwk.kty, "RSA");
-    assertEquals(jwk.alg, "RS256");
-    assertEquals(jwk.e, "AQAB");
-    assertEquals(
-      jwk.n,
-      "v48GLoQVZamomFhDLK1hYrICfj7TPdXkq6SOEyu1Od5sAiGsEgx8vL1JpOTdigI_Wm70_TT-UjEtYUIt7rMaGBqJ10IHzumV8lAPWvigJKnRZwZ5croEngjnqfBHWRX7GkRbTI5MM-RnM9j8uLyGLwnTBz7cGs9G1bs53rniBM-k50IxOt0Xbds28J3m8ExuWcm3lksG88vgSd-GR3FITwGPPciUF7hNCMzGRXBAWzzUW1hAkSoI6v_6k_Z5gzhVZUkQrdsIqj0s5bsJ_r_rLkBAbFI0xjBHdubSl105DVttcCFm8XkslKE18C7xkusZcEEoDaZNql2MH_Il4O1VmQ",
-    );
+  describe("Certificate", function () {
+    it("is function", function () {
+      assert.isFunction(Certificate);
+    });
+
+    describe("constructor", function () {
+      it("can create new cert", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        assert.instanceOf(cert, Certificate);
+        assert.isObject(cert._cert);
+      });
+
+      it("throws if no arg to constructor", function () {
+        assert.throws(
+          () => {
+            new Certificate();
+          },
+          TypeError,
+          "could not coerce 'certificate' to ArrayBuffer",
+        );
+      });
+
+      it("throws if constructor arg can't be coerced to ArrayBuffer", function () {
+        assert.throws(
+          () => {
+            new Certificate(3);
+          },
+          TypeError,
+          "could not coerce 'certificate' to ArrayBuffer",
+        );
+      });
+
+      it("throws if cert is empty ArrayBuffer", function () {
+        assert.throws(
+          () => {
+            new Certificate([]);
+          },
+          Error,
+          "cert was empty (0 bytes)",
+        );
+      });
+
+      //it("can create from PEM");
+    });
+
+    describe("verify", function () {
+      it("can verify root cert", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const p = cert.verify();
+        assert.instanceOf(p, Promise);
+        return p;
+      });
+
+      it("throws if root cert isn't found", async function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        let p;
+        try {
+          p = await cert.verify();
+        } catch (err) {
+          assert.instanceOf(err, Error);
+          assert.strictEqual(
+            err.message,
+            "Please provide issuer certificate as a parameter",
+          );
+        }
+        assert.isUndefined(p);
+        return Promise.resolve();
+      });
+
+      it("can verify cert with root cert", async function () {
+        CertManager.addCert(h.certs.yubicoRoot);
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        await cert.verify();
+      });
+    });
+
+    describe("getPublicKey", function () {
+      it("can extract public key of attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const p = cert.getPublicKey();
+        assert.instanceOf(p, Promise);
+        return p.then((jwk) => {
+          assert.isObject(jwk);
+          assert.strictEqual(jwk.kty, "EC");
+          assert.strictEqual(jwk.crv, "P-256");
+          assert.strictEqual(
+            jwk.x,
+            "SzMfdz2BRLmZXL5FhVF-F1g6pHYjaVy-haxILIAZ8sk",
+          );
+          assert.strictEqual(
+            jwk.y,
+            "uUZ64EWw5m8TGy6jJDyR_aYC4xjz_F2NKnq65yvRQwk",
+          );
+        });
+      });
+
+      it("can extract public key of root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const p = cert.getPublicKey();
+        assert.instanceOf(p, Promise);
+        return p.then((jwk) => {
+          assert.isObject(jwk);
+          assert.strictEqual(jwk.kty, "RSA");
+          assert.strictEqual(jwk.alg, "RS256");
+          assert.strictEqual(jwk.e, "AQAB");
+          assert.strictEqual(
+            jwk.n,
+            "v48GLoQVZamomFhDLK1hYrICfj7TPdXkq6SOEyu1Od5sAiGsEgx8vL1JpOTdigI_Wm70_TT-UjEtYUIt7rMaGBqJ10IHzumV8lAPWvigJKnRZwZ5croEngjnqfBHWRX7GkRbTI5MM-RnM9j8uLyGLwnTBz7cGs9G1bs53rniBM-k50IxOt0Xbds28J3m8ExuWcm3lksG88vgSd-GR3FITwGPPciUF7hNCMzGRXBAWzzUW1hAkSoI6v_6k_Z5gzhVZUkQrdsIqj0s5bsJ_r_rLkBAbFI0xjBHdubSl105DVttcCFm8XkslKE18C7xkusZcEEoDaZNql2MH_Il4O1VmQ",
+          );
+        });
+      });
+    });
+
+    describe("getSerial", function () {
+      it("returns correct serial for attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const serial = cert.getSerial();
+        assert.strictEqual(serial, "Yubico U2F EE Serial 1432534688");
+      });
+      it("returns correct serial for root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const serial = cert.getSerial();
+        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+      });
+    });
+
+    describe("getIssuer", function () {
+      it("returns correct issuer for attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const serial = cert.getIssuer();
+        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+      });
+
+      it("returns correct issuer for root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const serial = cert.getIssuer();
+        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+      });
+    });
+
+    describe("getVersion", function () {
+      it("returns correct version for attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const version = cert.getVersion();
+        assert.isNumber(version);
+        assert.strictEqual(version, 3);
+      });
+
+      it("returns correct version for root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const version = cert.getVersion();
+        assert.isNumber(version);
+        assert.strictEqual(version, 3);
+      });
+    });
+
+    describe("getExtensions", function () {
+      it("returns correct extensions for attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const extensions = cert.getExtensions();
+        assert.instanceOf(extensions, Map);
+        assert.strictEqual(extensions.size, 2);
+        assert.isTrue(extensions.has("yubico-device-id"));
+        assert.isTrue(extensions.has("fido-u2f-transports"));
+        assert.strictEqual(
+          extensions.get("yubico-device-id"),
+          "YubiKey 4/YubiKey 4 Nano",
+        );
+        const u2fTransports = extensions.get("fido-u2f-transports");
+        assert.instanceOf(u2fTransports, Set);
+        assert.strictEqual(u2fTransports.size, 1);
+        assert.isTrue(u2fTransports.has("usb"));
+      });
+
+      it("returns correct extensions for root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const extensions = cert.getExtensions();
+        assert.instanceOf(extensions, Map);
+        assert.strictEqual(extensions.size, 3);
+        assert.isTrue(extensions.has("subject-key-identifier"));
+        assert.isTrue(extensions.has("basic-constraints"));
+        assert.isTrue(extensions.has("key-usage"));
+        assert.instanceOf(
+          extensions.get("subject-key-identifier"),
+          ArrayBuffer,
+        );
+        assert.isObject(extensions.get("basic-constraints"));
+        assert.instanceOf(extensions.get("key-usage"), Set);
+        assert.isTrue(extensions.get("key-usage").has("cRLSign"));
+        assert.isTrue(extensions.get("key-usage").has("keyCertSign"));
+      });
+
+      it("returns FIDO2 extensions", function () {
+        const cert = new Certificate(h.certs.feitianFido2);
+        const extensions = cert.getExtensions();
+        assert.instanceOf(cert.warning, Map);
+        assert.strictEqual(cert.warning.size, 0);
+
+        assert.instanceOf(extensions, Map);
+        assert.strictEqual(extensions.size, 5);
+
+        // subject-key-identifier
+        const subjectKeyId = extensions.get("subject-key-identifier");
+        assert.instanceOf(subjectKeyId, ArrayBuffer);
+        assert.strictEqual(subjectKeyId.byteLength, 20);
+
+        // authority-key-identifier
+        const authorityKeyId = extensions.get("authority-key-identifier");
+        assert.instanceOf(authorityKeyId, Map);
+        assert.strictEqual(authorityKeyId.size, 1);
+        assert.instanceOf(authorityKeyId.get("key-identifier"), ArrayBuffer);
+
+        // basic-constraints
+        const basicConstraints = extensions.get("basic-constraints");
+        assert.isObject(basicConstraints);
+        assert.strictEqual(Object.keys(basicConstraints).length, 1);
+        assert.strictEqual(basicConstraints.cA, false);
+
+        // fido-u2f-transports
+        const transports = extensions.get("fido-u2f-transports");
+        assert.instanceOf(transports, Set);
+        assert.strictEqual(transports.size, 1);
+        assert.isTrue(transports.has("usb"), "transports has USB");
+
+        // 'fido-u2f-transports' => Set { 'usb' },
+
+        // fido-aaguid
+        const aaguid = extensions.get("fido-aaguid");
+        assert.instanceOf(aaguid, ArrayBuffer);
+        const expectedAaguid = new Uint8Array([
+          0x42,
+          0x38,
+          0x32,
+          0x45,
+          0x44,
+          0x37,
+          0x33,
+          0x43,
+          0x38,
+          0x46,
+          0x42,
+          0x34,
+          0x45,
+          0x35,
+          0x41,
+          0x32,
+        ]).buffer;
+        assert.isTrue(abEqual(aaguid, expectedAaguid), "correct aaguid value");
+      });
+
+      it("returns correct extensions for TPM attestation", function () {
+        const cert = new Certificate(h.certs.tpmAttestation);
+        const extensions = cert.getExtensions();
+        assert.instanceOf(extensions, Map);
+        assert.strictEqual(extensions.size, 8);
+        // key usage
+        const keyUsage = extensions.get("key-usage");
+        assert.instanceOf(keyUsage, Set);
+        assert.strictEqual(keyUsage.size, 1);
+        assert.isTrue(
+          keyUsage.has("digitalSignature"),
+          "key-usage has digital signature",
+        );
+        // basic constraints
+        const basicConstraints = extensions.get("basic-constraints");
+        assert.isObject(basicConstraints);
+        assert.strictEqual(Object.keys(basicConstraints).length, 1);
+        assert.strictEqual(basicConstraints.cA, false);
+        // certificate policies
+        const certPolicies = extensions.get("certificate-policies");
+        assert.isArray(certPolicies);
+        assert.strictEqual(certPolicies.length, 1);
+        const policyQualifiers = certPolicies[0];
+        assert.isObject(policyQualifiers);
+        assert.strictEqual(policyQualifiers.id, "policy-qualifiers");
+        assert.isArray(policyQualifiers.value);
+        assert.strictEqual(policyQualifiers.value.length, 1);
+        const policyQualifier = policyQualifiers.value[0];
+        assert.isObject(policyQualifier);
+        assert.strictEqual(policyQualifier.id, "policy-qualifier");
+        assert.isArray(policyQualifier.value);
+        assert.strictEqual(policyQualifier.value.length, 1);
+        assert.strictEqual(
+          policyQualifier.value[0],
+          "TCPA  Trusted  Platform  Identity",
+        );
+        // extended key usage
+        const extKeyUsage = extensions.get("ext-key-usage");
+        assert.isArray(extKeyUsage);
+        assert.strictEqual(extKeyUsage.length, 1);
+        assert.strictEqual(extKeyUsage[0], "tcg-kp-aik-certificate");
+        // alternate name
+        const subjAltNames = extensions.get("subject-alt-name");
+        assert.isArray(subjAltNames);
+        assert.strictEqual(subjAltNames.length, 1);
+        const subjAltName = subjAltNames[0];
+        assert.isObject(subjAltName);
+        assert.strictEqual(Object.keys(subjAltName).length, 1);
+        const generalNames = subjAltName.directoryName;
+        assert.instanceOf(generalNames, Map);
+        assert.strictEqual(generalNames.size, 3);
+        assert.strictEqual(generalNames.get("tcg-at-tpm-version"), "id:13");
+        assert.strictEqual(generalNames.get("tcg-at-tpm-model"), "NPCT6xx");
+        assert.strictEqual(
+          generalNames.get("tcg-at-tpm-manufacturer"),
+          "id:4E544300",
+        );
+        // authority key identifier
+        let authKeyId = extensions.get("authority-key-identifier");
+        assert.instanceOf(authKeyId, Map);
+        assert.strictEqual(authKeyId.size, 1);
+        authKeyId = authKeyId.get("key-identifier");
+        assert.instanceOf(authKeyId, ArrayBuffer);
+        const expectedAuthKeyId = new Uint8Array([
+          0xC2,
+          0x12,
+          0xA9,
+          0x5B,
+          0xCE,
+          0xFA,
+          0x56,
+          0xF8,
+          0xC0,
+          0xC1,
+          0x6F,
+          0xB1,
+          0x5B,
+          0xDD,
+          0x03,
+          0x34,
+          0x47,
+          0xB3,
+          0x7A,
+          0xA3,
+        ]).buffer;
+        assert.isTrue(
+          abEqual(authKeyId, expectedAuthKeyId),
+          "got expected authority key identifier",
+        );
+        // subject key identifier
+        const subjectKeyId = extensions.get("subject-key-identifier");
+        assert.instanceOf(subjectKeyId, ArrayBuffer);
+        const expectedSubjectKeyId = new Uint8Array([
+          0xAF,
+          0xE2,
+          0x45,
+          0xD3,
+          0x48,
+          0x0F,
+          0x22,
+          0xDC,
+          0xD5,
+          0x0C,
+          0xD2,
+          0xAE,
+          0x7B,
+          0x96,
+          0xB5,
+          0xA9,
+          0x33,
+          0xCA,
+          0x7F,
+          0xE1,
+        ]).buffer;
+        assert.isTrue(
+          abEqual(subjectKeyId, expectedSubjectKeyId),
+          "got expected authority key identifier",
+        );
+        // info access
+        const infoAccess = extensions.get("authority-info-access");
+        assert.instanceOf(infoAccess, Map);
+        assert.strictEqual(infoAccess.size, 1);
+        const certAuthIss = infoAccess.get("cert-authority-issuers");
+        assert.isObject(certAuthIss);
+        assert.strictEqual(Object.keys(certAuthIss).length, 1);
+        assert.strictEqual(
+          certAuthIss.uniformResourceIdentifier,
+          "https://azcsprodncuaikpublish.blob.core.windows.net/ncu-ntc-keyid-1591d4b6eaf98d0104864b6903a48dd0026077d3/3b918ae4-07e1-4059-9491-0ad248190818.cer",
+        );
+      });
+    });
+
+    describe("getSubject", function () {
+      it("returns correct extensions for attestation", function () {
+        const cert = new Certificate(h.certs.yubiKeyAttestation);
+        const subject = cert.getSubject();
+        assert.instanceOf(subject, Map);
+        assert.strictEqual(subject.size, 1);
+        assert.strictEqual(
+          subject.get("common-name"),
+          "Yubico U2F EE Serial 1432534688",
+        );
+      });
+
+      it("returns correct extensions for root", function () {
+        const cert = new Certificate(h.certs.yubicoRoot);
+        const subject = cert.getSubject();
+        assert.instanceOf(subject, Map);
+        assert.strictEqual(subject.size, 1);
+        assert.strictEqual(
+          subject.get("common-name"),
+          "Yubico U2F Root CA Serial 457200631",
+        );
+      });
+
+      it("returns correct values for Feitian FIDO2", function () {
+        const cert = new Certificate(h.certs.feitianFido2);
+        const subject = cert.getSubject();
+        assert.instanceOf(subject, Map);
+        assert.strictEqual(subject.size, 4);
+        assert.strictEqual(subject.get("country-name"), "CN");
+        assert.strictEqual(
+          subject.get("organization-name"),
+          "Feitian Technologies",
+        );
+        assert.strictEqual(
+          subject.get("organizational-unit-name"),
+          "Authenticator Attestation",
+        );
+        assert.strictEqual(subject.get("common-name"), "FT BioPass FIDO2 USB");
+      });
+    });
   });
-});
 
-Deno.test("Certificate getSerial returns correct serial for attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const serial = cert.getSerial();
-  assertEquals(serial, "Yubico U2F EE Serial 1432534688");
-});
+  describe("helpers", function () {
+    describe("resolveOid", function () {
+      it("decodes U2F USB transport type", function () {
+        const ret = resolveOid(
+          "1.3.6.1.4.1.45724.2.1.1",
+          new Uint8Array([0x03, 0x02, 0x05, 0x20]).buffer,
+        );
+        assert.isObject(ret);
+        assert.strictEqual(ret.id, "fido-u2f-transports");
+        assert.instanceOf(ret.value, Set);
+        assert.strictEqual(ret.value.size, 1);
+        assert.isTrue(ret.value.has("usb"));
+      });
 
-Deno.test("Certificate getSerial returns correct serial for root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const serial = cert.getSerial();
-  assertEquals(serial, "Yubico U2F Root CA Serial 457200631");
-});
+      it("decodes U2F Bluetooth Classic transport type", function () {
+        const ret = resolveOid(
+          "1.3.6.1.4.1.45724.2.1.1",
+          new Uint8Array([0x03, 0x02, 0x07, 0x80]).buffer,
+        );
+        assert.isObject(ret);
+        assert.strictEqual(ret.id, "fido-u2f-transports");
+        assert.instanceOf(ret.value, Set);
+        assert.strictEqual(ret.value.size, 1);
+        assert.isTrue(ret.value.has("bluetooth-classic"));
+      });
 
-Deno.test("Certificate getIssuer returns correct issuer for attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const serial = cert.getIssuer();
-  assertEquals(serial, "Yubico U2F Root CA Serial 457200631");
-});
+      it("decodes U2F USB+NFC transport type", function () {
+        const ret = resolveOid(
+          "1.3.6.1.4.1.45724.2.1.1",
+          new Uint8Array([0x03, 0x02, 0x04, 0x30]).buffer,
+        );
+        assert.isObject(ret);
+        assert.strictEqual(ret.id, "fido-u2f-transports");
+        assert.instanceOf(ret.value, Set);
+        assert.strictEqual(ret.value.size, 2);
+        assert.isTrue(ret.value.has("usb"));
+        assert.isTrue(ret.value.has("nfc"));
+      });
 
-Deno.test("Certificate getIssuer returns correct issuer for root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const serial = cert.getIssuer();
-  assertEquals(serial, "Yubico U2F Root CA Serial 457200631");
-});
-Deno.test("Certificate getVersion returns correct version for attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const version = cert.getVersion();
-  assertEquals(version, 3);
-});
+      it("decodes U2F USB Internal transport type", function () {
+        const ret = resolveOid(
+          "1.3.6.1.4.1.45724.2.1.1",
+          new Uint8Array([0x03, 0x02, 0x03, 0x08]).buffer,
+        );
+        assert.isObject(ret);
+        assert.strictEqual(ret.id, "fido-u2f-transports");
+        assert.instanceOf(ret.value, Set);
+        assert.strictEqual(ret.value.size, 1);
+        assert.isTrue(ret.value.has("usb-internal"));
+      });
 
-Deno.test("Certificate getVersion returns correct version for root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const version = cert.getVersion();
-  assertEquals(version, 3);
-});
+      it("decodes all transport types", function () {
+        const ret = resolveOid(
+          "1.3.6.1.4.1.45724.2.1.1",
+          new Uint8Array([0x03, 0x02, 0x03, 0xF8]).buffer,
+        );
+        assert.isObject(ret);
+        assert.strictEqual(ret.id, "fido-u2f-transports");
+        assert.instanceOf(ret.value, Set);
+        assert.strictEqual(ret.value.size, 5);
+        assert.isTrue(ret.value.has("bluetooth-classic"));
+        assert.isTrue(ret.value.has("bluetooth-low-energy"));
+        assert.isTrue(ret.value.has("usb"));
+        assert.isTrue(ret.value.has("nfc"));
+        assert.isTrue(ret.value.has("usb-internal"));
+      });
 
-Deno.test("Certificate getExtensions returns correct extensions for attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const extensions = cert.getExtensions();
-  assertEquals(extensions instanceof Map, true);
-  assertEquals(extensions.size, 2);
-  assertEquals(extensions.has("yubico-device-id"), true);
-  assertEquals(extensions.has("fido-u2f-transports"), true);
-  assertEquals(extensions.get("yubico-device-id"), "YubiKey 4/YubiKey 4 Nano");
-  const u2fTransports = extensions.get("fido-u2f-transports");
-  assertEquals(u2fTransports instanceof Set, true);
-  assertEquals(u2fTransports.size, 1);
-  assertEquals(u2fTransports.has("usb"), true);
-});
+      //it("decodes YubiKey Nano device type");
+    });
+  });
 
-Deno.test("Certificate getExtensions returns correct extensions for root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const extensions = cert.getExtensions();
-  assertEquals(true, extensions instanceof Map);
-  assertEquals(extensions.size, 3);
-  assertEquals(true, extensions.has("subject-key-identifier"));
-  assertEquals(true, extensions.has("basic-constraints"));
-  assertEquals(true, extensions.has("key-usage"));
-  assertEquals(
-    extensions.get("subject-key-identifier") instanceof ArrayBuffer,
-    true,
-  );
-  assertEquals(typeof extensions.get("basic-constraints"), "object");
-  assertEquals(true, extensions.get("key-usage") instanceof Set);
-  assertEquals(true, extensions.get("key-usage").has("cRLSign"));
-  assertEquals(true, extensions.get("key-usage").has("keyCertSign"));
-});
+  describe("CRL", function () {
+    it("can create mdsRootCrl", function () {
+      const ret = new CRL(h.mds.mdsRootCrl);
+      assert.isObject(ret);
+      assert.isObject(ret._crl);
+    });
 
-Deno.test("Certificate getExtensions returns FIDO2 extensions", function () {
-  const cert = new Certificate(h.certs.feitianFido2);
-  const extensions = cert.getExtensions();
-  assertEquals(true, cert.warning instanceof Map);
-  assertEquals(cert.warning.size, 0);
+    it("can create ca1Crl", function () {
+      const ret = new CRL(h.mds.ca1Crl);
+      assert.isObject(ret);
+      assert.isObject(ret._crl);
+    });
+  });
 
-  assertEquals(true, extensions instanceof Map);
-  assertEquals(extensions.size, 5);
+  describe("CertManager", function () {
+    it("is function", function () {
+      assert.isFunction(CertManager);
+    });
 
-  // subject-key-identifier
-  const subjectKeyId = extensions.get("subject-key-identifier");
-  assertEquals(true, subjectKeyId instanceof ArrayBuffer);
-  assertEquals(subjectKeyId.byteLength, 20);
+    it("has static methods", function () {
+      assert.isFunction(CertManager.addCert);
+      assert.isFunction(CertManager.removeAll);
+    });
 
-  // authority-key-identifier
-  const authorityKeyId = extensions.get("authority-key-identifier");
-  assertEquals(true, authorityKeyId instanceof Map);
-  assertEquals(authorityKeyId.size, 1);
-  assertEquals(
-    true,
-    authorityKeyId.get("key-identifier") instanceof ArrayBuffer,
-  );
+    describe("addCert", function () {
+      it("throws if no cert", function () {
+        assert.throws(
+          () => {
+            CertManager.addCert();
+          },
+          TypeError,
+          "could not coerce 'certificate' to ArrayBuffer",
+        );
+      });
 
-  // basic-constraints
-  const basicConstraints = extensions.get("basic-constraints");
-  assertEquals(typeof basicConstraints, "object");
-  assertEquals(Object.keys(basicConstraints).length, 1);
-  assertEquals(basicConstraints.cA, false);
+      it("can add cert", function () {
+        CertManager.addCert(h.certs.yubicoRoot);
+      });
+    });
 
-  // fido-u2f-transports
-  const transports = extensions.get("fido-u2f-transports");
-  assertEquals(true, transports instanceof Set);
-  assertEquals(transports.size, 1);
-  assertEquals(true, transports.has("usb"), "transports has USB");
+    describe("getCerts", function () {
+      it("returns empty Map if no certs added", function () {
+        const ret = CertManager.getCerts();
+        assert.instanceOf(ret, Map);
+        assert.strictEqual(ret.size, 0);
+      });
 
-  // 'fido-u2f-transports' => Set { 'usb' },
+      it("returns Map with added cert", function () {
+        CertManager.addCert(h.certs.yubicoRoot);
+        const ret = CertManager.getCerts();
+        assert.instanceOf(ret, Map);
+        assert.strictEqual(ret.size, 1);
+        assert.isTrue(ret.has("Yubico U2F Root CA Serial 457200631"));
+      });
+    });
 
-  // fido-aaguid
-  const aaguid = extensions.get("fido-aaguid");
-  assertEquals(true, aaguid instanceof ArrayBuffer);
-  const expectedAaguid = new Uint8Array([
-    0x42,
-    0x38,
-    0x32,
-    0x45,
-    0x44,
-    0x37,
-    0x33,
-    0x43,
-    0x38,
-    0x46,
-    0x42,
-    0x34,
-    0x45,
-    0x35,
-    0x41,
-    0x32,
-  ]).buffer;
-  assertEquals(
-    true,
-    Webauthn.utils.abEqual(aaguid, expectedAaguid),
-    "correct aaguid value",
-  );
-});
+    /*describe("removeAll", function () {
+      it("can clear all"); // if this didn't work, afterEach would fail...
+    });*/
 
-Deno.test("Certificate getExtensions returns correct extensions for TPM attestation", function () {
-  const cert = new Certificate(h.certs.tpmAttestation);
-  const extensions = cert.getExtensions();
-  assertEquals(true, extensions instanceof Map);
-  assertEquals(extensions.size, 8);
-  // key usage
-  const keyUsage = extensions.get("key-usage");
-  assertEquals(true, keyUsage instanceof Set);
-  assertEquals(keyUsage.size, 1);
-  assertEquals(
-    true,
-    keyUsage.has("digitalSignature"),
-    "key-usage has digital signature",
-  );
-  // basic constraints
-  const basicConstraints = extensions.get("basic-constraints");
-  assertEquals(typeof basicConstraints, "object");
-  assertEquals(Object.keys(basicConstraints).length, 1);
-  assertEquals(basicConstraints.cA, false);
-  // certificate policies
-  const certPolicies = extensions.get("certificate-policies");
-  assertEquals(true, Array.isArray(certPolicies));
-  assertEquals(certPolicies.length, 1);
-  const policyQualifiers = certPolicies[0];
-  assertEquals(typeof policyQualifiers, "object");
-  assertEquals(policyQualifiers.id, "policy-qualifiers");
-  assertEquals(true, Array.isArray(policyQualifiers.value));
-  assertEquals(policyQualifiers.value.length, 1);
-  const policyQualifier = policyQualifiers.value[0];
-  assertEquals(typeof policyQualifier, "object");
-  assertEquals(policyQualifier.id, "policy-qualifier");
-  assertEquals(true, Array.isArray(policyQualifier.value));
-  assertEquals(policyQualifier.value.length, 1);
-  assertEquals(policyQualifier.value[0], "TCPA  Trusted  Platform  Identity");
-  // extended key usage
-  const extKeyUsage = extensions.get("ext-key-usage");
-  assertEquals(true, Array.isArray(extKeyUsage));
-  assertEquals(extKeyUsage.length, 1);
-  assertEquals(extKeyUsage[0], "tcg-kp-aik-certificate");
-  // alternate name
-  const subjAltNames = extensions.get("subject-alt-name");
-  assertEquals(true, Array.isArray(subjAltNames));
-  assertEquals(subjAltNames.length, 1);
-  const subjAltName = subjAltNames[0];
-  assertEquals(typeof subjAltName, "object");
-  assertEquals(Object.keys(subjAltName).length, 1);
-  const generalNames = subjAltName.directoryName;
-  assertEquals(true, generalNames instanceof Map);
-  assertEquals(generalNames.size, 3);
-  assertEquals(generalNames.get("tcg-at-tpm-version"), "id:13");
-  assertEquals(generalNames.get("tcg-at-tpm-model"), "NPCT6xx");
-  assertEquals(generalNames.get("tcg-at-tpm-manufacturer"), "id:4E544300");
-  // authority key identifier
-  let authKeyId = extensions.get("authority-key-identifier");
-  assertEquals(true, authKeyId instanceof Map);
-  assertEquals(authKeyId.size, 1);
-  authKeyId = authKeyId.get("key-identifier");
-  assertEquals(true, authKeyId instanceof ArrayBuffer);
-  const expectedAuthKeyId = new Uint8Array([
-    0xC2,
-    0x12,
-    0xA9,
-    0x5B,
-    0xCE,
-    0xFA,
-    0x56,
-    0xF8,
-    0xC0,
-    0xC1,
-    0x6F,
-    0xB1,
-    0x5B,
-    0xDD,
-    0x03,
-    0x34,
-    0x47,
-    0xB3,
-    0x7A,
-    0xA3,
-  ]).buffer;
-  assertEquals(
-    true,
-    abEqual(authKeyId, expectedAuthKeyId),
-    "got expected authority key identifier",
-  );
-  // subject key identifier
-  const subjectKeyId = extensions.get("subject-key-identifier");
-  assertEquals(true, subjectKeyId instanceof ArrayBuffer);
-  const expectedSubjectKeyId = new Uint8Array([
-    0xAF,
-    0xE2,
-    0x45,
-    0xD3,
-    0x48,
-    0x0F,
-    0x22,
-    0xDC,
-    0xD5,
-    0x0C,
-    0xD2,
-    0xAE,
-    0x7B,
-    0x96,
-    0xB5,
-    0xA9,
-    0x33,
-    0xCA,
-    0x7F,
-    0xE1,
-  ]).buffer;
-  assertEquals(
-    true,
-    abEqual(subjectKeyId, expectedSubjectKeyId),
-    "got expected authority key identifier",
-  );
-  // info access
-  const infoAccess = extensions.get("authority-info-access");
-  assertEquals(true, infoAccess instanceof Map);
-  assertEquals(infoAccess.size, 1);
-  const certAuthIss = infoAccess.get("cert-authority-issuers");
-  assertEquals(typeof certAuthIss, "object");
-  assertEquals(Object.keys(certAuthIss).length, 1);
-  assertEquals(
-    certAuthIss.uniformResourceIdentifier,
-    "https://azcsprodncuaikpublish.blob.core.windows.net/ncu-ntc-keyid-1591d4b6eaf98d0104864b6903a48dd0026077d3/3b918ae4-07e1-4059-9491-0ad248190818.cer",
-  );
-});
+    describe("verifyCertChain", function () {
+      it("rejects on empty arguments", function () {
+        return assert.isRejected(
+          CertManager.verifyCertChain(),
+          Error,
+          "expected 'certs' to be non-empty Array, got: undefined",
+        );
+      });
 
-Deno.test("Certificate getSubject returns correct extensions for attestation", function () {
-  const cert = new Certificate(h.certs.yubiKeyAttestation);
-  const subject = cert.getSubject();
-  assertEquals(true, subject instanceof Map);
-  assertEquals(subject.size, 1);
-  assertEquals(subject.get("common-name"), "Yubico U2F EE Serial 1432534688");
-});
+      it("works for MDS2", function () {
+        const certs = [
+          new Certificate(h.mds.mdsSigningCert),
+          new Certificate(h.mds.mdsIntermediateCert),
+        ];
+        const trustedRoots = [
+          new Certificate(h.mds.mdsRootCert),
+        ];
 
-Deno.test("Certificate getSubject returns correct extensions for root", function () {
-  const cert = new Certificate(h.certs.yubicoRoot);
-  const subject = cert.getSubject();
-  assertEquals(true, subject instanceof Map);
-  assertEquals(subject.size, 1);
-  assertEquals(
-    subject.get("common-name"),
-    "Yubico U2F Root CA Serial 457200631",
-  );
-});
+        const certRevocationLists = [
+          new CRL(h.mds.mdsRootCrl),
+          new CRL(h.mds.ca1Crl),
+        ];
 
-Deno.test("Certificate getSubject returns correct values for Feitian FIDO2", function () {
-  const cert = new Certificate(h.certs.feitianFido2);
-  const subject = cert.getSubject();
-  assertEquals(true, subject instanceof Map);
-  assertEquals(subject.size, 4);
-  assertEquals(subject.get("country-name"), "CN");
-  assertEquals(subject.get("organization-name"), "Feitian Technologies");
-  assertEquals(
-    subject.get("organizational-unit-name"),
-    "Authenticator Attestation",
-  );
-  assertEquals(subject.get("common-name"), "FT BioPass FIDO2 USB");
-});
+        const ret = CertManager.verifyCertChain(
+          certs,
+          trustedRoots,
+          certRevocationLists,
+        );
+        assert.instanceOf(ret, Promise);
+        return ret;
+      });
 
-Deno.test("Helpers resolveOid decodes U2F USB transport type", function () {
-  const ret = certHelpers.resolveOid(
-    "1.3.6.1.4.1.45724.2.1.1",
-    new Uint8Array([0x03, 0x02, 0x05, 0x20]).buffer,
-  );
-  assertEquals(typeof ret, "object");
-  assertEquals(ret.id, "fido-u2f-transports");
-  assertEquals(true, ret.value instanceof Set);
-  assertEquals(ret.value.size, 1);
-  assertEquals(true, ret.value.has("usb"));
-});
+      //it("works for TPM");
 
-Deno.test("Helpers resolveOid decodes U2F Bluetooth Classic transport type", function () {
-  const ret = certHelpers.resolveOid(
-    "1.3.6.1.4.1.45724.2.1.1",
-    new Uint8Array([0x03, 0x02, 0x07, 0x80]).buffer,
-  );
-  assertEquals(typeof ret, "object");
-  assertEquals(ret.id, "fido-u2f-transports");
-  assertEquals(true, ret.value instanceof Set);
-  assertEquals(ret.value.size, 1);
-  assertEquals(true, ret.value.has("bluetooth-classic"));
-});
+      it("will create certs from input arrays", function () {
+        const certs = [
+          h.mds.mdsSigningCert,
+          h.mds.mdsIntermediateCert,
+        ];
+        const trustedRoots = [
+          h.mds.mdsRootCert,
+        ];
 
-Deno.test("decodes U2F USB+NFC transport type", function () {
-  const ret = certHelpers.resolveOid(
-    "1.3.6.1.4.1.45724.2.1.1",
-    new Uint8Array([0x03, 0x02, 0x04, 0x30]).buffer,
-  );
-  assertEquals(typeof ret, "object");
-  assertEquals(ret.id, "fido-u2f-transports");
-  assertEquals(true, ret.value instanceof Set);
-  assertEquals(ret.value.size, 2);
-  assertEquals(true, ret.value.has("usb"));
-  assertEquals(true, ret.value.has("nfc"));
-});
+        const certRevocationLists = [
+          h.mds.mdsRootCrl,
+          h.mds.ca1Crl,
+        ];
 
-Deno.test("Helpers resolveOid decodes U2F USB Internal transport type", function () {
-  const ret = certHelpers.resolveOid(
-    "1.3.6.1.4.1.45724.2.1.1",
-    new Uint8Array([0x03, 0x02, 0x03, 0x08]).buffer,
-  );
-  assertEquals(typeof ret, "object");
-  assertEquals(ret.id, "fido-u2f-transports");
-  assertEquals(true, ret.value instanceof Set);
-  assertEquals(ret.value.size, 1);
-  assertEquals(true, ret.value.has("usb-internal"));
-});
+        const ret = CertManager.verifyCertChain(
+          certs,
+          trustedRoots,
+          certRevocationLists,
+        );
+        assert.instanceOf(ret, Promise);
+        return ret;
+      });
 
-Deno.test("Helpers resolveOid decodes all transport types", function () {
-  const ret = certHelpers.resolveOid(
-    "1.3.6.1.4.1.45724.2.1.1",
-    new Uint8Array([0x03, 0x02, 0x03, 0xF8]).buffer,
-  );
-  assertEquals(typeof ret, "object");
-  assertEquals(ret.id, "fido-u2f-transports");
-  assertEquals(true, ret.value instanceof Set);
-  assertEquals(ret.value.size, 5);
-  assertEquals(true, ret.value.has("bluetooth-classic"));
-  assertEquals(true, ret.value.has("bluetooth-low-energy"));
-  assertEquals(true, ret.value.has("usb"));
-  assertEquals(true, ret.value.has("nfc"));
-  assertEquals(true, ret.value.has("usb-internal"));
-});
-
-Deno.test("CRL can create mdsRootCrl", function () {
-  const ret = new CRL(h.mds.mdsRootCrl);
-  assertEquals(typeof ret, "object");
-  assertEquals(typeof ret._crl, "object");
-});
-
-Deno.test("CRL can create ca1Crl", function () {
-  const ret = new CRL(h.mds.ca1Crl);
-  assertEquals(typeof ret, "object");
-  assertEquals(typeof ret._crl, "object");
-});
-
-Deno.test("CertManager is function", function () {
-  assertEquals(typeof CertManager, "function");
-});
-
-Deno.test("CertManager has static methods", function () {
-  assertEquals(typeof CertManager.addCert, "function");
-  assertEquals(typeof CertManager.removeAll, "function");
-});
-
-Deno.test("CertManager addCert throws if no cert", function () {
-  assertThrows(
-    () => {
-      CertManager.addCert();
-    },
-    TypeError,
-    "could not coerce 'certificate' to ArrayBuffer",
-  );
-
-  CertManager.removeAll();
-});
-
-Deno.test("CertManager addCert can add cert", function () {
-  CertManager.addCert(h.certs.yubicoRoot);
-
-  CertManager.removeAll();
-});
-
-Deno.test("CertManager getCerts returns empty Map if no certs added", function () {
-  const ret = CertManager.getCerts();
-  assertEquals(true, ret instanceof Map);
-  assertEquals(ret.size, 0);
-});
-
-Deno.test("CertManager getCerts returns Map with added cert", function () {
-  CertManager.addCert(h.certs.yubicoRoot);
-  const ret = CertManager.getCerts();
-  assertEquals(true, ret instanceof Map);
-  assertEquals(ret.size, 1);
-  assertEquals(true, ret.has("Yubico U2F Root CA Serial 457200631"));
-
-  CertManager.removeAll();
-});
-
-Deno.test("CerManager verifyCertChain rejects on empty arguments", function () {
-  assertRejects(() => {
-    return CertManager.verifyCertChain();
-  }, "expected 'certs' to be non-empty Array, got: undefined");
-  CertManager.removeAll();
-});
-
-Deno.test("CerManager verifyCertChain works for MDS2", async function () {
-  const certs = [
-    new Certificate(h.mds.mdsSigningCert),
-    new Certificate(h.mds.mdsIntermediateCert),
-  ];
-  const trustedRoots = [
-    new Certificate(h.mds.mdsRootCert),
-  ];
-
-  const certRevocationLists = [
-    new CRL(h.mds.mdsRootCrl),
-    new CRL(h.mds.ca1Crl),
-  ];
-
-  const ret = await CertManager.verifyCertChain(
-    certs,
-    trustedRoots,
-    certRevocationLists,
-  );
-
-  //assertEquals(true, ret instanceof Promise);
-
-  CertManager.removeAll();
-
-  return ret;
-});
-
-Deno.test("CerManager verifyCertChain will create certs from input arrays", function () {
-  const certs = [
-    h.mds.mdsSigningCert,
-    h.mds.mdsIntermediateCert,
-  ];
-
-  const trustedRoots = [
-    h.mds.mdsRootCert,
-  ];
-
-  const certRevocationLists = [
-    h.mds.mdsRootCrl,
-    h.mds.ca1Crl,
-  ];
-
-  const ret = CertManager.verifyCertChain(
-    certs,
-    trustedRoots,
-    certRevocationLists,
-  );
-  assertEquals(true, ret instanceof Promise);
-
-  CertManager.removeAll();
-
-  return ret;
+      /*it("rejects on bad value in certs");
+      it("rejects on bad value in roots");
+      it("rejects on bad value in CRLs");*/
+    });
+  });
 });

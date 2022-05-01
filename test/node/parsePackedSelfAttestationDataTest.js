@@ -69,7 +69,7 @@ runs.forEach(function (run) {
       assert.isObject(alg);
       assert.strictEqual(Object.keys(alg).length, 2);
       assert.strictEqual(alg.algName, "ECDSA_w_SHA256");
-      assert.strictEqual(alg.hashAlg, "SHA256");
+      assert.strictEqual(alg.hashAlg, "SHA-256");
     });
 
     it("does not have x5c", function () {
