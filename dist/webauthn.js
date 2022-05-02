@@ -7,218 +7,13 @@ if (typeof Deno === "undefined") {
         permissions: false
     };
 }
+let webauthnCrypto;
 if (typeof crypto === "undefined") {
-    global.crypto = (await import("crypto")).webcrypto;
+    webauthnCrypto = (await import("crypto")).webcrypto;
+    global.crypto = webauthnCrypto;
+} else {
+    webauthnCrypto = crypto;
 }
-const base = 36;
-const damp = 700;
-const delimiter = '-';
-const regexPunycode = /^xn--/;
-const regexNonASCII = /[^\0-\x7E]/;
-const regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g;
-const errors = {
-    'overflow': 'Overflow: input needs wider integers to process',
-    'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
-    'invalid-input': 'Invalid input'
-};
-const baseMinusTMin = 36 - 1;
-const floor = Math.floor;
-const stringFromCharCode = String.fromCharCode;
-function error(type) {
-    throw new RangeError(errors[type]);
-}
-function map(array, fn) {
-    const result = [];
-    let length = array.length;
-    while(length--){
-        result[length] = fn(array[length]);
-    }
-    return result;
-}
-function mapDomain(string, fn) {
-    const parts = string.split('@');
-    let result = '';
-    if (parts.length > 1) {
-        result = parts[0] + '@';
-        string = parts[1];
-    }
-    string = string.replace(regexSeparators, '\x2E');
-    const labels = string.split('.');
-    const encoded = map(labels, fn).join('.');
-    return result + encoded;
-}
-function ucs2decode(string) {
-    const output = [];
-    let counter = 0;
-    const length = string.length;
-    while(counter < length){
-        const value = string.charCodeAt(counter++);
-        if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-            const extra = string.charCodeAt(counter++);
-            if ((extra & 0xFC00) == 0xDC00) {
-                output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-            } else {
-                output.push(value);
-                counter--;
-            }
-        } else {
-            output.push(value);
-        }
-    }
-    return output;
-}
-const ucs2encode = (array)=>String.fromCodePoint(...array)
-;
-const basicToDigit = function(codePoint) {
-    if (codePoint - 0x30 < 0x0A) {
-        return codePoint - 0x16;
-    }
-    if (codePoint - 0x41 < 0x1A) {
-        return codePoint - 0x41;
-    }
-    if (codePoint - 0x61 < 0x1A) {
-        return codePoint - 0x61;
-    }
-    return 36;
-};
-const digitToBasic = function(digit, flag) {
-    return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
-};
-const adapt = function(delta, numPoints, firstTime) {
-    let k = 0;
-    delta = firstTime ? floor(delta / damp) : delta >> 1;
-    delta += floor(delta / numPoints);
-    for(; delta > baseMinusTMin * 26 >> 1; k += base){
-        delta = floor(delta / baseMinusTMin);
-    }
-    return floor(k + (baseMinusTMin + 1) * delta / (delta + 38));
-};
-const decode = function(input) {
-    const output = [];
-    const inputLength = input.length;
-    let i4 = 0;
-    let n1 = 128;
-    let bias = 72;
-    let basic = input.lastIndexOf(delimiter);
-    if (basic < 0) {
-        basic = 0;
-    }
-    for(let j = 0; j < basic; ++j){
-        if (input.charCodeAt(j) >= 0x80) {
-            error('not-basic');
-        }
-        output.push(input.charCodeAt(j));
-    }
-    for(let index = basic > 0 ? basic + 1 : 0; index < inputLength;){
-        let oldi = i4;
-        for(let w = 1, k = 36;; k += base){
-            if (index >= inputLength) {
-                error('invalid-input');
-            }
-            const digit = basicToDigit(input.charCodeAt(index++));
-            if (digit >= 36 || digit > floor((2147483647 - i4) / w)) {
-                error('overflow');
-            }
-            i4 += digit * w;
-            const t1 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
-            if (digit < t1) {
-                break;
-            }
-            const baseMinusT = 36 - t1;
-            if (w > floor(2147483647 / baseMinusT)) {
-                error('overflow');
-            }
-            w *= baseMinusT;
-        }
-        const out = output.length + 1;
-        bias = adapt(i4 - oldi, out, oldi == 0);
-        if (floor(i4 / out) > 2147483647 - n1) {
-            error('overflow');
-        }
-        n1 += floor(i4 / out);
-        i4 %= out;
-        output.splice(i4++, 0, n1);
-    }
-    return String.fromCodePoint(...output);
-};
-const encode = function(input) {
-    const output = [];
-    input = ucs2decode(input);
-    let inputLength = input.length;
-    let n2 = 128;
-    let delta = 0;
-    let bias = 72;
-    for (const currentValue of input){
-        if (currentValue < 0x80) {
-            output.push(stringFromCharCode(currentValue));
-        }
-    }
-    let basicLength = output.length;
-    let handledCPCount = basicLength;
-    if (basicLength) {
-        output.push(delimiter);
-    }
-    while(handledCPCount < inputLength){
-        let m = 2147483647;
-        for (const currentValue of input){
-            if (currentValue >= n2 && currentValue < m) {
-                m = currentValue;
-            }
-        }
-        const handledCPCountPlusOne = handledCPCount + 1;
-        if (m - n2 > floor((2147483647 - delta) / handledCPCountPlusOne)) {
-            error('overflow');
-        }
-        delta += (m - n2) * handledCPCountPlusOne;
-        n2 = m;
-        for (const currentValue1 of input){
-            if (currentValue1 < n2 && ++delta > 2147483647) {
-                error('overflow');
-            }
-            if (currentValue1 == n2) {
-                let q = delta;
-                for(let k = 36;; k += base){
-                    const t2 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
-                    if (q < t2) {
-                        break;
-                    }
-                    const qMinusT = q - t2;
-                    const baseMinusT = 36 - t2;
-                    output.push(stringFromCharCode(digitToBasic(t2 + qMinusT % baseMinusT, 0)));
-                    q = floor(qMinusT / baseMinusT);
-                }
-                output.push(stringFromCharCode(digitToBasic(q, 0)));
-                bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
-                delta = 0;
-                ++handledCPCount;
-            }
-        }
-        ++delta;
-        ++n2;
-    }
-    return output.join('');
-};
-const toUnicode = function(input) {
-    return mapDomain(input, function(string) {
-        return regexPunycode.test(string) ? decode(string.slice(4).toLowerCase()) : string;
-    });
-};
-const toASCII = function(input) {
-    return mapDomain(input, function(string) {
-        return regexNonASCII.test(string) ? 'xn--' + encode(string) : string;
-    });
-};
-const __default = {
-    'version': '2.1.0',
-    'ucs2': {
-        'decode': ucs2decode,
-        'encode': ucs2encode
-    },
-    'decode': decode,
-    'encode': encode,
-    'toASCII': toASCII,
-    'toUnicode': toUnicode
-};
 const codes = {};
 function hideStackFrames(fn) {
     const hidden = "__node_internal_" + fn.name;
@@ -307,7 +102,7 @@ function isWeakMap(value) {
 function isWeakSet(value) {
     return _isObjectLike(value) && _toString.call(value) === "[object WeakSet]";
 }
-const __default1 = {
+const __default = {
     isAsyncFunction,
     isGeneratorFunction,
     isAnyArrayBuffer,
@@ -357,7 +152,7 @@ const mod = {
     isSymbolObject: isSymbolObject,
     isWeakMap: isWeakMap,
     isWeakSet: isWeakSet,
-    default: __default1
+    default: __default
 };
 Symbol("kKeyObject");
 Symbol("kKeyType");
@@ -566,8 +361,8 @@ function promisify(original) {
                 }
                 if (argumentNames !== undefined && values.length > 1) {
                     const obj = {};
-                    for(let i5 = 0; i5 < argumentNames.length; i5++){
-                        obj[argumentNames[i5]] = values[i5];
+                    for(let i4 = 0; i4 < argumentNames.length; i4++){
+                        obj[argumentNames[i4]] = values[i4];
                     }
                     resolve3(obj);
                 } else {
@@ -767,11 +562,11 @@ function indexOfNeedle(source, needle, start = 0) {
         start = Math.max(0, source.length + start);
     }
     const s1 = needle[0];
-    for(let i6 = start; i6 < source.length; i6++){
-        if (source[i6] !== s1) continue;
-        const pin = i6;
+    for(let i5 = start; i5 < source.length; i5++){
+        if (source[i5] !== s1) continue;
+        const pin = i5;
         let matched = 1;
-        let j = i6;
+        let j = i5;
         while(matched < needle.length){
             j++;
             if (source[j] !== needle[j - pin]) {
@@ -843,7 +638,7 @@ class BufReader {
         if (this.#w >= this.#buf.byteLength) {
             throw Error("bufio: tried to fill full buffer");
         }
-        for(let i7 = 100; i7 > 0; i7--){
+        for(let i6 = 100; i6 > 0; i6--){
             const rr = await this.#rd.read(this.#buf.subarray(this.#w));
             if (rr === null) {
                 this.#eof = true;
@@ -986,11 +781,11 @@ class BufReader {
         let s2 = 0;
         let slice;
         while(true){
-            let i8 = this.#buf.subarray(this.#r + s2, this.#w).indexOf(delim);
-            if (i8 >= 0) {
-                i8 += s2;
-                slice = this.#buf.subarray(this.#r, this.#r + i8 + 1);
-                this.#r += i8 + 1;
+            let i7 = this.#buf.subarray(this.#r + s2, this.#w).indexOf(delim);
+            if (i7 >= 0) {
+                i7 += s2;
+                slice = this.#buf.subarray(this.#r, this.#r + i7 + 1);
+                this.#r += i7 + 1;
                 break;
             }
             if (this.#eof) {
@@ -1215,10 +1010,10 @@ function isArrayIndex(value) {
                     return isNumericLookup[value] = false;
                 }
                 let ch = 0;
-                let i9 = 0;
-                for(; i9 < length; ++i9){
-                    ch = value.charCodeAt(i9);
-                    if (i9 === 0 && ch === 0x30 && length > 1 || ch < 0x30 || ch > 0x39) {
+                let i8 = 0;
+                for(; i8 < length; ++i8){
+                    ch = value.charCodeAt(i8);
+                    if (i8 === 0 && ch === 0x30 && length > 1 || ch < 0x30 || ch > 0x39) {
                         return isNumericLookup[value] = false;
                     }
                 }
@@ -1520,8 +1315,8 @@ function inspect(value, opts) {
             ctx.showHidden = opts;
         } else if (opts) {
             const optKeys = Object.keys(opts);
-            for(let i10 = 0; i10 < optKeys.length; ++i10){
-                const key = optKeys[i10];
+            for(let i9 = 0; i9 < optKeys.length; ++i9){
+                const key = optKeys[i9];
                 if (inspectDefaultOptions.hasOwnProperty(key) || key === "stylize") {
                     ctx[key] = opts[key];
                 } else if (ctx.userOptions === undefined) {
@@ -1799,15 +1594,15 @@ function strEscape(str) {
     let result = "";
     let last = 0;
     const lastIndex = str.length;
-    for(let i11 = 0; i11 < lastIndex; i11++){
-        const point = str.charCodeAt(i11);
+    for(let i10 = 0; i10 < lastIndex; i10++){
+        const point = str.charCodeAt(i10);
         if (point === singleQuote || point === 92 || point < 32 || point > 126 && point < 160) {
-            if (last === i11) {
+            if (last === i10) {
                 result += meta[point];
             } else {
-                result += `${str.slice(last, i11)}${meta[point]}`;
+                result += `${str.slice(last, i10)}${meta[point]}`;
             }
-            last = i11 + 1;
+            last = i10 + 1;
         }
     }
     if (last !== lastIndex) {
@@ -1885,7 +1680,7 @@ function formatRaw(ctx, value, recurseTimes, typedArray) {
     let formatter = getEmptyFormatArray;
     let braces;
     let noIterator = true;
-    let i12 = 0;
+    let i11 = 0;
     const filter = ctx.showHidden ? 0 : 2;
     let extrasType = 0;
     if (value[Symbol.iterator] || constructor === null) {
@@ -2047,8 +1842,8 @@ function formatRaw(ctx, value, recurseTimes, typedArray) {
     const indentationLvl = ctx.indentationLvl;
     try {
         output = formatter(ctx, value, recurseTimes);
-        for(i12 = 0; i12 < keys.length; i12++){
-            output.push(formatProperty(ctx, value, recurseTimes, keys[i12], extrasType));
+        for(i11 = 0; i11 < keys.length; i11++){
+            output.push(formatProperty(ctx, value, recurseTimes, keys[i11], extrasType));
         }
         if (protoProps !== undefined) {
             output.push(...protoProps);
@@ -2218,11 +2013,11 @@ function formatArray(ctx, value, recurseTimes) {
     const len = Math.min(Math.max(0, ctx.maxArrayLength), valLen);
     const remaining = valLen - len;
     const output = [];
-    for(let i13 = 0; i13 < len; i13++){
-        if (!value.hasOwnProperty(i13)) {
-            return formatSpecialArray(ctx, value, recurseTimes, len, output, i13);
+    for(let i12 = 0; i12 < len; i12++){
+        if (!value.hasOwnProperty(i12)) {
+            return formatSpecialArray(ctx, value, recurseTimes, len, output, i12);
         }
-        output.push(formatProperty(ctx, value, recurseTimes, i13, 1));
+        output.push(formatProperty(ctx, value, recurseTimes, i12, 1));
     }
     if (remaining > 0) {
         output.push(`... ${remaining} more item${remaining > 1 ? "s" : ""}`);
@@ -2279,8 +2074,8 @@ function formatTypedArray(value, length, ctx, _ignored, recurseTimes) {
     const remaining = value.length - maxLength;
     const output = new Array(maxLength);
     const elementFormatter = value.length > 0 && typeof value[0] === "number" ? formatNumber : formatBigInt;
-    for(let i14 = 0; i14 < maxLength; ++i14){
-        output[i14] = elementFormatter(ctx.stylize, value[i14]);
+    for(let i13 = 0; i13 < maxLength; ++i13){
+        output[i13] = elementFormatter(ctx.stylize, value[i13]);
     }
     if (remaining > 0) {
         output[maxLength] = `... ${remaining} more item${remaining > 1 ? "s" : ""}`;
@@ -2545,11 +2340,11 @@ function isBelowBreakLength(ctx, output, start, base4) {
     if (totalLength + output.length > ctx.breakLength) {
         return false;
     }
-    for(let i15 = 0; i15 < output.length; i15++){
+    for(let i14 = 0; i14 < output.length; i14++){
         if (ctx.colors) {
-            totalLength += removeColors(output[i15]).length;
+            totalLength += removeColors(output[i14]).length;
         } else {
-            totalLength += output[i15].length;
+            totalLength += output[i14].length;
         }
         if (totalLength > ctx.breakLength) {
             return false;
@@ -2562,26 +2357,26 @@ function formatBigInt(fn, value) {
 }
 function formatNamespaceObject(keys, ctx, value, recurseTimes) {
     const output = new Array(keys.length);
-    for(let i16 = 0; i16 < keys.length; i16++){
+    for(let i15 = 0; i15 < keys.length; i15++){
         try {
-            output[i16] = formatProperty(ctx, value, recurseTimes, keys[i16], kObjectType);
+            output[i15] = formatProperty(ctx, value, recurseTimes, keys[i15], kObjectType);
         } catch (_err) {
             const tmp = {
-                [keys[i16]]: ""
+                [keys[i15]]: ""
             };
-            output[i16] = formatProperty(ctx, tmp, recurseTimes, keys[i16], kObjectType);
-            const pos = output[i16].lastIndexOf(" ");
-            output[i16] = output[i16].slice(0, pos + 1) + ctx.stylize("<uninitialized>", "special");
+            output[i15] = formatProperty(ctx, tmp, recurseTimes, keys[i15], kObjectType);
+            const pos = output[i15].lastIndexOf(" ");
+            output[i15] = output[i15].slice(0, pos + 1) + ctx.stylize("<uninitialized>", "special");
         }
     }
     keys.length = 0;
     return output;
 }
-function formatSpecialArray(ctx, value, recurseTimes, maxLength, output, i17) {
+function formatSpecialArray(ctx, value, recurseTimes, maxLength, output, i16) {
     const keys = Object.keys(value);
-    let index = i17;
-    for(; i17 < keys.length && output.length < maxLength; i17++){
-        const key = keys[i17];
+    let index = i16;
+    for(; i16 < keys.length && output.length < maxLength; i16++){
+        const key = keys[i16];
         const tmp = +key;
         if (tmp > 2 ** 32 - 2) {
             break;
@@ -2693,8 +2488,8 @@ function join(output, separator) {
     let str = "";
     if (output.length !== 0) {
         const lastIndex = output.length - 1;
-        for(let i18 = 0; i18 < lastIndex; i18++){
-            str += output[i18];
+        for(let i17 = 0; i17 < lastIndex; i17++){
+            str += output[i17];
             str += separator;
         }
         str += output[lastIndex];
@@ -2704,16 +2499,16 @@ function join(output, separator) {
 function groupArrayElements(ctx, output, value) {
     let totalLength = 0;
     let maxLength = 0;
-    let i19 = 0;
+    let i18 = 0;
     let outputLength = output.length;
     if (ctx.maxArrayLength < output.length) {
         outputLength--;
     }
     const separatorSpace = 2;
     const dataLen = new Array(outputLength);
-    for(; i19 < outputLength; i19++){
-        const len = getStringWidth(output[i19], ctx.colors);
-        dataLen[i19] = len;
+    for(; i18 < outputLength; i18++){
+        const len = getStringWidth(output[i18], ctx.colors);
+        dataLen[i18] = len;
         totalLength += len + separatorSpace;
         if (maxLength < len) {
             maxLength = len;
@@ -2729,20 +2524,20 @@ function groupArrayElements(ctx, output, value) {
         }
         const tmp = [];
         const maxLineLength = [];
-        for(let i20 = 0; i20 < columns; i20++){
+        for(let i19 = 0; i19 < columns; i19++){
             let lineMaxLength = 0;
-            for(let j = i20; j < output.length; j += columns){
+            for(let j = i19; j < output.length; j += columns){
                 if (dataLen[j] > lineMaxLength) {
                     lineMaxLength = dataLen[j];
                 }
             }
             lineMaxLength += separatorSpace;
-            maxLineLength[i20] = lineMaxLength;
+            maxLineLength[i19] = lineMaxLength;
         }
         let order = String.prototype.padStart;
         if (value !== undefined) {
-            for(let i21 = 0; i21 < output.length; i21++){
-                if (typeof value[i21] !== "number" && typeof value[i21] !== "bigint") {
+            for(let i20 = 0; i20 < output.length; i20++){
+                if (typeof value[i20] !== "number" && typeof value[i20] !== "bigint") {
                     order = String.prototype.padEnd;
                     break;
                 }
@@ -2777,24 +2572,24 @@ function formatMapIterInner(ctx, recurseTimes, entries, state2) {
     const remaining = len - maxArrayLength;
     const maxLength = Math.min(maxArrayLength, len);
     let output = new Array(maxLength);
-    let i22 = 0;
+    let i21 = 0;
     ctx.indentationLvl += 2;
     if (state2 === 0) {
-        for(; i22 < maxLength; i22++){
-            const pos = i22 * 2;
-            output[i22] = `${formatValue(ctx, entries[pos], recurseTimes)} => ${formatValue(ctx, entries[pos + 1], recurseTimes)}`;
+        for(; i21 < maxLength; i21++){
+            const pos = i21 * 2;
+            output[i21] = `${formatValue(ctx, entries[pos], recurseTimes)} => ${formatValue(ctx, entries[pos + 1], recurseTimes)}`;
         }
         if (!ctx.sorted) {
             output = output.sort();
         }
     } else {
-        for(; i22 < maxLength; i22++){
-            const pos = i22 * 2;
+        for(; i21 < maxLength; i21++){
+            const pos = i21 * 2;
             const res = [
                 formatValue(ctx, entries[pos], recurseTimes),
                 formatValue(ctx, entries[pos + 1], recurseTimes), 
             ];
-            output[i22] = reduceToSingleString(ctx, res, "", [
+            output[i21] = reduceToSingleString(ctx, res, "", [
                 "[",
                 "]"
             ], kArrayExtrasType, recurseTimes);
@@ -2811,8 +2606,8 @@ function formatSetIterInner(ctx, recurseTimes, entries, state3) {
     const maxLength = Math.min(maxArrayLength, entries.length);
     const output = new Array(maxLength);
     ctx.indentationLvl += 2;
-    for(let i23 = 0; i23 < maxLength; i23++){
-        output[i23] = formatValue(ctx, entries[i23], recurseTimes);
+    for(let i22 = 0; i22 < maxLength; i22++){
+        output[i22] = formatValue(ctx, entries[i22], recurseTimes);
     }
     ctx.indentationLvl -= 2;
     if (state3 === 0 && !ctx.sorted) {
@@ -4744,15 +4539,15 @@ encodings[Encodings.HEX] = "hex";
 encodings[Encodings.LATIN1] = "latin1";
 encodings[Encodings.UCS2] = "utf16le";
 encodings[Encodings.UTF8] = "utf8";
-function numberToBytes(n3) {
-    if (n3 === 0) return new Uint8Array([
+function numberToBytes(n1) {
+    if (n1 === 0) return new Uint8Array([
         0
     ]);
     const bytes = [];
-    bytes.unshift(n3 & 255);
-    while(n3 >= 256){
-        n3 = n3 >>> 8;
-        bytes.unshift(n3 & 255);
+    bytes.unshift(n1 & 255);
+    while(n1 >= 256){
+        n1 = n1 >>> 8;
+        bytes.unshift(n1 & 255);
     }
     return new Uint8Array(bytes);
 }
@@ -4877,35 +4672,35 @@ const base64abc = [
     "+",
     "/", 
 ];
-function encode1(data) {
+function encode(data) {
     const uint8 = typeof data === "string" ? new TextEncoder().encode(data) : data instanceof Uint8Array ? data : new Uint8Array(data);
-    let result = "", i24;
+    let result = "", i23;
     const l = uint8.length;
-    for(i24 = 2; i24 < l; i24 += 3){
-        result += base64abc[uint8[i24 - 2] >> 2];
-        result += base64abc[(uint8[i24 - 2] & 0x03) << 4 | uint8[i24 - 1] >> 4];
-        result += base64abc[(uint8[i24 - 1] & 0x0f) << 2 | uint8[i24] >> 6];
-        result += base64abc[uint8[i24] & 0x3f];
+    for(i23 = 2; i23 < l; i23 += 3){
+        result += base64abc[uint8[i23 - 2] >> 2];
+        result += base64abc[(uint8[i23 - 2] & 0x03) << 4 | uint8[i23 - 1] >> 4];
+        result += base64abc[(uint8[i23 - 1] & 0x0f) << 2 | uint8[i23] >> 6];
+        result += base64abc[uint8[i23] & 0x3f];
     }
-    if (i24 === l + 1) {
-        result += base64abc[uint8[i24 - 2] >> 2];
-        result += base64abc[(uint8[i24 - 2] & 0x03) << 4];
+    if (i23 === l + 1) {
+        result += base64abc[uint8[i23 - 2] >> 2];
+        result += base64abc[(uint8[i23 - 2] & 0x03) << 4];
         result += "==";
     }
-    if (i24 === l) {
-        result += base64abc[uint8[i24 - 2] >> 2];
-        result += base64abc[(uint8[i24 - 2] & 0x03) << 4 | uint8[i24 - 1] >> 4];
-        result += base64abc[(uint8[i24 - 1] & 0x0f) << 2];
+    if (i23 === l) {
+        result += base64abc[uint8[i23 - 2] >> 2];
+        result += base64abc[(uint8[i23 - 2] & 0x03) << 4 | uint8[i23 - 1] >> 4];
+        result += base64abc[(uint8[i23 - 1] & 0x0f) << 2];
         result += "=";
     }
     return result;
 }
-function decode1(b64) {
+function decode(b64) {
     const binString = atob(b64);
     const size = binString.length;
     const bytes = new Uint8Array(size);
-    for(let i25 = 0; i25 < size; i25++){
-        bytes[i25] = binString.charCodeAt(i25);
+    for(let i24 = 0; i24 < size; i24++){
+        bytes[i24] = binString.charCodeAt(i24);
     }
     return bytes;
 }
@@ -4926,23 +4721,23 @@ function convertBase64urlToBase64(b64url) {
 function convertBase64ToBase64url(b64) {
     return b64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
-function encode2(data) {
-    return convertBase64ToBase64url(encode1(data));
+function encode1(data) {
+    return convertBase64ToBase64url(encode(data));
 }
-function decode2(b64url) {
-    return decode1(convertBase64urlToBase64(b64url));
+function decode1(b64url) {
+    return decode(convertBase64urlToBase64(b64url));
 }
 function asciiToBytes(str) {
     const byteArray = [];
-    for(let i26 = 0; i26 < str.length; ++i26){
-        byteArray.push(str.charCodeAt(i26) & 255);
+    for(let i25 = 0; i25 < str.length; ++i25){
+        byteArray.push(str.charCodeAt(i25) & 255);
     }
     return new Uint8Array(byteArray);
 }
 function base64ToBytes(str) {
     str = base64clean(str);
     str = str.replaceAll("-", "+").replaceAll("_", "/");
-    return decode1(str);
+    return decode(str);
 }
 const INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g;
 function base64clean(str) {
@@ -4957,29 +4752,29 @@ function base64clean(str) {
 function base64UrlToBytes(str) {
     str = base64clean(str);
     str = str.replaceAll("+", "-").replaceAll("/", "_");
-    return decode2(str);
+    return decode1(str);
 }
 function hexToBytes(str) {
     const byteArray = new Uint8Array(Math.floor((str || "").length / 2));
-    let i27;
-    for(i27 = 0; i27 < byteArray.length; i27++){
-        const a1 = Number.parseInt(str[i27 * 2], 16);
-        const b = Number.parseInt(str[i27 * 2 + 1], 16);
+    let i26;
+    for(i26 = 0; i26 < byteArray.length; i26++){
+        const a1 = Number.parseInt(str[i26 * 2], 16);
+        const b = Number.parseInt(str[i26 * 2 + 1], 16);
         if (Number.isNaN(a1) && Number.isNaN(b)) {
             break;
         }
-        byteArray[i27] = a1 << 4 | b;
+        byteArray[i26] = a1 << 4 | b;
     }
-    return new Uint8Array(i27 === byteArray.length ? byteArray : byteArray.slice(0, i27));
+    return new Uint8Array(i26 === byteArray.length ? byteArray : byteArray.slice(0, i26));
 }
 function utf16leToBytes(str, units) {
     let c, hi, lo;
     const byteArray = [];
-    for(let i28 = 0; i28 < str.length; ++i28){
+    for(let i27 = 0; i27 < str.length; ++i27){
         if ((units -= 2) < 0) {
             break;
         }
-        c = str.charCodeAt(i28);
+        c = str.charCodeAt(i27);
         hi = c >> 8;
         lo = c % 256;
         byteArray.push(lo);
@@ -4989,15 +4784,15 @@ function utf16leToBytes(str, units) {
 }
 function bytesToAscii(bytes) {
     let ret = "";
-    for(let i29 = 0; i29 < bytes.length; ++i29){
-        ret += String.fromCharCode(bytes[i29] & 127);
+    for(let i28 = 0; i28 < bytes.length; ++i28){
+        ret += String.fromCharCode(bytes[i28] & 127);
     }
     return ret;
 }
 function bytesToUtf16le(bytes) {
     let res = "";
-    for(let i30 = 0; i30 < bytes.length - 1; i30 += 2){
-        res += String.fromCharCode(bytes[i30] + bytes[i30 + 1] * 256);
+    for(let i29 = 0; i29 < bytes.length - 1; i29 += 2){
+        res += String.fromCharCode(bytes[i29] + bytes[i29 + 1] * 256);
     }
     return res;
 }
@@ -5428,25 +5223,25 @@ function checkBounds(buf, offset, byteLength1) {
 }
 function checkInt(value, min, max, buf, offset, byteLength2) {
     if (value > max || value < min) {
-        const n4 = typeof min === "bigint" ? "n" : "";
+        const n2 = typeof min === "bigint" ? "n" : "";
         let range;
         if (byteLength2 > 3) {
             if (min === 0 || min === 0n) {
-                range = `>= 0${n4} and < 2${n4} ** ${(byteLength2 + 1) * 8}${n4}`;
+                range = `>= 0${n2} and < 2${n2} ** ${(byteLength2 + 1) * 8}${n2}`;
             } else {
-                range = `>= -(2${n4} ** ${(byteLength2 + 1) * 8 - 1}${n4}) and ` + `< 2${n4} ** ${(byteLength2 + 1) * 8 - 1}${n4}`;
+                range = `>= -(2${n2} ** ${(byteLength2 + 1) * 8 - 1}${n2}) and ` + `< 2${n2} ** ${(byteLength2 + 1) * 8 - 1}${n2}`;
             }
         } else {
-            range = `>= ${min}${n4} and <= ${max}${n4}`;
+            range = `>= ${min}${n2} and <= ${max}${n2}`;
         }
         throw new codes.ERR_OUT_OF_RANGE("value", range, value);
     }
     checkBounds(buf, offset, byteLength2);
 }
-function toInteger(n5, defaultVal) {
-    n5 = +n5;
-    if (!Number.isNaN(n5) && n5 >= Number.MIN_SAFE_INTEGER && n5 <= Number.MAX_SAFE_INTEGER) {
-        return n5 % 1 === 0 ? n5 : Math.floor(n5);
+function toInteger(n3, defaultVal) {
+    n3 = +n3;
+    if (!Number.isNaN(n3) && n3 >= Number.MIN_SAFE_INTEGER && n3 <= Number.MAX_SAFE_INTEGER) {
+        return n3 % 1 === 0 ? n3 : Math.floor(n3);
     }
     return defaultVal;
 }
@@ -5736,8 +5531,8 @@ function fromString(string, encoding) {
 function fromArrayLike(array) {
     const length = array.length < 0 ? 0 : checked(array.length) | 0;
     const buf = createBuffer(length);
-    for(let i31 = 0; i31 < length; i31 += 1){
-        buf[i31] = array[i31] & 255;
+    for(let i30 = 0; i30 < length; i30 += 1){
+        buf[i30] = array[i30] & 255;
     }
     return buf;
 }
@@ -5782,10 +5577,10 @@ Buffer1.compare = function compare(a2, b) {
     }
     let x = a2.length;
     let y = b.length;
-    for(let i32 = 0, len = Math.min(x, y); i32 < len; ++i32){
-        if (a2[i32] !== b[i32]) {
-            x = a2[i32];
-            y = b[i32];
+    for(let i31 = 0, len = Math.min(x, y); i31 < len; ++i31){
+        if (a2[i31] !== b[i31]) {
+            x = a2[i31];
+            y = b[i31];
             break;
         }
     }
@@ -5809,9 +5604,9 @@ Buffer1.concat = function concat(list, length) {
     }
     if (length === undefined) {
         length = 0;
-        for(let i33 = 0; i33 < list.length; i33++){
-            if (list[i33].length) {
-                length += list[i33].length;
+        for(let i32 = 0; i32 < list.length; i32++){
+            if (list[i32].length) {
+                length += list[i32].length;
             }
         }
     } else {
@@ -5819,13 +5614,13 @@ Buffer1.concat = function concat(list, length) {
     }
     const buffer = Buffer1.allocUnsafe(length);
     let pos = 0;
-    for(let i34 = 0; i34 < list.length; i34++){
-        const buf = list[i34];
+    for(let i33 = 0; i33 < list.length; i33++){
+        const buf = list[i33];
         if (!isUint8Array(buf)) {
-            throw new codes.ERR_INVALID_ARG_TYPE(`list[${i34}]`, [
+            throw new codes.ERR_INVALID_ARG_TYPE(`list[${i33}]`, [
                 "Buffer",
                 "Uint8Array"
-            ], list[i34]);
+            ], list[i33]);
         }
         pos += _copyActual(buf, buffer, pos, 0, buf.length);
     }
@@ -5861,18 +5656,18 @@ function byteLength(string, encoding) {
 }
 Buffer1.byteLength = byteLength;
 Buffer1.prototype._isBuffer = true;
-function swap(b, n7, m) {
-    const i35 = b[n7];
-    b[n7] = b[m];
-    b[m] = i35;
+function swap(b, n4, m) {
+    const i34 = b[n4];
+    b[n4] = b[m];
+    b[m] = i34;
 }
 Buffer1.prototype.swap16 = function swap16() {
     const len = this.length;
     if (len % 2 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 16-bits");
     }
-    for(let i36 = 0; i36 < len; i36 += 2){
-        swap(this, i36, i36 + 1);
+    for(let i35 = 0; i35 < len; i35 += 2){
+        swap(this, i35, i35 + 1);
     }
     return this;
 };
@@ -5881,9 +5676,9 @@ Buffer1.prototype.swap32 = function swap32() {
     if (len % 4 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 32-bits");
     }
-    for(let i37 = 0; i37 < len; i37 += 4){
-        swap(this, i37, i37 + 3);
-        swap(this, i37 + 1, i37 + 2);
+    for(let i36 = 0; i36 < len; i36 += 4){
+        swap(this, i36, i36 + 3);
+        swap(this, i36 + 1, i36 + 2);
     }
     return this;
 };
@@ -5892,11 +5687,11 @@ Buffer1.prototype.swap64 = function swap64() {
     if (len % 8 !== 0) {
         throw new RangeError("Buffer size must be a multiple of 64-bits");
     }
-    for(let i38 = 0; i38 < len; i38 += 8){
-        swap(this, i38, i38 + 7);
-        swap(this, i38 + 1, i38 + 6);
-        swap(this, i38 + 2, i38 + 5);
-        swap(this, i38 + 3, i38 + 4);
+    for(let i37 = 0; i37 < len; i37 += 8){
+        swap(this, i37, i37 + 7);
+        swap(this, i37 + 1, i37 + 6);
+        swap(this, i37 + 2, i37 + 5);
+        swap(this, i37 + 3, i37 + 4);
     }
     return this;
 };
@@ -6008,10 +5803,10 @@ Buffer1.prototype.compare = function compare(target3, start, end, thisStart, thi
     const len = Math.min(x, y);
     const thisCopy = this.slice(thisStart, thisEnd);
     const targetCopy = target3.slice(start, end);
-    for(let i39 = 0; i39 < len; ++i39){
-        if (thisCopy[i39] !== targetCopy[i39]) {
-            x = thisCopy[i39];
-            y = targetCopy[i39];
+    for(let i38 = 0; i38 < len; ++i38){
+        if (thisCopy[i38] !== targetCopy[i38]) {
+            x = thisCopy[i38];
+            y = targetCopy[i38];
             break;
         }
     }
@@ -6085,9 +5880,9 @@ Buffer1.prototype.asciiWrite = function asciiWrite(string, offset, length) {
 };
 Buffer1.prototype.base64Slice = function base64Slice(offset, length) {
     if (offset === 0 && length === this.length) {
-        return encode1(this);
+        return encode(this);
     } else {
-        return encode1(this.slice(offset, length));
+        return encode(this.slice(offset, length));
     }
 };
 Buffer1.prototype.base64Write = function base64Write(string, offset, length) {
@@ -6095,9 +5890,9 @@ Buffer1.prototype.base64Write = function base64Write(string, offset, length) {
 };
 Buffer1.prototype.base64urlSlice = function base64urlSlice(offset, length) {
     if (offset === 0 && length === this.length) {
-        return encode2(this);
+        return encode1(this);
     } else {
-        return encode2(this.slice(offset, length));
+        return encode1(this.slice(offset, length));
     }
 };
 Buffer1.prototype.base64urlWrite = function base64urlWrite(string, offset, length) {
@@ -6201,12 +5996,12 @@ function fromArrayBuffer(obj, byteOffset, length) {
 function _utf8Slice(buf, start, end) {
     end = Math.min(buf.length, end);
     const res = [];
-    let i40 = start;
-    while(i40 < end){
-        const firstByte = buf[i40];
+    let i39 = start;
+    while(i39 < end){
+        const firstByte = buf[i39];
         let codePoint = null;
         let bytesPerSequence = firstByte > 239 ? 4 : firstByte > 223 ? 3 : firstByte > 191 ? 2 : 1;
-        if (i40 + bytesPerSequence <= end) {
+        if (i39 + bytesPerSequence <= end) {
             let secondByte, thirdByte, fourthByte, tempCodePoint;
             switch(bytesPerSequence){
                 case 1:
@@ -6215,7 +6010,7 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 2:
-                    secondByte = buf[i40 + 1];
+                    secondByte = buf[i39 + 1];
                     if ((secondByte & 192) === 128) {
                         tempCodePoint = (firstByte & 31) << 6 | secondByte & 63;
                         if (tempCodePoint > 127) {
@@ -6224,8 +6019,8 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 3:
-                    secondByte = buf[i40 + 1];
-                    thirdByte = buf[i40 + 2];
+                    secondByte = buf[i39 + 1];
+                    thirdByte = buf[i39 + 2];
                     if ((secondByte & 192) === 128 && (thirdByte & 192) === 128) {
                         tempCodePoint = (firstByte & 15) << 12 | (secondByte & 63) << 6 | thirdByte & 63;
                         if (tempCodePoint > 2047 && (tempCodePoint < 55296 || tempCodePoint > 57343)) {
@@ -6234,9 +6029,9 @@ function _utf8Slice(buf, start, end) {
                     }
                     break;
                 case 4:
-                    secondByte = buf[i40 + 1];
-                    thirdByte = buf[i40 + 2];
-                    fourthByte = buf[i40 + 3];
+                    secondByte = buf[i39 + 1];
+                    thirdByte = buf[i39 + 2];
+                    fourthByte = buf[i39 + 3];
                     if ((secondByte & 192) === 128 && (thirdByte & 192) === 128 && (fourthByte & 192) === 128) {
                         tempCodePoint = (firstByte & 15) << 18 | (secondByte & 63) << 12 | (thirdByte & 63) << 6 | fourthByte & 63;
                         if (tempCodePoint > 65535 && tempCodePoint < 1114112) {
@@ -6254,7 +6049,7 @@ function _utf8Slice(buf, start, end) {
             codePoint = 56320 | codePoint & 1023;
         }
         res.push(codePoint);
-        i40 += bytesPerSequence;
+        i39 += bytesPerSequence;
     }
     return decodeCodePointsArray(res);
 }
@@ -6265,17 +6060,17 @@ function decodeCodePointsArray(codePoints) {
         return String.fromCharCode.apply(String, codePoints);
     }
     let res = "";
-    let i41 = 0;
-    while(i41 < len){
-        res += String.fromCharCode.apply(String, codePoints.slice(i41, i41 += MAX_ARGUMENTS_LENGTH));
+    let i40 = 0;
+    while(i40 < len){
+        res += String.fromCharCode.apply(String, codePoints.slice(i40, i40 += MAX_ARGUMENTS_LENGTH));
     }
     return res;
 }
 function _latin1Slice(buf, start, end) {
     let ret = "";
     end = Math.min(buf.length, end);
-    for(let i42 = start; i42 < end; ++i42){
-        ret += String.fromCharCode(buf[i42]);
+    for(let i41 = start; i41 < end; ++i41){
+        ret += String.fromCharCode(buf[i41]);
     }
     return ret;
 }
@@ -6288,8 +6083,8 @@ function _hexSlice(buf, start, end) {
         end = len;
     }
     let out = "";
-    for(let i43 = start; i43 < end; ++i43){
-        out += hexSliceLookupTable[buf[i43]];
+    for(let i42 = start; i42 < end; ++i42){
+        out += hexSliceLookupTable[buf[i42]];
     }
     return out;
 }
@@ -6833,10 +6628,10 @@ Buffer1.prototype.fill = function fill(val, start, end, encoding) {
     if (!val) {
         val = 0;
     }
-    let i44;
+    let i43;
     if (typeof val === "number") {
-        for(i44 = start; i44 < end; ++i44){
-            this[i44] = val;
+        for(i43 = start; i43 < end; ++i43){
+            this[i43] = val;
         }
     } else {
         const bytes = Buffer1.isBuffer(val) ? val : Buffer1.from(val, encoding);
@@ -6844,8 +6639,8 @@ Buffer1.prototype.fill = function fill(val, start, end, encoding) {
         if (len === 0) {
             throw new codes.ERR_INVALID_ARG_VALUE("value", val);
         }
-        for(i44 = 0; i44 < end - start; ++i44){
-            this[i44 + start] = bytes[i44 % len];
+        for(i43 = 0; i43 < end - start; ++i43){
+            this[i43 + start] = bytes[i43 % len];
         }
     }
     return this;
@@ -6858,16 +6653,16 @@ function checkBounds1(buf, offset, byteLength2) {
 }
 function checkIntBI(value, min, max, buf, offset, byteLength2) {
     if (value > max || value < min) {
-        const n8 = typeof min === "bigint" ? "n" : "";
+        const n5 = typeof min === "bigint" ? "n" : "";
         let range;
         if (byteLength2 > 3) {
             if (min === 0 || min === BigInt(0)) {
-                range = `>= 0${n8} and < 2${n8} ** ${(byteLength2 + 1) * 8}${n8}`;
+                range = `>= 0${n5} and < 2${n5} ** ${(byteLength2 + 1) * 8}${n5}`;
             } else {
-                range = `>= -(2${n8} ** ${(byteLength2 + 1) * 8 - 1}${n8}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n8}`;
+                range = `>= -(2${n5} ** ${(byteLength2 + 1) * 8 - 1}${n5}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n5}`;
             }
         } else {
-            range = `>= ${min}${n8} and <= ${max}${n8}`;
+            range = `>= ${min}${n5} and <= ${max}${n5}`;
         }
         throw new codes.ERR_OUT_OF_RANGE("value", range, value);
     }
@@ -6879,8 +6674,8 @@ function utf8ToBytes(string, units) {
     const length = string.length;
     let leadSurrogate = null;
     const bytes = [];
-    for(let i45 = 0; i45 < length; ++i45){
-        codePoint = string.charCodeAt(i45);
+    for(let i44 = 0; i44 < length; ++i44){
+        codePoint = string.charCodeAt(i44);
         if (codePoint > 55295 && codePoint < 57344) {
             if (!leadSurrogate) {
                 if (codePoint > 56319) {
@@ -6888,7 +6683,7 @@ function utf8ToBytes(string, units) {
                         bytes.push(239, 191, 189);
                     }
                     continue;
-                } else if (i45 + 1 === length) {
+                } else if (i44 + 1 === length) {
                     if ((units -= 3) > -1) {
                         bytes.push(239, 191, 189);
                     }
@@ -6938,14 +6733,14 @@ function utf8ToBytes(string, units) {
     return bytes;
 }
 function blitBuffer(src2, dst, offset, length) {
-    let i46;
-    for(i46 = 0; i46 < length; ++i46){
-        if (i46 + offset >= dst.length || i46 >= src2.length) {
+    let i45;
+    for(i45 = 0; i45 < length; ++i45){
+        if (i45 + offset >= dst.length || i45 >= src2.length) {
             break;
         }
-        dst[i46 + offset] = src2[i46];
+        dst[i45 + offset] = src2[i45];
     }
-    return i46;
+    return i45;
 }
 function isInstance(obj, type) {
     return obj instanceof type || obj != null && obj.constructor != null && obj.constructor.name != null && obj.constructor.name === type.name;
@@ -6953,10 +6748,10 @@ function isInstance(obj, type) {
 const hexSliceLookupTable = function() {
     const alphabet = "0123456789abcdef";
     const table = new Array(256);
-    for(let i47 = 0; i47 < 16; ++i47){
-        const i16 = i47 * 16;
+    for(let i46 = 0; i46 < 16; ++i46){
+        const i16 = i46 * 16;
         for(let j = 0; j < 16; ++j){
-            table[i16 + j] = alphabet[i47] + alphabet[j];
+            table[i16 + j] = alphabet[i46] + alphabet[j];
         }
     }
     return table;
@@ -7086,9 +6881,9 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys = []) {
             return false;
         }
     }
-    let i48 = 0;
-    for(; i48 < aKeys.length; i48++){
-        if (!val2.propertyIsEnumerable(aKeys[i48])) {
+    let i47 = 0;
+    for(; i47 < aKeys.length; i47++){
+        if (!val2.propertyIsEnumerable(aKeys[i47])) {
             return false;
         }
     }
@@ -7096,8 +6891,8 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys = []) {
         const symbolKeysA = Object.getOwnPropertySymbols(val1);
         if (symbolKeysA.length !== 0) {
             let count = 0;
-            for(i48 = 0; i48 < symbolKeysA.length; i48++){
-                const key = symbolKeysA[i48];
+            for(i47 = 0; i47 < symbolKeysA.length; i47++){
+                const key = symbolKeysA[i47];
                 if (val1.propertyIsEnumerable(key)) {
                     if (!val2.propertyIsEnumerable(key)) {
                         return false;
@@ -7152,8 +6947,8 @@ function areSimilarFloatArrays(arr1, arr2) {
     if (arr1.byteLength !== arr2.byteLength) {
         return false;
     }
-    for(let i49 = 0; i49 < arr1.byteLength; i49++){
-        if (arr1[i49] !== arr2[i49]) {
+    for(let i48 = 0; i48 < arr1.byteLength; i48++){
+        if (arr1[i48] !== arr2[i48]) {
             return false;
         }
     }
@@ -7197,7 +6992,7 @@ function getEnumerables(val, keys) {
     );
 }
 function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
-    let i50 = 0;
+    let i49 = 0;
     if (iterationType === valueType.isSet) {
         if (!setEquiv(obj1, obj2, strict, memos)) {
             return false;
@@ -7207,17 +7002,17 @@ function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
             return false;
         }
     } else if (iterationType === valueType.isArray) {
-        for(; i50 < obj1.length; i50++){
-            if (obj1.hasOwnProperty(i50)) {
-                if (!obj2.hasOwnProperty(i50) || !innerDeepEqual(obj1[i50], obj2[i50], strict, memos)) {
+        for(; i49 < obj1.length; i49++){
+            if (obj1.hasOwnProperty(i49)) {
+                if (!obj2.hasOwnProperty(i49) || !innerDeepEqual(obj1[i49], obj2[i49], strict, memos)) {
                     return false;
                 }
-            } else if (obj2.hasOwnProperty(i50)) {
+            } else if (obj2.hasOwnProperty(i49)) {
                 return false;
             } else {
                 const keys1 = Object.keys(obj1);
-                for(; i50 < keys1.length; i50++){
-                    const key = keys1[i50];
+                for(; i49 < keys1.length; i49++){
+                    const key = keys1[i49];
                     if (!obj2.hasOwnProperty(key) || !innerDeepEqual(obj1[key], obj2[key], strict, memos)) {
                         return false;
                     }
@@ -7232,8 +7027,8 @@ function objEquiv(obj1, obj2, strict, keys, memos, iterationType) {
             }
         }
     }
-    for(i50 = 0; i50 < keys.length; i50++){
-        const key = keys[i50];
+    for(i49 = 0; i49 < keys.length; i49++){
+        const key = keys[i49];
         if (!innerDeepEqual(obj1[key], obj2[key], strict, memos)) {
             return false;
         }
@@ -7384,12 +7179,12 @@ const kTypes = [
 ];
 function addNumericalSeparator(val) {
     let res = "";
-    let i51 = val.length;
+    let i50 = val.length;
     const start = val[0] === "-" ? 1 : 0;
-    for(; i51 >= start + 4; i51 -= 3){
-        res = `_${val.slice(i51 - 3, i51)}${res}`;
+    for(; i50 >= start + 4; i50 -= 3){
+        res = `_${val.slice(i50 - 3, i50)}${res}`;
     }
-    return `${val.slice(0, i51)}${res}`;
+    return `${val.slice(0, i50)}${res}`;
 }
 const captureLargerStackTrace = hideStackFrames(function captureLargerStackTrace(err) {
     Error.captureStackTrace(err);
@@ -7839,12 +7634,12 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
     let lastSlash = -1;
     let dots = 0;
     let code;
-    for(let i52 = 0, len = path4.length; i52 <= len; ++i52){
-        if (i52 < len) code = path4.charCodeAt(i52);
+    for(let i51 = 0, len = path4.length; i51 <= len; ++i51){
+        if (i51 < len) code = path4.charCodeAt(i51);
         else if (isPathSeparator1(code)) break;
         else code = CHAR_FORWARD_SLASH1;
         if (isPathSeparator1(code)) {
-            if (lastSlash === i52 - 1 || dots === 1) {} else if (lastSlash !== i52 - 1 && dots === 2) {
+            if (lastSlash === i51 - 1 || dots === 1) {} else if (lastSlash !== i51 - 1 && dots === 2) {
                 if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 || res.charCodeAt(res.length - 2) !== 46) {
                     if (res.length > 2) {
                         const lastSlashIndex = res.lastIndexOf(separator);
@@ -7855,13 +7650,13 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
                             res = res.slice(0, lastSlashIndex);
                             lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
                         }
-                        lastSlash = i52;
+                        lastSlash = i51;
                         dots = 0;
                         continue;
                     } else if (res.length === 2 || res.length === 1) {
                         res = "";
                         lastSegmentLength = 0;
-                        lastSlash = i52;
+                        lastSlash = i51;
                         dots = 0;
                         continue;
                     }
@@ -7872,11 +7667,11 @@ function normalizeString(path4, allowAboveRoot, separator, isPathSeparator1) {
                     lastSegmentLength = 2;
                 }
             } else {
-                if (res.length > 0) res += separator + path4.slice(lastSlash + 1, i52);
-                else res = path4.slice(lastSlash + 1, i52);
-                lastSegmentLength = i52 - lastSlash - 1;
+                if (res.length > 0) res += separator + path4.slice(lastSlash + 1, i51);
+                else res = path4.slice(lastSlash + 1, i51);
+                lastSegmentLength = i51 - lastSlash - 1;
             }
-            lastSlash = i52;
+            lastSlash = i51;
             dots = 0;
         } else if (code === 46 && dots !== -1) {
             ++dots;
@@ -7907,16 +7702,16 @@ function encodeWhitespace(string) {
     });
 }
 const sep = "\\";
-const delimiter1 = ";";
+const delimiter = ";";
 function resolve(...pathSegments) {
     let resolvedDevice = "";
     let resolvedTail = "";
     let resolvedAbsolute = false;
-    for(let i53 = pathSegments.length - 1; i53 >= -1; i53--){
+    for(let i52 = pathSegments.length - 1; i52 >= -1; i52--){
         let path5;
         const { Deno  } = globalThis;
-        if (i53 >= 0) {
-            path5 = pathSegments[i53];
+        if (i52 >= 0) {
+            path5 = pathSegments[i52];
         } else if (!resolvedDevice) {
             if (typeof Deno?.cwd !== "function") {
                 throw new TypeError("Resolved a drive-letter-less path without a CWD.");
@@ -8102,8 +7897,8 @@ function join1(...paths) {
     if (pathsCount === 0) return ".";
     let joined;
     let firstPart = null;
-    for(let i54 = 0; i54 < pathsCount; ++i54){
-        const path8 = paths[i54];
+    for(let i53 = 0; i53 < pathsCount; ++i53){
+        const path8 = paths[i53];
         assertPath(path8);
         if (path8.length > 0) {
             if (joined === undefined) joined = firstPart = path8;
@@ -8167,37 +7962,37 @@ function relative(from, to) {
     const toLen = toEnd - toStart;
     const length = fromLen < toLen ? fromLen : toLen;
     let lastCommonSep = -1;
-    let i55 = 0;
-    for(; i55 <= length; ++i55){
-        if (i55 === length) {
+    let i54 = 0;
+    for(; i54 <= length; ++i54){
+        if (i54 === length) {
             if (toLen > length) {
-                if (to.charCodeAt(toStart + i55) === 92) {
-                    return toOrig.slice(toStart + i55 + 1);
-                } else if (i55 === 2) {
-                    return toOrig.slice(toStart + i55);
+                if (to.charCodeAt(toStart + i54) === 92) {
+                    return toOrig.slice(toStart + i54 + 1);
+                } else if (i54 === 2) {
+                    return toOrig.slice(toStart + i54);
                 }
             }
             if (fromLen > length) {
-                if (from.charCodeAt(fromStart + i55) === 92) {
-                    lastCommonSep = i55;
-                } else if (i55 === 2) {
+                if (from.charCodeAt(fromStart + i54) === 92) {
+                    lastCommonSep = i54;
+                } else if (i54 === 2) {
                     lastCommonSep = 3;
                 }
             }
             break;
         }
-        const fromCode = from.charCodeAt(fromStart + i55);
-        const toCode = to.charCodeAt(toStart + i55);
+        const fromCode = from.charCodeAt(fromStart + i54);
+        const toCode = to.charCodeAt(toStart + i54);
         if (fromCode !== toCode) break;
-        else if (fromCode === 92) lastCommonSep = i55;
+        else if (fromCode === 92) lastCommonSep = i54;
     }
-    if (i55 !== length && lastCommonSep === -1) {
+    if (i54 !== length && lastCommonSep === -1) {
         return toOrig;
     }
     let out = "";
     if (lastCommonSep === -1) lastCommonSep = 0;
-    for(i55 = fromStart + lastCommonSep + 1; i55 <= fromEnd; ++i55){
-        if (i55 === fromEnd || from.charCodeAt(i55) === 92) {
+    for(i54 = fromStart + lastCommonSep + 1; i54 <= fromEnd; ++i54){
+        if (i54 === fromEnd || from.charCodeAt(i54) === 92) {
             if (out.length === 0) out += "..";
             else out += "\\..";
         }
@@ -8278,10 +8073,10 @@ function dirname(path10) {
     } else if (isPathSeparator(code)) {
         return path10;
     }
-    for(let i56 = len - 1; i56 >= offset; --i56){
-        if (isPathSeparator(path10.charCodeAt(i56))) {
+    for(let i55 = len - 1; i55 >= offset; --i55){
+        if (isPathSeparator(path10.charCodeAt(i55))) {
             if (!matchedSlash) {
-                end = i56;
+                end = i55;
                 break;
             }
         } else {
@@ -8304,7 +8099,7 @@ function basename(path11, ext = "") {
     let start = 0;
     let end = -1;
     let matchedSlash = true;
-    let i57;
+    let i56;
     if (path11.length >= 2) {
         const drive = path11.charCodeAt(0);
         if (isWindowsDeviceRoot(drive)) {
@@ -8315,22 +8110,22 @@ function basename(path11, ext = "") {
         if (ext.length === path11.length && ext === path11) return "";
         let extIdx = ext.length - 1;
         let firstNonSlashEnd = -1;
-        for(i57 = path11.length - 1; i57 >= start; --i57){
-            const code = path11.charCodeAt(i57);
+        for(i56 = path11.length - 1; i56 >= start; --i56){
+            const code = path11.charCodeAt(i56);
             if (isPathSeparator(code)) {
                 if (!matchedSlash) {
-                    start = i57 + 1;
+                    start = i56 + 1;
                     break;
                 }
             } else {
                 if (firstNonSlashEnd === -1) {
                     matchedSlash = false;
-                    firstNonSlashEnd = i57 + 1;
+                    firstNonSlashEnd = i56 + 1;
                 }
                 if (extIdx >= 0) {
                     if (code === ext.charCodeAt(extIdx)) {
                         if (--extIdx === -1) {
-                            end = i57;
+                            end = i56;
                         }
                     } else {
                         extIdx = -1;
@@ -8343,15 +8138,15 @@ function basename(path11, ext = "") {
         else if (end === -1) end = path11.length;
         return path11.slice(start, end);
     } else {
-        for(i57 = path11.length - 1; i57 >= start; --i57){
-            if (isPathSeparator(path11.charCodeAt(i57))) {
+        for(i56 = path11.length - 1; i56 >= start; --i56){
+            if (isPathSeparator(path11.charCodeAt(i56))) {
                 if (!matchedSlash) {
-                    start = i57 + 1;
+                    start = i56 + 1;
                     break;
                 }
             } else if (end === -1) {
                 matchedSlash = false;
-                end = i57 + 1;
+                end = i56 + 1;
             }
         }
         if (end === -1) return "";
@@ -8369,21 +8164,21 @@ function extname(path12) {
     if (path12.length >= 2 && path12.charCodeAt(1) === 58 && isWindowsDeviceRoot(path12.charCodeAt(0))) {
         start = startPart = 2;
     }
-    for(let i58 = path12.length - 1; i58 >= start; --i58){
-        const code = path12.charCodeAt(i58);
+    for(let i57 = path12.length - 1; i57 >= start; --i57){
+        const code = path12.charCodeAt(i57);
         if (isPathSeparator(code)) {
             if (!matchedSlash) {
-                startPart = i58 + 1;
+                startPart = i57 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i58 + 1;
+            end = i57 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i58;
+            if (startDot === -1) startDot = i57;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8468,23 +8263,23 @@ function parse(path13) {
     let startPart = rootEnd;
     let end = -1;
     let matchedSlash = true;
-    let i59 = path13.length - 1;
+    let i58 = path13.length - 1;
     let preDotState = 0;
-    for(; i59 >= rootEnd; --i59){
-        code = path13.charCodeAt(i59);
+    for(; i58 >= rootEnd; --i58){
+        code = path13.charCodeAt(i58);
         if (isPathSeparator(code)) {
             if (!matchedSlash) {
-                startPart = i59 + 1;
+                startPart = i58 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i59 + 1;
+            end = i58 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i59;
+            if (startDot === -1) startDot = i58;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8530,9 +8325,9 @@ function toFileUrl(path15) {
     }
     return url;
 }
-const __default2 = {
+const __default1 = {
     basename,
-    delimiter: delimiter1,
+    delimiter,
     dirname,
     extname,
     format,
@@ -8549,7 +8344,7 @@ const __default2 = {
 };
 const mod1 = {
     sep: sep,
-    delimiter: delimiter1,
+    delimiter: delimiter,
     resolve: resolve,
     normalize: normalize,
     isAbsolute: isAbsolute,
@@ -8563,16 +8358,16 @@ const mod1 = {
     parse: parse,
     fromFileUrl: fromFileUrl,
     toFileUrl: toFileUrl,
-    default: __default2
+    default: __default1
 };
 const sep1 = "/";
-const delimiter2 = ":";
+const delimiter1 = ":";
 function resolve1(...pathSegments) {
     let resolvedPath = "";
     let resolvedAbsolute = false;
-    for(let i60 = pathSegments.length - 1; i60 >= -1 && !resolvedAbsolute; i60--){
+    for(let i59 = pathSegments.length - 1; i59 >= -1 && !resolvedAbsolute; i59--){
         let path16;
-        if (i60 >= 0) path16 = pathSegments[i60];
+        if (i59 >= 0) path16 = pathSegments[i59];
         else {
             const { Deno  } = globalThis;
             if (typeof Deno?.cwd !== "function") {
@@ -8612,8 +8407,8 @@ function isAbsolute1(path18) {
 function join2(...paths) {
     if (paths.length === 0) return ".";
     let joined;
-    for(let i61 = 0, len = paths.length; i61 < len; ++i61){
-        const path19 = paths[i61];
+    for(let i60 = 0, len = paths.length; i60 < len; ++i60){
+        const path19 = paths[i60];
         assertPath(path19);
         if (path19.length > 0) {
             if (!joined) joined = path19;
@@ -8644,32 +8439,32 @@ function relative1(from, to) {
     const toLen = toEnd - toStart;
     const length = fromLen < toLen ? fromLen : toLen;
     let lastCommonSep = -1;
-    let i62 = 0;
-    for(; i62 <= length; ++i62){
-        if (i62 === length) {
+    let i61 = 0;
+    for(; i61 <= length; ++i61){
+        if (i61 === length) {
             if (toLen > length) {
-                if (to.charCodeAt(toStart + i62) === 47) {
-                    return to.slice(toStart + i62 + 1);
-                } else if (i62 === 0) {
-                    return to.slice(toStart + i62);
+                if (to.charCodeAt(toStart + i61) === 47) {
+                    return to.slice(toStart + i61 + 1);
+                } else if (i61 === 0) {
+                    return to.slice(toStart + i61);
                 }
             } else if (fromLen > length) {
-                if (from.charCodeAt(fromStart + i62) === 47) {
-                    lastCommonSep = i62;
-                } else if (i62 === 0) {
+                if (from.charCodeAt(fromStart + i61) === 47) {
+                    lastCommonSep = i61;
+                } else if (i61 === 0) {
                     lastCommonSep = 0;
                 }
             }
             break;
         }
-        const fromCode = from.charCodeAt(fromStart + i62);
-        const toCode = to.charCodeAt(toStart + i62);
+        const fromCode = from.charCodeAt(fromStart + i61);
+        const toCode = to.charCodeAt(toStart + i61);
         if (fromCode !== toCode) break;
-        else if (fromCode === 47) lastCommonSep = i62;
+        else if (fromCode === 47) lastCommonSep = i61;
     }
     let out = "";
-    for(i62 = fromStart + lastCommonSep + 1; i62 <= fromEnd; ++i62){
-        if (i62 === fromEnd || from.charCodeAt(i62) === 47) {
+    for(i61 = fromStart + lastCommonSep + 1; i61 <= fromEnd; ++i61){
+        if (i61 === fromEnd || from.charCodeAt(i61) === 47) {
             if (out.length === 0) out += "..";
             else out += "/..";
         }
@@ -8690,10 +8485,10 @@ function dirname1(path21) {
     const hasRoot = path21.charCodeAt(0) === 47;
     let end = -1;
     let matchedSlash = true;
-    for(let i63 = path21.length - 1; i63 >= 1; --i63){
-        if (path21.charCodeAt(i63) === 47) {
+    for(let i62 = path21.length - 1; i62 >= 1; --i62){
+        if (path21.charCodeAt(i62) === 47) {
             if (!matchedSlash) {
-                end = i63;
+                end = i62;
                 break;
             }
         } else {
@@ -8714,27 +8509,27 @@ function basename1(path22, ext = "") {
     let start = 0;
     let end = -1;
     let matchedSlash = true;
-    let i64;
+    let i63;
     if (ext !== undefined && ext.length > 0 && ext.length <= path22.length) {
         if (ext.length === path22.length && ext === path22) return "";
         let extIdx = ext.length - 1;
         let firstNonSlashEnd = -1;
-        for(i64 = path22.length - 1; i64 >= 0; --i64){
-            const code = path22.charCodeAt(i64);
+        for(i63 = path22.length - 1; i63 >= 0; --i63){
+            const code = path22.charCodeAt(i63);
             if (code === 47) {
                 if (!matchedSlash) {
-                    start = i64 + 1;
+                    start = i63 + 1;
                     break;
                 }
             } else {
                 if (firstNonSlashEnd === -1) {
                     matchedSlash = false;
-                    firstNonSlashEnd = i64 + 1;
+                    firstNonSlashEnd = i63 + 1;
                 }
                 if (extIdx >= 0) {
                     if (code === ext.charCodeAt(extIdx)) {
                         if (--extIdx === -1) {
-                            end = i64;
+                            end = i63;
                         }
                     } else {
                         extIdx = -1;
@@ -8747,15 +8542,15 @@ function basename1(path22, ext = "") {
         else if (end === -1) end = path22.length;
         return path22.slice(start, end);
     } else {
-        for(i64 = path22.length - 1; i64 >= 0; --i64){
-            if (path22.charCodeAt(i64) === 47) {
+        for(i63 = path22.length - 1; i63 >= 0; --i63){
+            if (path22.charCodeAt(i63) === 47) {
                 if (!matchedSlash) {
-                    start = i64 + 1;
+                    start = i63 + 1;
                     break;
                 }
             } else if (end === -1) {
                 matchedSlash = false;
-                end = i64 + 1;
+                end = i63 + 1;
             }
         }
         if (end === -1) return "";
@@ -8769,21 +8564,21 @@ function extname1(path23) {
     let end = -1;
     let matchedSlash = true;
     let preDotState = 0;
-    for(let i65 = path23.length - 1; i65 >= 0; --i65){
-        const code = path23.charCodeAt(i65);
+    for(let i64 = path23.length - 1; i64 >= 0; --i64){
+        const code = path23.charCodeAt(i64);
         if (code === 47) {
             if (!matchedSlash) {
-                startPart = i65 + 1;
+                startPart = i64 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i65 + 1;
+            end = i64 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i65;
+            if (startDot === -1) startDot = i64;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8824,23 +8619,23 @@ function parse1(path24) {
     let startPart = 0;
     let end = -1;
     let matchedSlash = true;
-    let i66 = path24.length - 1;
+    let i65 = path24.length - 1;
     let preDotState = 0;
-    for(; i66 >= start; --i66){
-        const code = path24.charCodeAt(i66);
+    for(; i65 >= start; --i65){
+        const code = path24.charCodeAt(i65);
         if (code === 47) {
             if (!matchedSlash) {
-                startPart = i66 + 1;
+                startPart = i65 + 1;
                 break;
             }
             continue;
         }
         if (end === -1) {
             matchedSlash = false;
-            end = i66 + 1;
+            end = i65 + 1;
         }
         if (code === 46) {
-            if (startDot === -1) startDot = i66;
+            if (startDot === -1) startDot = i65;
             else if (preDotState !== 1) preDotState = 1;
         } else if (startDot !== -1) {
             preDotState = -1;
@@ -8883,9 +8678,9 @@ function toFileUrl1(path25) {
     url.pathname = encodeWhitespace(path25.replace(/%/g, "%25").replace(/\\/g, "%5C"));
     return url;
 }
-const __default3 = {
+const __default2 = {
     basename: basename1,
-    delimiter: delimiter2,
+    delimiter: delimiter1,
     dirname: dirname1,
     extname: extname1,
     format: format1,
@@ -8902,7 +8697,7 @@ const __default3 = {
 };
 const mod2 = {
     sep: sep1,
-    delimiter: delimiter2,
+    delimiter: delimiter1,
     resolve: resolve1,
     normalize: normalize1,
     isAbsolute: isAbsolute1,
@@ -8916,40 +8711,40 @@ const mod2 = {
     parse: parse1,
     fromFileUrl: fromFileUrl1,
     toFileUrl: toFileUrl1,
-    default: __default3
+    default: __default2
 };
 const path = isWindows ? mod1 : mod2;
 const { join: join3 , normalize: normalize2  } = path;
-const path1 = isWindows ? __default2 : __default3;
-const { basename: basename2 , delimiter: delimiter3 , dirname: dirname2 , extname: extname2 , format: format2 , fromFileUrl: fromFileUrl2 , isAbsolute: isAbsolute2 , join: join4 , normalize: normalize3 , parse: parse2 , relative: relative2 , resolve: resolve2 , sep: sep2 , toFileUrl: toFileUrl2 , toNamespacedPath: toNamespacedPath2 ,  } = path1;
+const path1 = isWindows ? __default1 : __default2;
+const { basename: basename2 , delimiter: delimiter2 , dirname: dirname2 , extname: extname2 , format: format2 , fromFileUrl: fromFileUrl2 , isAbsolute: isAbsolute2 , join: join4 , normalize: normalize3 , parse: parse2 , relative: relative2 , resolve: resolve2 , sep: sep2 , toFileUrl: toFileUrl2 , toNamespacedPath: toNamespacedPath2 ,  } = path1;
 "use strict";
-const base1 = 36;
-const damp1 = 700;
-const delimiter4 = "-";
-const regexNonASCII1 = /[^\0-\x7E]/;
-const regexSeparators1 = /[\x2E\u3002\uFF0E\uFF61]/g;
-const errors1 = {
+const base = 36;
+const damp = 700;
+const delimiter3 = "-";
+const regexNonASCII = /[^\0-\x7E]/;
+const regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g;
+const errors = {
     "overflow": "Overflow: input needs wider integers to process",
     "not-basic": "Illegal input >= 0x80 (not a basic code point)",
     "invalid-input": "Invalid input"
 };
-const baseMinusTMin1 = 36 - 1;
-function error1(type) {
-    throw new RangeError(errors1[type]);
+const baseMinusTMin = 36 - 1;
+function error(type) {
+    throw new RangeError(errors[type]);
 }
-function mapDomain1(str, fn) {
+function mapDomain(str, fn) {
     const parts = str.split("@");
     let result = "";
     if (parts.length > 1) {
         result = parts[0] + "@";
         str = parts[1];
     }
-    str = str.replace(regexSeparators1, "\x2E");
+    str = str.replace(regexSeparators, "\x2E");
     const labels = str.split(".");
     const encoded = labels.map(fn).join(".");
     return result + encoded;
 }
-function ucs2decode1(str) {
+function ucs2decode(str) {
     const output = [];
     let counter = 0;
     const length = str.length;
@@ -8969,23 +8764,23 @@ function ucs2decode1(str) {
     }
     return output;
 }
-function digitToBasic1(digit, flag) {
+function digitToBasic(digit, flag) {
     return digit + 22 + 75 * Number(digit < 26) - (Number(flag != 0) << 5);
 }
-function adapt1(delta, numPoints, firstTime) {
+function adapt(delta, numPoints, firstTime) {
     let k = 0;
-    delta = firstTime ? Math.floor(delta / damp1) : delta >> 1;
+    delta = firstTime ? Math.floor(delta / damp) : delta >> 1;
     delta += Math.floor(delta / numPoints);
-    for(; delta > baseMinusTMin1 * 26 >> 1; k += base1){
-        delta = Math.floor(delta / baseMinusTMin1);
+    for(; delta > baseMinusTMin * 26 >> 1; k += base){
+        delta = Math.floor(delta / baseMinusTMin);
     }
-    return Math.floor(k + (baseMinusTMin1 + 1) * delta / (delta + 38));
+    return Math.floor(k + (baseMinusTMin + 1) * delta / (delta + 38));
 }
-function encode3(str) {
+function encode2(str) {
     const output = [];
-    const input = ucs2decode1(str);
+    const input = ucs2decode(str);
     const inputLength = input.length;
-    let n9 = 128;
+    let n7 = 128;
     let delta = 0;
     let bias = 72;
     for (const currentValue of input){
@@ -8996,51 +8791,51 @@ function encode3(str) {
     const basicLength = output.length;
     let handledCPCount = basicLength;
     if (basicLength) {
-        output.push(delimiter4);
+        output.push(delimiter3);
     }
     while(handledCPCount < inputLength){
         let m = 2147483647;
         for (const currentValue of input){
-            if (currentValue >= n9 && currentValue < m) {
+            if (currentValue >= n7 && currentValue < m) {
                 m = currentValue;
             }
         }
         const handledCPCountPlusOne = handledCPCount + 1;
-        if (m - n9 > Math.floor((2147483647 - delta) / handledCPCountPlusOne)) {
-            error1("overflow");
+        if (m - n7 > Math.floor((2147483647 - delta) / handledCPCountPlusOne)) {
+            error("overflow");
         }
-        delta += (m - n9) * handledCPCountPlusOne;
-        n9 = m;
+        delta += (m - n7) * handledCPCountPlusOne;
+        n7 = m;
         for (const currentValue1 of input){
-            if (currentValue1 < n9 && ++delta > 2147483647) {
-                error1("overflow");
+            if (currentValue1 < n7 && ++delta > 2147483647) {
+                error("overflow");
             }
-            if (currentValue1 == n9) {
+            if (currentValue1 == n7) {
                 let q = delta;
-                for(let k = 36;; k += base1){
-                    const t3 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
-                    if (q < t3) {
+                for(let k = 36;; k += base){
+                    const t1 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
+                    if (q < t1) {
                         break;
                     }
-                    const qMinusT = q - t3;
-                    const baseMinusT = 36 - t3;
-                    output.push(String.fromCharCode(digitToBasic1(t3 + qMinusT % baseMinusT, 0)));
+                    const qMinusT = q - t1;
+                    const baseMinusT = 36 - t1;
+                    output.push(String.fromCharCode(digitToBasic(t1 + qMinusT % baseMinusT, 0)));
                     q = Math.floor(qMinusT / baseMinusT);
                 }
-                output.push(String.fromCharCode(digitToBasic1(q, 0)));
-                bias = adapt1(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+                output.push(String.fromCharCode(digitToBasic(q, 0)));
+                bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
                 delta = 0;
                 ++handledCPCount;
             }
         }
         ++delta;
-        ++n9;
+        ++n7;
     }
     return output.join("");
 }
-function toASCII1(input) {
-    return mapDomain1(input, function(str) {
-        return regexNonASCII1.test(str) ? "xn--" + encode3(str) : str;
+function toASCII(input) {
+    return mapDomain(input, function(str) {
+        return regexNonASCII.test(str) ? "xn--" + encode2(str) : str;
     });
 }
 const hexTable = new Array(256);
@@ -9341,8 +9136,8 @@ function encodeStr(str, noEscapeTable, hexTable1) {
     if (lastPos < len) return out + str.slice(lastPos);
     return out;
 }
-const decode3 = parse3;
-const encode4 = stringify;
+const decode2 = parse3;
+const encode3 = stringify;
 function qsEscape(str) {
     if (typeof str !== "string") {
         if (typeof str === "object") {
@@ -9614,8 +9409,8 @@ const isHexTable = new Int8Array([
 ]);
 function charCodes(str) {
     const ret = new Array(str.length);
-    for(let i67 = 0; i67 < str.length; ++i67){
-        ret[i67] = str.charCodeAt(i67);
+    for(let i66 = 0; i66 < str.length; ++i66){
+        ret[i66] = str.charCodeAt(i66);
     }
     return ret;
 }
@@ -9671,11 +9466,11 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
     let valEncoded = customDecode;
     const plusChar = customDecode ? "%20" : " ";
     let encodeCheck = 0;
-    for(let i68 = 0; i68 < str.length; ++i68){
-        const code = str.charCodeAt(i68);
+    for(let i67 = 0; i67 < str.length; ++i67){
+        const code = str.charCodeAt(i67);
         if (code === sepCodes[sepIdx]) {
             if (++sepIdx === sepLen) {
-                const end = i68 - sepIdx + 1;
+                const end = i67 - sepIdx + 1;
                 if (eqIdx < eqLen) {
                     if (lastPos < end) {
                         key += str.slice(lastPos, end);
@@ -9683,7 +9478,7 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                         if (--pairs === 0) {
                             return obj;
                         }
-                        lastPos = i68 + 1;
+                        lastPos = i67 + 1;
                         sepIdx = eqIdx = 0;
                         continue;
                     }
@@ -9696,7 +9491,7 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                 }
                 key = value = "";
                 encodeCheck = 0;
-                lastPos = i68 + 1;
+                lastPos = i67 + 1;
                 sepIdx = eqIdx = 0;
             }
         } else {
@@ -9704,12 +9499,12 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
             if (eqIdx < eqLen) {
                 if (code === eqCodes[eqIdx]) {
                     if (++eqIdx === eqLen) {
-                        const end = i68 - eqIdx + 1;
+                        const end = i67 - eqIdx + 1;
                         if (lastPos < end) {
                             key += str.slice(lastPos, end);
                         }
                         encodeCheck = 0;
-                        lastPos = i68 + 1;
+                        lastPos = i67 + 1;
                     }
                     continue;
                 } else {
@@ -9731,20 +9526,20 @@ function parse3(str, sep4 = "&", eq = "=", { decodeURIComponent =unescape1 , max
                     }
                 }
                 if (code === 43) {
-                    if (lastPos < i68) {
-                        key += str.slice(lastPos, i68);
+                    if (lastPos < i67) {
+                        key += str.slice(lastPos, i67);
                     }
                     key += plusChar;
-                    lastPos = i68 + 1;
+                    lastPos = i67 + 1;
                     continue;
                 }
             }
             if (code === 43) {
-                if (lastPos < i68) {
-                    value += str.slice(lastPos, i68);
+                if (lastPos < i67) {
+                    value += str.slice(lastPos, i67);
                 }
                 value += plusChar;
-                lastPos = i68 + 1;
+                lastPos = i67 + 1;
             } else if (!valEncoded) {
                 if (code === 37) {
                     encodeCheck = 1;
@@ -9944,8 +9739,8 @@ function stringify(obj, sep5, eq, options) {
         const keys = Object.keys(obj);
         const len = keys.length;
         let fields = "";
-        for(let i69 = 0; i69 < len; ++i69){
-            const k = keys[i69];
+        for(let i68 = 0; i68 < len; ++i68){
+            const k = keys[i68];
             const v = obj[k];
             let ks = convert(k, encode31);
             ks += eq;
@@ -10280,11 +10075,11 @@ function qsUnescape(s5) {
     }
 }
 const unescape1 = qsUnescape;
-const __default4 = {
+const __default3 = {
     parse: parse3,
     stringify,
-    decode: decode3,
-    encode: encode4,
+    decode: decode2,
+    encode: encode3,
     unescape: unescape1,
     escape: escape1,
     unescapeBuffer
@@ -10632,15 +10427,15 @@ class Url {
         let last = srcPath.slice(-1)[0];
         const hasTrailingSlash = (result.host || relative4.host || srcPath.length > 1) && (last === "." || last === "..") || last === "";
         let up = 0;
-        for(let i70 = srcPath.length - 1; i70 >= 0; i70--){
-            last = srcPath[i70];
+        for(let i69 = srcPath.length - 1; i69 >= 0; i69--){
+            last = srcPath[i69];
             if (last === ".") {
-                srcPath.splice(i70, 1);
+                srcPath.splice(i69, 1);
             } else if (last === "..") {
-                srcPath.splice(i70, 1);
+                srcPath.splice(i69, 1);
                 up++;
             } else if (up) {
-                srcPath.splice(i70, 1);
+                srcPath.splice(i69, 1);
                 up--;
             }
         }
@@ -10702,7 +10497,7 @@ class Url {
             }
         }
         if (this.query !== null && typeof this.query === "object") {
-            query = __default4.stringify(this.query);
+            query = __default3.stringify(this.query);
         }
         let search = this.search || query && "?" + query || "";
         if (protocol && protocol.charCodeAt(protocol.length - 1) !== 58) {
@@ -10710,21 +10505,21 @@ class Url {
         }
         let newPathname = "";
         let lastPos = 0;
-        for(let i71 = 0; i71 < pathname.length; ++i71){
-            switch(pathname.charCodeAt(i71)){
+        for(let i70 = 0; i70 < pathname.length; ++i70){
+            switch(pathname.charCodeAt(i70)){
                 case 35:
-                    if (i71 - lastPos > 0) {
-                        newPathname += pathname.slice(lastPos, i71);
+                    if (i70 - lastPos > 0) {
+                        newPathname += pathname.slice(lastPos, i70);
                     }
                     newPathname += "%23";
-                    lastPos = i71 + 1;
+                    lastPos = i70 + 1;
                     break;
                 case 63:
-                    if (i71 - lastPos > 0) {
-                        newPathname += pathname.slice(lastPos, i71);
+                    if (i70 - lastPos > 0) {
+                        newPathname += pathname.slice(lastPos, i70);
                     }
                     newPathname += "%3F";
-                    lastPos = i71 + 1;
+                    lastPos = i70 + 1;
                     break;
             }
         }
@@ -10758,19 +10553,19 @@ class Url {
         let end = -1;
         let rest = "";
         let lastPos = 0;
-        for(let i72 = 0, inWs = false, split = false; i72 < url.length; ++i72){
-            const code = url.charCodeAt(i72);
+        for(let i71 = 0, inWs = false, split = false; i71 < url.length; ++i71){
+            const code = url.charCodeAt(i71);
             const isWs = code === 32 || code === 9 || code === 13 || code === 10 || code === 12 || code === 160 || code === 65279;
             if (start === -1) {
                 if (isWs) continue;
-                lastPos = start = i72;
+                lastPos = start = i71;
             } else if (inWs) {
                 if (!isWs) {
                     end = -1;
                     inWs = false;
                 }
             } else if (isWs) {
-                end = i72;
+                end = i71;
                 inWs = true;
             }
             if (!split) {
@@ -10781,9 +10576,9 @@ class Url {
                         split = true;
                         break;
                     case 92:
-                        if (i72 - lastPos > 0) rest += url.slice(lastPos, i72);
+                        if (i71 - lastPos > 0) rest += url.slice(lastPos, i71);
                         rest += "/";
-                        lastPos = i72 + 1;
+                        lastPos = i71 + 1;
                         break;
                 }
             } else if (!hasHash && code === 35) {
@@ -10813,7 +10608,7 @@ class Url {
                 if (simplePath[2]) {
                     this.search = simplePath[2];
                     if (parseQueryString) {
-                        this.query = __default4.parse(this.search.slice(1));
+                        this.query = __default3.parse(this.search.slice(1));
                     } else {
                         this.query = this.search.slice(1);
                     }
@@ -10844,8 +10639,8 @@ class Url {
             let hostEnd = -1;
             let atSign = -1;
             let nonHost = -1;
-            for(let i73 = 0; i73 < rest.length; ++i73){
-                switch(rest.charCodeAt(i73)){
+            for(let i72 = 0; i72 < rest.length; ++i72){
+                switch(rest.charCodeAt(i72)){
                     case 9:
                     case 10:
                     case 13:
@@ -10862,16 +10657,16 @@ class Url {
                     case 123:
                     case 124:
                     case 125:
-                        if (nonHost === -1) nonHost = i73;
+                        if (nonHost === -1) nonHost = i72;
                         break;
                     case 35:
                     case 47:
                     case 63:
-                        if (nonHost === -1) nonHost = i73;
-                        hostEnd = i73;
+                        if (nonHost === -1) nonHost = i72;
+                        hostEnd = i72;
                         break;
                     case 64:
-                        atSign = i73;
+                        atSign = i72;
                         nonHost = -1;
                         break;
                 }
@@ -10902,7 +10697,7 @@ class Url {
                 this.hostname = this.hostname.toLowerCase();
             }
             if (!ipv6Hostname) {
-                this.hostname = toASCII1(this.hostname);
+                this.hostname = toASCII(this.hostname);
             }
             const p = this.port ? ":" + this.port : "";
             const h = this.hostname || "";
@@ -10938,7 +10733,7 @@ class Url {
                 this.query = rest.slice(questionIdx + 1, hashIdx);
             }
             if (parseQueryString) {
-                this.query = __default4.parse(this.query);
+                this.query = __default3.parse(this.query);
             }
         } else if (parseQueryString) {
             this.search = null;
@@ -10967,12 +10762,12 @@ function isIpv6Hostname(hostname) {
     return hostname.charCodeAt(0) === 91 && hostname.charCodeAt(hostname.length - 1) === 93;
 }
 function getHostname(self, rest, hostname) {
-    for(let i74 = 0; i74 < hostname.length; ++i74){
-        const code = hostname.charCodeAt(i74);
+    for(let i73 = 0; i73 < hostname.length; ++i73){
+        const code = hostname.charCodeAt(i73);
         const isValid = code >= 97 && code <= 122 || code === 46 || code >= 65 && code <= 90 || code >= 48 && code <= 57 || code === 45 || code === 43 || code === 95 || code > 127;
         if (!isValid) {
-            self.hostname = hostname.slice(0, i74);
-            return `/${hostname.slice(i74)}${rest}`;
+            self.hostname = hostname.slice(0, i73);
+            return `/${hostname.slice(i73)}${rest}`;
         }
     }
     return rest;
@@ -11108,14 +10903,14 @@ const escapedCodes = [
 function autoEscapeStr(rest) {
     let escaped = "";
     let lastEscapedPos = 0;
-    for(let i75 = 0; i75 < rest.length; ++i75){
-        const escapedChar = escapedCodes[rest.charCodeAt(i75)];
+    for(let i74 = 0; i74 < rest.length; ++i74){
+        const escapedChar = escapedCodes[rest.charCodeAt(i74)];
         if (escapedChar) {
-            if (i75 > lastEscapedPos) {
-                escaped += rest.slice(lastEscapedPos, i75);
+            if (i74 > lastEscapedPos) {
+                escaped += rest.slice(lastEscapedPos, i74);
             }
             escaped += escapedChar;
-            lastEscapedPos = i75 + 1;
+            lastEscapedPos = i74 + 1;
         }
     }
     if (lastEscapedPos === 0) {
@@ -23068,6 +22863,215 @@ function u(a19, o22 = {}) {
         subdomain: null
     });
 }
+const base1 = 36;
+const damp1 = 700;
+const delimiter4 = '-';
+const regexPunycode = /^xn--/;
+const regexNonASCII1 = /[^\0-\x7E]/;
+const regexSeparators1 = /[\x2E\u3002\uFF0E\uFF61]/g;
+const errors1 = {
+    'overflow': 'Overflow: input needs wider integers to process',
+    'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+    'invalid-input': 'Invalid input'
+};
+const baseMinusTMin1 = 36 - 1;
+const floor = Math.floor;
+const stringFromCharCode = String.fromCharCode;
+function error1(type) {
+    throw new RangeError(errors1[type]);
+}
+function map(array, fn) {
+    const result = [];
+    let length = array.length;
+    while(length--){
+        result[length] = fn(array[length]);
+    }
+    return result;
+}
+function mapDomain1(string, fn) {
+    const parts = string.split('@');
+    let result = '';
+    if (parts.length > 1) {
+        result = parts[0] + '@';
+        string = parts[1];
+    }
+    string = string.replace(regexSeparators1, '\x2E');
+    const labels = string.split('.');
+    const encoded = map(labels, fn).join('.');
+    return result + encoded;
+}
+function ucs2decode1(string) {
+    const output = [];
+    let counter = 0;
+    const length = string.length;
+    while(counter < length){
+        const value = string.charCodeAt(counter++);
+        if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+            const extra = string.charCodeAt(counter++);
+            if ((extra & 0xFC00) == 0xDC00) {
+                output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+            } else {
+                output.push(value);
+                counter--;
+            }
+        } else {
+            output.push(value);
+        }
+    }
+    return output;
+}
+const ucs2encode = (array)=>String.fromCodePoint(...array)
+;
+const basicToDigit = function(codePoint) {
+    if (codePoint - 0x30 < 0x0A) {
+        return codePoint - 0x16;
+    }
+    if (codePoint - 0x41 < 0x1A) {
+        return codePoint - 0x41;
+    }
+    if (codePoint - 0x61 < 0x1A) {
+        return codePoint - 0x61;
+    }
+    return 36;
+};
+const digitToBasic1 = function(digit, flag) {
+    return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+};
+const adapt1 = function(delta, numPoints, firstTime) {
+    let k = 0;
+    delta = firstTime ? floor(delta / damp1) : delta >> 1;
+    delta += floor(delta / numPoints);
+    for(; delta > baseMinusTMin1 * 26 >> 1; k += base1){
+        delta = floor(delta / baseMinusTMin1);
+    }
+    return floor(k + (baseMinusTMin1 + 1) * delta / (delta + 38));
+};
+const decode3 = function(input) {
+    const output = [];
+    const inputLength = input.length;
+    let i75 = 0;
+    let n10 = 128;
+    let bias = 72;
+    let basic = input.lastIndexOf(delimiter4);
+    if (basic < 0) {
+        basic = 0;
+    }
+    for(let j = 0; j < basic; ++j){
+        if (input.charCodeAt(j) >= 0x80) {
+            error1('not-basic');
+        }
+        output.push(input.charCodeAt(j));
+    }
+    for(let index = basic > 0 ? basic + 1 : 0; index < inputLength;){
+        let oldi = i75;
+        for(let w = 1, k = 36;; k += base1){
+            if (index >= inputLength) {
+                error1('invalid-input');
+            }
+            const digit = basicToDigit(input.charCodeAt(index++));
+            if (digit >= 36 || digit > floor((2147483647 - i75) / w)) {
+                error1('overflow');
+            }
+            i75 += digit * w;
+            const t6 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
+            if (digit < t6) {
+                break;
+            }
+            const baseMinusT = 36 - t6;
+            if (w > floor(2147483647 / baseMinusT)) {
+                error1('overflow');
+            }
+            w *= baseMinusT;
+        }
+        const out = output.length + 1;
+        bias = adapt1(i75 - oldi, out, oldi == 0);
+        if (floor(i75 / out) > 2147483647 - n10) {
+            error1('overflow');
+        }
+        n10 += floor(i75 / out);
+        i75 %= out;
+        output.splice(i75++, 0, n10);
+    }
+    return String.fromCodePoint(...output);
+};
+const encode4 = function(input) {
+    const output = [];
+    input = ucs2decode1(input);
+    let inputLength = input.length;
+    let n11 = 128;
+    let delta = 0;
+    let bias = 72;
+    for (const currentValue of input){
+        if (currentValue < 0x80) {
+            output.push(stringFromCharCode(currentValue));
+        }
+    }
+    let basicLength = output.length;
+    let handledCPCount = basicLength;
+    if (basicLength) {
+        output.push(delimiter4);
+    }
+    while(handledCPCount < inputLength){
+        let m = 2147483647;
+        for (const currentValue of input){
+            if (currentValue >= n11 && currentValue < m) {
+                m = currentValue;
+            }
+        }
+        const handledCPCountPlusOne = handledCPCount + 1;
+        if (m - n11 > floor((2147483647 - delta) / handledCPCountPlusOne)) {
+            error1('overflow');
+        }
+        delta += (m - n11) * handledCPCountPlusOne;
+        n11 = m;
+        for (const currentValue1 of input){
+            if (currentValue1 < n11 && ++delta > 2147483647) {
+                error1('overflow');
+            }
+            if (currentValue1 == n11) {
+                let q = delta;
+                for(let k = 36;; k += base1){
+                    const t7 = k <= bias ? 1 : k >= bias + 26 ? 26 : k - bias;
+                    if (q < t7) {
+                        break;
+                    }
+                    const qMinusT = q - t7;
+                    const baseMinusT = 36 - t7;
+                    output.push(stringFromCharCode(digitToBasic1(t7 + qMinusT % baseMinusT, 0)));
+                    q = floor(qMinusT / baseMinusT);
+                }
+                output.push(stringFromCharCode(digitToBasic1(q, 0)));
+                bias = adapt1(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+                delta = 0;
+                ++handledCPCount;
+            }
+        }
+        ++delta;
+        ++n11;
+    }
+    return output.join('');
+};
+const toUnicode = function(input) {
+    return mapDomain1(input, function(string) {
+        return regexPunycode.test(string) ? decode3(string.slice(4).toLowerCase()) : string;
+    });
+};
+const toASCII1 = function(input) {
+    return mapDomain1(input, function(string) {
+        return regexNonASCII1.test(string) ? 'xn--' + encode4(string) : string;
+    });
+};
+const __default4 = {
+    'version': '2.1.0',
+    'ucs2': {
+        'decode': ucs2decode1,
+        'encode': ucs2encode
+    },
+    'decode': decode3,
+    'encode': encode4,
+    'toASCII': toASCII1,
+    'toUnicode': toUnicode
+};
 function isCryptoKey(key) {
     try {
         return key != null && typeof key.extractable === 'boolean' && typeof key.algorithm.name === 'string' && typeof key.type === 'string';
@@ -25639,9 +25643,9 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
             if (c[0] > 0) firstViewCopy = utilConcatView(c, firstViewCopy);
             return firstViewCopy.slice(0);
         }
-        function power2(n10) {
-            if (n10 >= powers2.length) {
-                for(let p = powers2.length; p <= n10; p++){
+        function power2(n12) {
+            if (n12 >= powers2.length) {
+                for(let p = powers2.length; p <= n12; p++){
                     const c = new Uint8Array([
                         0
                     ]);
@@ -25657,7 +25661,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock) {
                     powers2.push(digits);
                 }
             }
-            return powers2[n10];
+            return powers2[n12];
         }
         function viewSub(first, second) {
             let b = 0;
@@ -43590,9 +43594,9 @@ class CertificateChainValidationEngine {
                         }
                         let issuerDomainPolicyIndex = -1;
                         let subjectDomainPolicyIndex = -1;
-                        for(let n11 = 0; n11 < allPolicies.length; n11++){
-                            if (allPolicies[n11] === policyMappings[i10 + 1].mappings[k].issuerDomainPolicy) issuerDomainPolicyIndex = n11;
-                            if (allPolicies[n11] === policyMappings[i10 + 1].mappings[k].subjectDomainPolicy) subjectDomainPolicyIndex = n11;
+                        for(let n13 = 0; n13 < allPolicies.length; n13++){
+                            if (allPolicies[n13] === policyMappings[i10 + 1].mappings[k].issuerDomainPolicy) issuerDomainPolicyIndex = n13;
+                            if (allPolicies[n13] === policyMappings[i10 + 1].mappings[k].subjectDomainPolicy) subjectDomainPolicyIndex = n13;
                         }
                         if (typeof policiesAndCerts[issuerDomainPolicyIndex][i10] !== "undefined") delete policiesAndCerts[issuerDomainPolicyIndex][i10];
                         for(let j = 0; j < certPolicies[i10].certificatePolicies.length; j++){
@@ -47850,18 +47854,18 @@ function shortStringInJS(length) {
                     }
                 } else {
                     let m = src[position++];
-                    let n12 = src[position++];
-                    if ((m & 0x80) > 0 || (n12 & 0x80) > 0) {
+                    let n14 = src[position++];
+                    if ((m & 0x80) > 0 || (n14 & 0x80) > 0) {
                         position -= 14;
                         return;
                     }
-                    if (length < 15) return fromCharCode(a24, b, c, d, e18, f, g, h, i15, j, k, l, m, n12);
+                    if (length < 15) return fromCharCode(a24, b, c, d, e18, f, g, h, i15, j, k, l, m, n14);
                     let o24 = src[position++];
                     if ((o24 & 0x80) > 0) {
                         position -= 15;
                         return;
                     }
-                    return fromCharCode(a24, b, c, d, e18, f, g, h, i15, j, k, l, m, n12, o24);
+                    return fromCharCode(a24, b, c, d, e18, f, g, h, i15, j, k, l, m, n14, o24);
                 }
             }
         }
@@ -49186,14 +49190,6 @@ base64.toString = (str, urlMode)=>{
 base64.fromString = (str, urlMode)=>{
     return base64.fromArrayBuffer((new TextEncoder).encode(str), urlMode);
 };
-const pkijs = {
-    setEngine,
-    CryptoEngine,
-    Certificate: Certificate,
-    CertificateRevocationList,
-    CertificateChainValidationEngine,
-    PublicKeyInfo
-};
 function abToStr(buf) {
     let str = "";
     new Uint8Array(buf).forEach((ch)=>{
@@ -49211,8 +49207,8 @@ function isPem(pem) {
     const pemRegex = /^-----BEGIN .+-----$\n([A-Za-z0-9+/=]|\n)*^-----END .+-----$/m;
     return !!pem.match(pemRegex);
 }
-function isPositiveInteger(n13) {
-    return n13 >>> 0 === parseFloat(n13);
+function isPositiveInteger(n15) {
+    return n15 >>> 0 === parseFloat(n15);
 }
 function abToBuf(ab) {
     return new Uint8Array(ab).buffer;
@@ -49277,11 +49273,18 @@ const cbor = {
     encode: encode5,
     decode: decode5
 };
-const webcrypto = crypto;
-pkijs.setEngine("newEngine", webcrypto, new pkijs.CryptoEngine({
+const pkijs = {
+    setEngine,
+    CryptoEngine,
+    Certificate: Certificate,
+    CertificateRevocationList,
+    CertificateChainValidationEngine,
+    PublicKeyInfo
+};
+pkijs.setEngine("newEngine", webauthnCrypto, new pkijs.CryptoEngine({
     name: "",
-    crypto: webcrypto,
-    subtle: webcrypto.subtle
+    crypto: webauthnCrypto,
+    subtle: webauthnCrypto.subtle
 }));
 function derToRaw(signature) {
     const rStart = signature[4] === 0 ? 5 : 4;
@@ -49353,7 +49356,7 @@ function validEtldPlusOne(value) {
     return true;
 }
 function validDomainName(value) {
-    const ascii = __default.toASCII(value);
+    const ascii = __default4.toASCII(value);
     if (ascii.length < 1) {
         return false;
     }
@@ -49410,10 +49413,10 @@ async function verifySignature(publicKeyPem, expectedSignature, data, hashName) 
                 name: hashName || "SHA-256"
             };
         }
-        if (alg.name === "ECDSA") {
+        if (typeof alg !== "undefined" && alg.name === "ECDSA") {
             uSignature = await derToRaw(uSignature);
         }
-        return await crypto.subtle.verify(alg, publicKey.getKey(), new Uint8Array(uSignature), new Uint8Array(data));
+        return await webauthnCrypto.subtle.verify(alg, publicKey.getKey(), new Uint8Array(uSignature), new Uint8Array(data));
     } catch (_e) {
         console.error(_e);
     }
@@ -49422,12 +49425,12 @@ async function hashDigest(o25, alg) {
     if (typeof o25 === "string") {
         o25 = new TextEncoder().encode(o25);
     }
-    const result = await crypto.subtle.digest(alg || "sha-256", o25);
+    const result = await webauthnCrypto.subtle.digest(alg || "sha-256", o25);
     return result;
 }
-function randomValues(n14) {
-    const byteArray = new Uint8Array(n14);
-    crypto.getRandomValues(byteArray);
+function randomValues(n16) {
+    const byteArray = new Uint8Array(n16);
+    webauthnCrypto.getRandomValues(byteArray);
     return byteArray;
 }
 function getHostname1(urlIn) {
@@ -49468,7 +49471,7 @@ const mod3 = {
     pkijs: pkijs,
     randomValues: randomValues,
     verifySignature: verifySignature,
-    webcrypto: webcrypto
+    webcrypto: webauthnCrypto
 };
 function coerceToBase64(thing, name) {
     if (!name) {
@@ -50184,6 +50187,7 @@ class Key {
         this._original_jwk = undefined;
         this._original_cose = undefined;
         this._key = key;
+        this._keyinfo = undefined;
     }
     async fromPem(pem) {
         let base64ber, ber;
@@ -50196,7 +50200,7 @@ class Key {
         if (ber.byteLength === 0) {
             throw new Error("Supplied key ber was empty (0 bytes)");
         }
-        getKeyInfo(ber);
+        this._keyInfo = getKeyInfo(ber);
         let importSPKIResult;
         try {
             importSPKIResult = await mod3.importSPKI(pem, "ES256");
@@ -50218,9 +50222,9 @@ class Key {
         if (typeof extractable !== "undefined" && typeof extractable === "boolean") {
             jwkCopy.ext = extractable;
         }
-        this._alg = jwkCopy._alg;
+        this._alg = jwkCopy.alg;
         this._original_jwk = jwk;
-        const generatedKey = await mod3.importJWK(jwkCopy, algMap[jwkCopy.alg] || jjwkCopywk.alg);
+        const generatedKey = await mod3.importJWK(jwkCopy, algMap[jwkCopy.alg] || jwkCopy.alg);
         this._key = generatedKey;
         return this._key;
     }
@@ -50275,7 +50279,7 @@ class Key {
             return this._original_pem;
         } else if (this._key) {
             let pemResult = await mod3.exportSPKI(this._key);
-            if (pemResult[pemResult.length] !== "\n") {
+            if (pemResult[pemResult.length - 1] !== "\n") {
                 pemResult += "\n";
             }
             return pemResult;
@@ -51117,8 +51121,8 @@ function parsePubArea(pubArea) {
     }
     return pa;
 }
-function decodeStructureTag(t6) {
-    switch(t6){
+function decodeStructureTag(t8) {
+    switch(t8){
         case 0x00C4:
             return "TPM_ST_RSP_COMMAND";
         case 0x8000:
@@ -51160,7 +51164,7 @@ function decodeStructureTag(t6) {
         case 0x8029:
             return "TPM_ST_FU_MANIFEST";
         default:
-            throw new Error("tpm attestation: unknown structure tag: " + t6.toString(16));
+            throw new Error("tpm attestation: unknown structure tag: " + t8.toString(16));
     }
 }
 function decodeObjectAttributes(oa) {
@@ -51824,6 +51828,8 @@ Webauthn.addAttestationFormat(packedAttestation.name, packedAttestation.parseFn,
 Webauthn.addAttestationFormat(fidoU2fAttestation.name, fidoU2fAttestation.parseFn, fidoU2fAttestation.validateFn);
 Webauthn.addAttestationFormat(androidSafetyNetAttestation.name, androidSafetyNetAttestation.parseFn, androidSafetyNetAttestation.validateFn);
 Webauthn.addAttestationFormat(tpmAttestation.name, tpmAttestation.parseFn, tpmAttestation.validateFn);
+export { Webauthn as Webauthn };
+export { abEqual as abEqual, abToBuf as abToBuf, abToHex as abToHex, appendBuffer as appendBuffer, coerceToArrayBuffer as coerceToArrayBuffer, coerceToBase64 as coerceToBase64, coerceToBase64Url as coerceToBase64Url, isBase64Url as isBase64Url, isPem as isPem, jsObjectToB64 as jsObjectToB64, pemToBase64 as pemToBase64, strToAb as strToAb, mod3 as tools };
 function parseExpectations(exp) {
     if (typeof exp !== "object") {
         throw new TypeError("expected 'expectations' to be of type object, got " + typeof exp);
@@ -52059,6 +52065,8 @@ function parseClientResponse(msg) {
     ]);
     return ret;
 }
+export { parseAttestationObject as parseAttestationObject, parseAuthenticatorData as parseAuthenticatorData, parseAuthnrAssertionResponse as parseAuthnrAssertionResponse, parseAuthnrAttestationResponse as parseAuthnrAttestationResponse, parseClientResponse as parseClientResponse, parseExpectations as parseExpectations };
+export { Certificate1 as Certificate, CertManager as CertManager, CRL as CRL, helpers as helpers };
 class Fido2Result {
     constructor(sym){
         if (sym !== lockSym) {
@@ -52158,6 +52166,7 @@ class Fido2AssertionResult extends Fido2Result {
         return new Fido2AssertionResult(lockSym).create(req, exp, tools1);
     }
 }
+export { Fido2AssertionResult as Fido2AssertionResult, Fido2AttestationResult as Fido2AttestationResult, Fido2Result as Fido2Result };
 function validateAssertionResponse() {
     let req = this.request;
     if (typeof req !== "object") {
@@ -52602,6 +52611,7 @@ async function validateAssertionSignature() {
     let rawClientData = this.clientData.get("rawClientDataJson");
     let clientDataHashBuf = await mod3.hashDigest(rawClientData);
     let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
+    console.log("Ver", publicKey, expectedSignature);
     let res = await mod3.verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData, clientDataHash));
     if (!res) {
         throw new Error("signature validation failed");
@@ -52657,15 +52667,6 @@ function attach(o26) {
         o26[key] = mixins[key];
     }
 }
-export { Webauthn as Webauthn };
-export { parseAttestationObject as parseAttestationObject, parseAuthenticatorData as parseAuthenticatorData, parseAuthnrAssertionResponse as parseAuthnrAssertionResponse, parseAuthnrAttestationResponse as parseAuthnrAttestationResponse, parseClientResponse as parseClientResponse, parseExpectations as parseExpectations };
-export { Certificate1 as Certificate, CertManager as CertManager, CRL as CRL, helpers as helpers };
-export { Fido2AssertionResult as Fido2AssertionResult, Fido2AttestationResult as Fido2AttestationResult, Fido2Result as Fido2Result };
 export { attach as attach };
 export { MdsCollection as MdsCollection, MdsEntry as MdsEntry };
-export { noneAttestation as noneAttestation };
-export { fidoU2fAttestation as fidoU2fAttestation };
-export { packedAttestation as packedAttestation };
-export { tpmAttestation as tpmAttestation };
-export { androidSafetyNetAttestation as androidSafetyNetAttestation };
-export { abEqual as abEqual, abToBuf as abToBuf, abToHex as abToHex, appendBuffer as appendBuffer, coerceToArrayBuffer as coerceToArrayBuffer, coerceToBase64 as coerceToBase64, coerceToBase64Url as coerceToBase64Url, isBase64Url as isBase64Url, isPem as isPem, jsObjectToB64 as jsObjectToB64, pemToBase64 as pemToBase64, strToAb as strToAb, mod3 as tools };
+export { androidSafetyNetAttestation as androidSafetyNetAttestation, fidoU2fAttestation as fidoU2fAttestation, noneAttestation as noneAttestation, packedAttestation as packedAttestation, tpmAttestation as tpmAttestation };

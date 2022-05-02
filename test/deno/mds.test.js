@@ -4,7 +4,7 @@ import {
   jsObjectToB64,
   strToAb,
   tools,
-} from "../../dist/webauthn.js";
+} from "../../lib/webauthn.js";
 
 import * as h from "../helpers/fido2-helpers.js";
 
@@ -12,7 +12,7 @@ import * as h from "../helpers/fido2-helpers.js";
 import { assert, beforeEach, describe, it } from "./common/deps.js";
 
 // Test subject
-import { MdsCollection, MdsEntry } from "../../dist/webauthn.js";
+import { MdsCollection, MdsEntry } from "../../lib/webauthn.js";
 import { mdsV3jwt } from "../fixtures/mdsV3.jwt.js";
 
 describe("MdsCollection", function () {

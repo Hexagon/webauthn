@@ -28,7 +28,7 @@ export class MdsCollection {
      * no Table of Contents (TOC) or entries, which must be added through {@link addToc} and {@link addEntry}, respectively.
      */
     constructor(collectionName: any);
-    toc: any;
+    toc: import("jose").JWTPayload;
     unvalidatedEntryList: Map<any, any>;
     entryList: Map<any, any>;
     validated: boolean;

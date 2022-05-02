@@ -5,7 +5,7 @@ import { assertEquals, assertThrows } from "./common/deps.js";
 import * as h from "../helpers/fido2-helpers.js";
 
 // Test subject
-import * as utils from "../../lib/common/utils.js";
+import * as utils from "../../lib/utils.js";
 
 Deno.test("coerceToArrayBuffer with undefined throws typeerror", () => {
   assertThrows(

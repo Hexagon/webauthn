@@ -6,7 +6,7 @@
         "asn1js": "https://unpkg.com/asn1js@2.3.2/src/asn1.js?module",
         "cbor-x": "https://deno.land/x/cbor@v1.2.1/index.js?module",
         "std/": "https://deno.land/std@0.134.0/",
-
+        "url": "https://deno.land/std@0.134.0/node/url.ts",
         "pkijs": "https://unpkg.com/pkijs@2.1.60/src/index.js",
 
         "pvutils": "https://unpkg.com/pvutils@1.1.3?module",

@@ -2,7 +2,7 @@
 import { assertEquals, assertThrows } from "./common/deps.js";
 
 // Helpers
-import { tools } from "../../lib/common/utils.js";
+import { tools } from "../../lib/utils.js";
 
 Deno.test("randomValues", () => {
   const res32bytes = tools.randomValues(32);

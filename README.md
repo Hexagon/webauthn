@@ -161,8 +161,8 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 
 | Path  | Description                              |
 |-------|------------------------------------------|
-| `/lib/common` | Source code base folder |
-| `/lib/common/attestation` | Attestation plug-ins |
+| `/lib` | Source code base folder |
+| `/lib/attestation/` | Attestation plug-ins |
 | `/lib/webauthn.js` | Deno entrypoint |
 | `/lib/toolbox.js` | Deno external dependencies and shims |
 | `/test/node` | Node tests |

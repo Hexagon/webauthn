@@ -6,7 +6,9 @@ export class Key {
     _original_jwk: any;
     _original_cose: any;
     _key: any;
+    _keyinfo: any;
     fromPem(pem: any): Promise<any>;
+    _keyInfo: any;
     fromJWK(jwk: any, extractable: any): Promise<any>;
     _alg: any;
     fromCose(cose: any): Promise<any>;

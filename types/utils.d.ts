@@ -23,5 +23,5 @@ export function isPositiveInteger(n: any): boolean;
 export function jsObjectToB64(obj: any): any;
 export function pemToBase64(pem: any): any;
 export function strToAb(str: any): ArrayBuffer;
-import * as tools from "../toolbox.js";
+import * as tools from "./toolbox.js";
 export { tools };
