@@ -1,16 +1,11 @@
 // Testing lib
-import {
-  afterEach,
-  assert,
-  beforeEach,
-  describe,
-  it,
-  sinon,
-} from "./common/deps.js";
+import * as chai from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
-import { packedSelfAttestationResponse } from "../fixtures/packedSelfAttestationData.js";
+import * as h from "./helpers/fido2-helpers.js";
+import * as sinon from "sinon";
+import { packedSelfAttestationResponse } from "./fixtures/packedSelfAttestationData.js";
 
 // Test subject
 import {
@@ -29,10 +24,11 @@ import {
   tools,
   tpmAttestation,
   Webauthn,
-} from "../../lib/webauthn.js";
+} from "./helpers/lib-or-dist.js";
+chai.use(chaiAsPromised.default);
+const { assert } = chai;
 
 // Test subject
-
 function restoreAttestationFormats() {
   // add 'none' attestation format
   Webauthn.addAttestationFormat(
@@ -303,7 +299,10 @@ describe("Webauthn", function () {
       const fs = new Webauthn({
         authenticatorAttachment: "cross-platform",
       });
-      assert.strictEqual(fs.config.authenticatorAttachment, "cross-platform");
+      assert.strictEqual(
+        fs.config.authenticatorAttachment,
+        "cross-platform",
+      );
     });
 
     it("throws if authenticatorAttachment isn't platform or cross-platform", function () {
@@ -322,7 +321,10 @@ describe("Webauthn", function () {
       const fs = new Webauthn({
         authenticatorRequireResidentKey: false,
       });
-      assert.strictEqual(fs.config.authenticatorRequireResidentKey, false);
+      assert.strictEqual(
+        fs.config.authenticatorRequireResidentKey,
+        false,
+      );
     });
 
     it("can config authenticatorRequireResidentKey to true", function () {
@@ -358,14 +360,20 @@ describe("Webauthn", function () {
       const fs = new Webauthn({
         authenticatorUserVerification: "preferred",
       });
-      assert.strictEqual(fs.config.authenticatorUserVerification, "preferred");
+      assert.strictEqual(
+        fs.config.authenticatorUserVerification,
+        "preferred",
+      );
     });
 
     it("can config authenticatorUserVerification to required", function () {
       const fs = new Webauthn({
         authenticatorUserVerification: "required",
       });
-      assert.strictEqual(fs.config.authenticatorUserVerification, "required");
+      assert.strictEqual(
+        fs.config.authenticatorUserVerification,
+        "required",
+      );
     });
 
     it("throws if authenticatorUserVerification is not required, preferred, or discouraged", function () {
@@ -486,7 +494,10 @@ describe("Webauthn", function () {
         assert.isString(opts.rp.name);
         assert.strictEqual(opts.rp.name, "ACME");
         assert.isString(opts.rp.icon);
-        assert.strictEqual(opts.rp.icon, "https://example.com/logo.png");
+        assert.strictEqual(
+          opts.rp.icon,
+          "https://example.com/logo.png",
+        );
         assert.instanceOf(opts.challenge, ArrayBuffer);
         assert.strictEqual(opts.challenge.byteLength, 128);
         assert.isArray(opts.pubKeyCredParams);
@@ -504,12 +515,16 @@ describe("Webauthn", function () {
         assert.isNumber(opts.timeout);
         assert.strictEqual(opts.timeout, 42);
         assert.isObject(opts.authenticatorSelection);
-        assert.isString(opts.authenticatorSelection.authenticatorAttachment);
+        assert.isString(
+          opts.authenticatorSelection.authenticatorAttachment,
+        );
         assert.strictEqual(
           opts.authenticatorSelection.authenticatorAttachment,
           "platform",
         );
-        assert.isBoolean(opts.authenticatorSelection.requireResidentKey);
+        assert.isBoolean(
+          opts.authenticatorSelection.requireResidentKey,
+        );
         assert.strictEqual(
           opts.authenticatorSelection.requireResidentKey,
           false,
@@ -547,40 +562,43 @@ describe("Webauthn", function () {
       serv = new Webauthn();
     });
 
-    it("validates a credential request with 'none' attestation", function () {
+    it("validates a credential request with 'none' attestation", async function () {
       const expectations = {
-        challenge:
-          "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
+        challenge: "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
         origin: "https://localhost:8443",
         factor: "either",
       };
 
-      return serv.attestationResult(
+      const res = await serv.attestationResult(
         h.lib.makeCredentialAttestationNoneResponse,
         expectations,
-      ).then((res) => {
-        assert.instanceOf(res, Fido2AttestationResult);
-        return res;
-      });
+      );
+
+      assert.instanceOf(res, Fido2AttestationResult);
+      return res;
     });
 
     //it("validates a credential request with 'u2f' attestation");
 
-    it("validates a packed credential that has self attestation", function () {
+    it("validates a packed credential that has self attestation", async function () {
       const expectations = {
-        challenge:
-          "zBNZ9XmBj4cu7xxYI_uSJauAj89yOTZX1xEqKxhQydhYCTdoKB0k8bzs3llRrBxQlNn3WyRovWvYAXmuIiswLQ",
+        challenge: "zBNZ9XmBj4cu7xxYI_uSJauAj89yOTZX1xEqKxhQydhYCTdoKB0k8bzs3llRrBxQlNn3WyRovWvYAXmuIiswLQ",
         origin: "http://localhost:3000",
         factor: "either",
       };
 
       const parsedPackedSelfAttestationResponse = {
         ...packedSelfAttestationResponse,
-        id: tools.base64.toArrayBuffer(packedSelfAttestationResponse.id),
-        rawId: tools.base64.toArrayBuffer(packedSelfAttestationResponse.rawId),
+        id: tools.base64.toArrayBuffer(
+          packedSelfAttestationResponse.id,
+        ),
+        rawId: tools.base64.toArrayBuffer(
+          packedSelfAttestationResponse.rawId,
+        ),
         response: {
           attestationObject: tools.base64.toArrayBuffer(
-            packedSelfAttestationResponse.response.attestationObject,
+            packedSelfAttestationResponse.response
+              .attestationObject,
           ),
           clientDataJSON: tools.base64.toArrayBuffer(
             packedSelfAttestationResponse.response.clientDataJSON,
@@ -588,20 +606,19 @@ describe("Webauthn", function () {
         },
       };
 
-      return serv.attestationResult(
+      const res = await serv.attestationResult(
         parsedPackedSelfAttestationResponse,
         expectations,
-      ).then((res) => {
-        assert.instanceOf(res, Fido2AttestationResult);
-        return res;
-      });
+      );
+
+      assert.instanceOf(res, Fido2AttestationResult);
+      return res;
     });
 
     it("validates a credential request with 'android-safetynet' attestation", function () {
       const serv = new Webauthn();
       const expectations = {
-        challenge:
-          "NrRzgRhGy5Y0NlKNhEAqs4ZFVgNGtN49ZyCTOfLk8G1EPY3vnN3zasIZynlCAyUOLdB3-AALfy1XG2MiVps_Vw",
+        challenge: "NrRzgRhGy5Y0NlKNhEAqs4ZFVgNGtN49ZyCTOfLk8G1EPY3vnN3zasIZynlCAyUOLdB3-AALfy1XG2MiVps_Vw",
         origin: "https://contubernio.tic.udc.es",
         factor: "second",
       };
@@ -714,8 +731,7 @@ describe("Webauthn", function () {
 
     it("valid an assertion", function () {
       const expectations = {
-        challenge:
-          "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
+        challenge: "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
         origin: "https://localhost:8443",
         factor: "either",
         publicKey: h.lib.assnPublicKey,
@@ -723,18 +739,18 @@ describe("Webauthn", function () {
         userHandle: null,
       };
 
-      return serv.assertionResult(h.lib.assertionResponse, expectations).then(
-        (res) => {
-          assert.instanceOf(res, Fido2AssertionResult);
-          return res;
-        },
-      );
+      return serv.assertionResult(h.lib.assertionResponse, expectations)
+        .then(
+          (res) => {
+            assert.instanceOf(res, Fido2AssertionResult);
+            return res;
+          },
+        );
     });
 
     it("valid assertion without userHandle", function () {
       const expectations = {
-        challenge:
-          "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
+        challenge: "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
         origin: "https://localhost:8443",
         factor: "either",
         publicKey: h.lib.assnPublicKey,
@@ -762,8 +778,7 @@ describe("Webauthn", function () {
 
     it("valid assertion without counter supported", function () {
       const expectations = {
-        challenge:
-          "g_Pu32bpluktxugNNBLX-ZO5N9ub0D50bJERbKiU2GWON3md0rR9CaQYdPHdCgo-dpi1-9gbJJvmCuHDnh04Rg",
+        challenge: "g_Pu32bpluktxugNNBLX-ZO5N9ub0D50bJERbKiU2GWON3md0rR9CaQYdPHdCgo-dpi1-9gbJJvmCuHDnh04Rg",
         origin: "https://mighty-fireant-84.loca.lt",
         factor: "first",
         publicKey: "-----BEGIN PUBLIC KEY-----\n" +
@@ -775,7 +790,10 @@ describe("Webauthn", function () {
       };
 
       const assertionResponse = {
-        rawId: coerceToArrayBuffer("7S8aQSSxqPkztahKbgw36Mr_-hE", "rawId"),
+        rawId: coerceToArrayBuffer(
+          "7S8aQSSxqPkztahKbgw36Mr_-hE",
+          "rawId",
+        ),
         response: {
           authenticatorData: coerceToArrayBuffer(
             "YS67HU8UTNyqQ5f-EVzitWw5paVnpyhQli2ahN6PS6UFAAAAAA",
@@ -832,7 +850,11 @@ describe("Webauthn", function () {
     it("throws on bad fmt", function () {
       assert.throws(
         () => {
-          Webauthn.addAttestationFormat({}, function () {}, function () {});
+          Webauthn.addAttestationFormat(
+            {},
+            function () {},
+            function () {},
+          );
         },
         TypeError,
         "expected 'fmt' to be string, got: object",
@@ -840,10 +862,18 @@ describe("Webauthn", function () {
     });
 
     it("throws on duplicate fmt", function () {
-      Webauthn.addAttestationFormat("foo", function () {}, function () {});
+      Webauthn.addAttestationFormat(
+        "foo",
+        function () {},
+        function () {},
+      );
       assert.throws(
         () => {
-          Webauthn.addAttestationFormat("foo", function () {}, function () {});
+          Webauthn.addAttestationFormat(
+            "foo",
+            function () {},
+            function () {},
+          );
         },
         Error,
         "can't add format: 'foo' already exists",
@@ -863,7 +893,11 @@ describe("Webauthn", function () {
     it("throws on bad validateFn", function () {
       assert.throws(
         () => {
-          Webauthn.addAttestationFormat("foo", function () {}, "blah");
+          Webauthn.addAttestationFormat(
+            "foo",
+            function () {},
+            "blah",
+          );
         },
         TypeError,
         "expected 'validateFn' to be string, got: string",

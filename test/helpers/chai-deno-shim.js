@@ -1,11 +1,26 @@
-import {
-  assertEquals,
-  assertRejects,
-  assertStrictEquals,
-  assertThrows,
-} from "std/testing/asserts.ts";
+// Import base asserts
+import { assertEquals, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 
-const assert = {
+// Inject mocha equivalents in global
+import { afterEach, beforeEach, describe, it } from "test_suite";
+window.afterEach = afterEach;
+window.beforeEach = beforeEach;
+window.describe = describe;
+
+// Do nothing when b (fn) is undefined
+window.it = Object.assign(
+  (a, b, c, d) => {
+    if (typeof b !== "undefined") {
+      it(a, b, c, d);
+    }
+  },
+  {
+    skip: () => {},
+  },
+);
+
+// Generate chai-style asserts
+const assert = Object.assign(() => {}, {
   equal: (a, b) => assertEquals(a, b),
   deepEqual: (a, b) => assertEquals(a, b),
   strictEqual: (a, b) => assertEquals(a, b),
@@ -25,6 +40,8 @@ const assert = {
   isNull: (a) => assertStrictEquals(a, null),
   isFalse: (a) => assertStrictEquals(a, false),
   isDefined: (a) => assertEquals(typeof a !== "undefined", true),
-};
+});
 
-export { assert };
+const use = () => {};
+
+export { assert, use };

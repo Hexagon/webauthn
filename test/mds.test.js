@@ -3,21 +3,15 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import {
-  coerceToBase64Url,
-  jsObjectToB64,
-  strToAb,
-  tools,
-} from "../../dist/webauthn.js";
+import { coerceToBase64Url, jsObjectToB64, strToAb, tools } from "./helpers/lib-or-dist.js";
 
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Test subject
-import { MdsCollection, MdsEntry } from "../../dist/webauthn.js";
-import { mdsV3jwt } from "../fixtures/mdsV3.jwt.js";
+import { MdsCollection, MdsEntry } from "./helpers/lib-or-dist.js";
+import { mdsV3jwt } from "./fixtures/mdsV3.jwt.js";
 chai.use(chaiAsPromised.default);
-const assert = chai.assert;
-const expect = chai.expect;
+const { assert } = chai;
 
 describe("MdsCollection", function () {
   it("is a function", function () {
@@ -78,7 +72,7 @@ describe("MdsCollection", function () {
       );
     });
 
-    it("rejects if TOC is empty string", async function () {
+    it("rejects if TOC is empty string", function () {
       // bad toc
       const toc = "";
       return assert.isRejected(
@@ -88,7 +82,7 @@ describe("MdsCollection", function () {
       );
     });
 
-    it("rejects if TOC is junk string", async function () {
+    it("rejects if TOC is junk string", function () {
       // bad toc
       const toc =
         "sL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401r";
@@ -364,7 +358,9 @@ describe("MdsCollection", function () {
       mc.addEntry(h.mds.mds1U2fEntry);
       assert.strictEqual(mc.unvalidatedEntryList.size, 1);
       assert.isTrue(
-        mc.unvalidatedEntryList.has("923881fe2f214ee465484371aeb72e97f5a58e0a"),
+        mc.unvalidatedEntryList.has(
+          "923881fe2f214ee465484371aeb72e97f5a58e0a",
+        ),
       );
     });
 
@@ -422,7 +418,10 @@ describe("MdsCollection", function () {
         entry.authenticationAlgorithm,
         "ALG_SIGN_SECP256R1_ECDSA_SHA256_RAW",
       );
-      assert.strictEqual(entry.publicKeyAlgAndEncoding, "ALG_KEY_ECC_X962_RAW");
+      assert.strictEqual(
+        entry.publicKeyAlgAndEncoding,
+        "ALG_KEY_ECC_X962_RAW",
+      );
       assert.deepEqual(entry.attestationTypes, ["basic-full"]);
       assert.deepEqual(entry.userVerificationDetails, [[{
         userVerification: ["fingerprint"],
@@ -443,7 +442,10 @@ describe("MdsCollection", function () {
       mc.addEntry(h.mds.mds1UafEntry);
       await mc.validate();
       assert.strictEqual(mc.entryList.size, 1);
-      assert.isTrue(mc.entryList.has("0013#0001"), "added entry 4e4e#4005");
+      assert.isTrue(
+        mc.entryList.has("0013#0001"),
+        "added entry 4e4e#4005",
+      );
       const entry = mc.entryList.get("0013#0001");
       assert.strictEqual(entry.protocolFamily, "uaf");
       assert.strictEqual(
@@ -463,7 +465,10 @@ describe("MdsCollection", function () {
       mc.addEntry(h.mds.mds2UafEntry);
       await mc.validate();
       assert.strictEqual(mc.entryList.size, 1);
-      assert.isTrue(mc.entryList.has("4e4e#4005"), "added entry 4e4e#4005");
+      assert.isTrue(
+        mc.entryList.has("4e4e#4005"),
+        "added entry 4e4e#4005",
+      );
       const entry = mc.entryList.get("4e4e#4005");
 
       // check that TOC data was copied to new entry:
@@ -509,7 +514,10 @@ describe("MdsCollection", function () {
       // authenticatorVersion
       assert.strictEqual(entry.authenticatorVersion, 256);
       // description
-      assert.strictEqual(entry.description, "Touch ID, Face ID, or Passcode");
+      assert.strictEqual(
+        entry.description,
+        "Touch ID, Face ID, or Passcode",
+      );
       // icon
       assert.isString(entry.icon);
       // isSecondFactorOnly
@@ -528,7 +536,10 @@ describe("MdsCollection", function () {
       // protocolFamily
       assert.strictEqual(entry.protocolFamily, "uaf");
       // publicKeyAlgAndEncoding
-      assert.strictEqual(entry.publicKeyAlgAndEncoding, "ALG_KEY_RSA_2048_RAW");
+      assert.strictEqual(
+        entry.publicKeyAlgAndEncoding,
+        "ALG_KEY_RSA_2048_RAW",
+      );
       // tcDisplay
       assert.isArray(entry.tcDisplay);
       assert.strictEqual(entry.tcDisplay.length, 1);
@@ -585,7 +596,10 @@ describe("MdsCollection", function () {
         "ewogICAgICAiYWFpZCI6ICI0ZTRlIzQwMDUiLAogICAgICAibWV0YWRhdGFTdGF0ZW1lbnQiOiB7CiAgICAgICAgImxlZ2FsSGVhZGVyIjogImh0dHBzOi8vZmlkb2FsbGlhbmNlLm9yZy9tZXRhZGF0YS9tZXRhZGF0YS1zdGF0ZW1lbnQtbGVnYWwtaGVhZGVyLyIsCiAgICAgICAgImFhaWQiOiAiNGU0ZSM0MDA1IiwKICAgICAgICAiZGVzY3JpcHRpb24iOiAiVG91Y2ggSUQsIEZhY2UgSUQsIG9yIFBhc3Njb2RlIiwKICAgICAgICAiYXV0aGVudGljYXRvclZlcnNpb24iOiAyNTYsCiAgICAgICAgInByb3RvY29sRmFtaWx5IjogInVhZiIsCiAgICAgICAgInNjaGVtYSI6IDMsCiAgICAgICAgInVwdiI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgIm1ham9yIjogMSwKICAgICAgICAgICAgIm1pbm9yIjogMAogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgIm1ham9yIjogMSwKICAgICAgICAgICAgIm1pbm9yIjogMQogICAgICAgICAgfQogICAgICAgIF0sCiAgICAgICAgImF1dGhlbnRpY2F0aW9uQWxnb3JpdGhtcyI6IFsKICAgICAgICAgICJyc2FfZW1zYV9wa2NzMV9zaGEyNTZfcmF3IgogICAgICAgIF0sCiAgICAgICAgInB1YmxpY0tleUFsZ0FuZEVuY29kaW5ncyI6IFsKICAgICAgICAgICJyc2FfMjA0OF9yYXciCiAgICAgICAgXSwKICAgICAgICAiYXR0ZXN0YXRpb25UeXBlcyI6IFsKICAgICAgICAgICJiYXNpY19zdXJyb2dhdGUiCiAgICAgICAgXSwKICAgICAgICAidXNlclZlcmlmaWNhdGlvbkRldGFpbHMiOiBbCiAgICAgICAgICBbCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAidXNlclZlcmlmaWNhdGlvbk1ldGhvZCI6ICJwYXNzY29kZV9pbnRlcm5hbCIsCiAgICAgICAgICAgICAgImNhRGVzYyI6IHsKICAgICAgICAgICAgICAgICJiYXNlIjogMTAsCiAgICAgICAgICAgICAgICAibWluTGVuZ3RoIjogNCwKICAgICAgICAgICAgICAgICJtYXhSZXRyaWVzIjogNSwKICAgICAgICAgICAgICAgICJibG9ja1Nsb3dkb3duIjogNjAKICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgIF0sCiAgICAgICAgICBbCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAidXNlclZlcmlmaWNhdGlvbk1ldGhvZCI6ICJmaW5nZXJwcmludF9pbnRlcm5hbCIsCiAgICAgICAgICAgICAgImJhRGVzYyI6IHsKICAgICAgICAgICAgICAgICJzZWxmQXR0ZXN0ZWRGUlIiOiAwLAogICAgICAgICAgICAgICAgInNlbGZBdHRlc3RlZEZBUiI6IDAsCiAgICAgICAgICAgICAgICAibWF4VGVtcGxhdGVzIjogMCwKICAgICAgICAgICAgICAgICJtYXhSZXRyaWVzIjogNSwKICAgICAgICAgICAgICAgICJibG9ja1Nsb3dkb3duIjogMAogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgXQogICAgICAgIF0sCiAgICAgICAgImtleVByb3RlY3Rpb24iOiBbCiAgICAgICAgICAiaGFyZHdhcmUiLAogICAgICAgICAgInRlZSIKICAgICAgICBdLAogICAgICAgICJtYXRjaGVyUHJvdGVjdGlvbiI6IFsKICAgICAgICAgICJ0ZWUiCiAgICAgICAgXSwKICAgICAgICAiYXR0YWNobWVudEhpbnQiOiBbCiAgICAgICAgICAiaW50ZXJuYWwiCiAgICAgICAgXSwKICAgICAgICAidGNEaXNwbGF5IjogWwogICAgICAgICAgImFueSIKICAgICAgICBdLAogICAgICAgICJ0Y0Rpc3BsYXlDb250ZW50VHlwZSI6ICJ0ZXh0L3BsYWluIiwKICAgICAgICAiYXR0ZXN0YXRpb25Sb290Q2VydGlmaWNhdGVzIjogW10sCiAgICAgICAgImljb24iOiAiZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFFZ0FBQUJJQ0FZQUFBQlY3Yk5IQUFBQUFYTlNSMElBcnM0YzZRQUFBQnhwUkU5VUFBQUFBZ0FBQUFBQUFBQWtBQUFBS0FBQUFDUUFBQUFrQUFBRkpidUoyRWtBQUFUeFNVUkJWSGdCN0pZeGJpTkhFRVVGSjE0WUM1akpBZ3NuSHNPT0hQRUFDMmh5QitJTk5LRXpNblNtdWNCaWVRUHlCbUxnbkx5QmVBUFNKMWplZ0g2ZjZocVV5OVBhWGcwSk8rQUFYOTFkVlYzOS81L21RRGZINC9IbWlyd0hWM08rY0VHdUJsME55djk4U2o0dDF4dDB2VUhYRzNUUlg4R2c1amNEbjU5L3JMNERIOEFNYkJ4V3pGdndHM2cvOEpoaEdrcytWTG1hMXhKSDlBVEloR01oWkY3ejJ2TnkvRXZpdzl6OVNzYUlyTUcrMEpRKzg3UjM4cFhIRHROWTRtS3VwcFFvb2taZ0hveFpzLzRFcHVEMkJTaXZPdFdiYWJwOW85THpjL3hMNHNQY0xXQ0lrQXBzd1djZ29iZDkyNGlycm5ZWXh6cHlNdm9PTE1CZjRGODFjWS9XSlVia2FvWnQ3bVBqWWhJQS9nUjNMbnpEV21iTXdBcnNnZDJNdmxINURXaEJad2h6bWZVNytOWDM3cHZueEpmRUwyWVF4TitERDBhWXVRVEpsQzNvTTZJMGRtRC9IRlN1OXp1Yjk0MGxSdVJxTG1JUTVMODFvaElDOVBZbHJOU0UwanJkckZwbk1YNWpaOFl4Sjc0a2ZoR0RqQ0NrWnlCbnpJN2NBa3pCTGFoc240MHBybStPdmwxUElHZmNpdHdQdGkrT0pVYmthaTVpRUdUSFlOc2o2RE14aWUyK0pWSE1TMnYyNlRaT2djeU5adWxGOVBiTmlTK0puOTBnU09vL1k1SDFBbVRNQXhoNUE3UUdOWmlCRnN6QkJxelNXckVKcVB3K3pZbmRneDA0QnZ3VWEwdU15TldjMVNDSXlweEkrSkZZWmFTWmowQURaRVNzZldtOXAzNEphdXVsa2JWdWxGNkE3ZDM0dk9ZNThTWHhZWnNkRXdpK2RTUkZWcVFiVnlJeExUZ0FFL1BhY2U5N002L0FrK3RiKzNOTGpNalZuTk9ncFNNb2M3cnZnZVpnNi9MUm1EVTU0Y0hoTWNYVTY1aUJqT3JNWVA0cDFXMytWd1pCNnZ0RVRFSWt5SnZUc0k2M1JqVUwwUHRmdFJlbnVmcUJLWGdDZldiTmlaKytiNHc2VHpXMTljbmRqcEw0V1c0UVpHYUpWSjg1VVpDTStjZkgyb1JvbERDRGo5dWNuTXhhZzloM1M4eWJ0TFE5SlVia2FzNWxrTWlKY0dPa05FOHhFeUx6YXN0clpEMUtkU3ZHUGJCYVB4NklLNjkrbmJITWE3QURzWGFjZW5mMU9mRWw4Y0VHUVhDY1NENmFlTllpNTRuSG0xV1JYNFlhWDUrYnl5enRxNUlKSSthTDBFYzFadEl2cWlzeElsY3piRE9IUTJZRzlHMnc2ejFtN2dWR2MxUXZFYjdtTmZOVzR2WFE2eUgwMjdQdWJsdE9mRW44SEFiTmpReWp6UEhpb3psNis5RU0xU3pBSFRpOStXZlpKK0ZWaWl1dnVyaDNROHhlVEJQeUcrdFRZa1N1WnJCQlJrSkV3VGFRN0FRVGx4Z3ZVSUx2UWZlbW1jdmdHV2dUYXV1dmtaanFvMUU2MDB4YU1QZG50TnFYRTE4U0g3WlpwNmNIWXRHY3h1V1dnZmlqaVZJTjh3blloeG92VlB1clZEdGlydjArNzAxYWg5emJFaU55TldjeENFTFJnRlppOUpDYkJjS0w1OHp6MzU2OVhuaWN6MjB2KzZhaDcwWTVZakxRMzdJbUo3NGtQc2dnaUx3QksrQ0ZkQVlRYjBMdWliWDlIQ1JrRy9McW81cDFnaGRxWjJpUDlZajlUd2FTOS9GTmlSRzVtcUVHZllTTUVkZm96Um1IM0pmTVVYNXNOOFJHWXZkZ0YzcDVreFloZCtwQmJKM2kvNmxCRzBjdW1uTndPZDJFVGp4ekNUdzYrTDBWOFNWUTd6blFlZ1NpRVZ0bm9zeTFmcWM0NjdIRmNyZWpKRDcwQmttRWlEMDRzaUoyTUhLTTBSeUpOekVhdlRsdHlGbGRvLzZxRGZsNWluZG1wTHpWcjdVdU1TSlhNOVNnUHlCUWlhUWU1ZzN3NWtoZ2Mwbys1NWVzVGJSR2IwN00rYnF1ai9hRUhyWDZFL1A3OXlsV3F6WW52aVEreUNDUnNBY2k4MEJjTjJmaThsNUFOS2NOZS9XVGVRQzdFQitySDdHK24xUVZhazlucTdiRWlGek4zd0FBQVAvL1g5TGxQd0FBQlBOSlJFRlU3VnE3amlOVkZCd2tKQkNzdEIwUUVleTJJR1NEenBhTURzbldNY2wyU0xDU0hSQnNOdjRBeERnaVFuTC93WFJBUGkzeEFUYjhnUDBIMjM4d1ZMVlBtZG9yejROeDBHM0pWNm81OTlZNTUvcFV6WjFaYVRVWHQ3ZTNGMC9GQmRhM0wvTUNXQU8zaGcva21lZkNmbVk1MXEyQUxITFZQYmtzYW5YM2xuMUFrZlJVY1ZkdGZCUGM3S242MlBka2M5aU1ZZDdaUUJKQjhUbUg0OExlaDA3Tm9kRE83dGdidCt2ZWZ3Tm91TzVmSExoM0cxeHFYSTYrZkVpRFdodWNBcTZBL21VY0VQR1FPVFNCZ2lZQTd5WG1RQlZSQmpIbUFlY204WmswV2Z5TTNKQUdOVEhNQnJIa01GellaMEFiT1EzTHdYdnpFUG1kN3BKOEdiMnF2eS9XVVZ2YkhVMXdNK05hY2tNYTlCN0RYSElJTFp4TElCWHY1bFFIOHBYMTh5WGRaNDV5ZVh5V3pvd1pVQ1Q5ejRZMDZETVR4b0diWkRnT3ZRVDBjbWlPQzZJWkU5M0JpRFB2bVFLWHdCV3dBYnhIKzBYVWU3Ni9LK2w1UFpoQkpxakdVT21yb1pBcGE3aXdaNDNFTWRLY1lwZTkveXZxU21BRmVQK1dYZUQ4WHBubVhEbVlRUmp1eTJSb0NhQ1lYanhpRHF5VHVvL01RVzRDVUZScjRHdXNnRXoyWWI4RTlCbjRON2czaURYaTFzSE5qQ3NHTXlpRzJkZ3dGUDZXUEJmMkhMU3pQSVhRdkY0MFlnbHNBUW04S3k2c1p4bjFxL2lNM1B1RDQ3MjZLeHZhSUE2L0Fkd1lEdGpha0JyMmlnSzRrR09mK01mRU5lcjdWN203NGIrdnlUMTlUWEM5aVVNYjlGeWpZcWk3ak9ITG1saGRuWWpxRFFhWHN3WXhBOTRBUzhETjY1alRQWXJnK0NwVlY1SVBic0g5b0FiRk1EOWhJSDZITmFUSEpmaTlLT3hUYy9hdmluZWxDL1VsUUlOMVozdWdwclY4eVR6TzVBcnV4MkJRYlFOS3lBMjRrZ055WWM5WHdhR1ZaNno2NUM1ZjRkeEVEZVBFY2dYT2J0SytqelhSbzN0bndmV1IrekVZVkdKSURYaU5mY25CdEhDZUFKM1Y3TTBCbHdHcGNicXJZWjczSVBJTzhWdmRIVG52bndkWE1uSU5iaENId1BDL0FEbjNXamlYZ0E5UGdYd0pGV3NRYWM0YWtQQkRzV1l0RitwdXJOWmZtSDlHRmJYUEdMbEdZZEJ1bEY1RUFSRUxZR3RpSkh3RnJtQXRZbW9PalpzQ2VVVDFNSmJSVTJFdmZrR09DMXhyZk5tVDltVTBCbUhJZjJ4UUNXSHN4V3RtbkduaTJtcVo3NDJ6bXBubEcvSTQ1OGExVnJzMXZoU3ZPQ2FEU2h1VXhtd0F2b3BNdzJJL0FUcEFCdTdOQWNkK3IyV3VyN04rOVhVSE9PWStGNjg0R29NNEVBYjhEYmdDQ2cwWVBNVzNnQVF5dWpsMTVGeTQxK2R4ejc3ZjdoWDNON2wwamNvZ0h3NkNDNEEvS3VzUUx5R01LeUJuUFNKclBOZS9JbkJ1VUlZem9ibzJldWZHdlNLWHJ0RVpoSUZmQVZzYlhLSVkrV3FtRW9GOWxkVE5tUVBuWm53SWJtSzFUWERyNEJZOEgxcWpNNGhEWXVoVStBYmNKZEMvanFpWmhUZ2FSeXdsRVB1NTVlcW9yNDFqYng3bmEvVWRpcU0wS0FUOURBSDhmZlRHQjhjNUF4cEF4cVRtRkVtdWpKN09lSm96Qi9panVqZmRQMGY3MFJxa0FSVXBKRVM1ME5RYzFtd0JtZGUvRHB3WHhqWFlzKzVQUnQxL1Z4eTlRUkR4QXZnZDZBQUpWNXhLR0hJVXZiYWFUWENGY2V6amkvcFJmUS9GMFJ0RUFSQ1VBemVBak9FK2x6anNhVUpuZWY0eUo1Y0JhK04veGY0TDlUMG1ub1JCRWdKeHI0SHZkV2JFZVFiSU9FWTNwNDBjdWVrM0wxNSs0cjJQMlorVVFTNElncjhDL2dnRFpOQUdaNzJjdjdDL0J0NEN6NzMzLyt4UDFpQ0poSGorR1AwQWZBZDhHdmhhK1dQallBWWQ4OEduMG52VS81V2Npc2hqNWp3YjlNQ2YvNXdOT2h2MDlEOFE0NC9tK1FXZFg5QnhMK2hmVXdUWXlSQ2FyWjhBQUFBQVNVVk9SSzVDWUlJPSIKICAgICAgfSwKICAgICAgInN0YXR1c1JlcG9ydHMiOiBbCiAgICAgICAgewogICAgICAgICAgInN0YXR1cyI6ICJOT1RfRklET19DRVJUSUZJRUQiLAogICAgICAgICAgImVmZmVjdGl2ZURhdGUiOiAiMjAxOC0wNS0xOSIKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJ0aW1lT2ZMYXN0U3RhdHVzQ2hhbmdlIjogIjIwMTgtMDUtMTkiCiAgICB9",
       );
       await mc.validate();
-      assert.isTrue(mc.entryList.has("4e4e#4005"), "added entry 4e4e#4005");
+      assert.isTrue(
+        mc.entryList.has("4e4e#4005"),
+        "added entry 4e4e#4005",
+      );
       const entry = mc.entryList.get("4e4e#4005");
 
       // check that TOC data was copied to new entry:
@@ -613,7 +627,10 @@ describe("MdsCollection", function () {
 
       // check the entry data was copied to new entry:
       // description
-      assert.strictEqual(entry.description, "Touch ID, Face ID, or Passcode");
+      assert.strictEqual(
+        entry.description,
+        "Touch ID, Face ID, or Passcode",
+      );
       // authenticatorVersion
       assert.strictEqual(entry.authenticatorVersion, 256);
       // protocolFamily
@@ -714,7 +731,10 @@ describe("MdsCollection", function () {
         "cYyOrPCsXMBUvX03jMqmRZ9PRrW07WPwnVi1Dke9ze8=",
       );
       // id
-      assert.strictEqual(entry.aaguid, "c5ef55ff-ad9a-4b9f-b580-adebafe026d0");
+      assert.strictEqual(
+        entry.aaguid,
+        "c5ef55ff-ad9a-4b9f-b580-adebafe026d0",
+      );
       assert.isUndefined(entry.aaid);
       assert.isUndefined(entry.attestationCertificateKeyIdentifiers);
       // statusReports
@@ -765,7 +785,10 @@ describe("MdsCollection", function () {
         ],
       );
       // keyProtection
-      assert.deepEqual(entry.keyProtection, ["hardware", "secure_element"]);
+      assert.deepEqual(entry.keyProtection, [
+        "hardware",
+        "secure_element",
+      ]);
       // matcherProtection
       assert.deepEqual(entry.matcherProtection, ["on_chip"]);
       // cryptoStrength
@@ -815,11 +838,17 @@ describe("MdsCollection", function () {
       // pinUvAuthProtocols
       assert.deepEqual(authenticatorGetInfo.pinUvAuthProtocols, [2, 1]);
       // maxCredentialCountInList
-      assert.strictEqual(authenticatorGetInfo.maxCredentialCountInList, 8);
+      assert.strictEqual(
+        authenticatorGetInfo.maxCredentialCountInList,
+        8,
+      );
       // maxCredentialIdLength
       assert.strictEqual(authenticatorGetInfo.maxCredentialIdLength, 128);
       // transports
-      assert.deepEqual(authenticatorGetInfo.transports, ["usb", "lightning"]);
+      assert.deepEqual(authenticatorGetInfo.transports, [
+        "usb",
+        "lightning",
+      ]);
       // algorithms
       assert.deepEqual(authenticatorGetInfo.algorithms, [
         {
@@ -846,7 +875,9 @@ describe("MdsCollection", function () {
       );
       await mc.validate();
 
-      const entry = mc.findEntry("bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2");
+      const entry = mc.findEntry(
+        "bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2",
+      );
       assert.isDefined(
         entry,
         "added entry bf7bcaa0d0c6187a8c6abbdd16a15640e7c7bde2",

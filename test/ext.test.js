@@ -1,15 +1,10 @@
 // Testing lib
-import {
-  afterEach,
-  assert,
-  beforeEach,
-  describe,
-  it,
-  sinon,
-} from "./common/deps.js";
+import * as chai from "chai";
 
 // Helpers
-import { Webauthn } from "../../lib/webauthn.js";
+import * as sinon from "sinon";
+import { Webauthn } from "./helpers/lib-or-dist.js";
+const assert = chai.assert;
 
 describe("Webauthn extensions", function () {
   afterEach(function () {
@@ -125,7 +120,11 @@ describe("Webauthn extensions", function () {
       );
     });
 
-    /*it("can generate for attestation", function (done) {
+    /*
+
+    ToDo: Done not available in Deno shim
+
+    it("can generate for attestation", function (done) {
       function generateFn(name, type, options) {
         assert.strictEqual(name, "test");
         assert.strictEqual(type, "attestation");
@@ -167,22 +166,22 @@ describe("Webauthn extensions", function () {
   });
 
   describe("parseExtensionResult", function () {
-    //it("throws if extName isn't a string");
-    //it("throws if extName isn't found");
-    //it("throws if return value isn't valid");
-    //it("returns parsed value");
+    it("throws if extName isn't a string");
+    it("throws if extName isn't found");
+    it("throws if return value isn't valid");
+    it("returns parsed value");
   });
 
   describe("validateExtensionResult", function () {
-    //it("throws if extName isn't a string");
-    //it("throws if extName isn't found");
-    //it("throws if return value isn't true");
-    //it("sets audit info");
+    it("throws if extName isn't a string");
+    it("throws if extName isn't found");
+    it("throws if return value isn't true");
+    it("sets audit info");
   });
 
   describe("enableExtension", function () {
     let mc;
-    const fn = () => {};
+    function fn() {}
     beforeEach(function () {
       mc = new Webauthn();
     });
@@ -402,10 +401,18 @@ describe("Webauthn extensions", function () {
           assert.strictEqual(opts.extensions.test1, extVal1);
           assert.isFalse(opts.extensions.test2);
           assert.isTrue(
-            genSpy1.calledWithExactly("test1", "attestation", extOpt1),
+            genSpy1.calledWithExactly(
+              "test1",
+              "attestation",
+              extOpt1,
+            ),
           );
           assert.isTrue(
-            genSpy2.calledWithExactly("test2", "attestation", extOpt2),
+            genSpy2.calledWithExactly(
+              "test2",
+              "attestation",
+              extOpt2,
+            ),
           );
         });
     });
@@ -440,10 +447,18 @@ describe("Webauthn extensions", function () {
           assert.strictEqual(opts.extensions.test1, extVal1);
           assert.isFalse(opts.extensions.test2);
           assert.isTrue(
-            genSpy1.calledWithExactly("test1", "attestation", extOpt1),
+            genSpy1.calledWithExactly(
+              "test1",
+              "attestation",
+              extOpt1,
+            ),
           );
           assert.isTrue(
-            genSpy2.calledWithExactly("test2", "attestation", extOpt2),
+            genSpy2.calledWithExactly(
+              "test2",
+              "attestation",
+              extOpt2,
+            ),
           );
         });
     });
@@ -546,10 +561,18 @@ describe("Webauthn extensions", function () {
           assert.strictEqual(opts.extensions.test1, extVal1);
           assert.isFalse(opts.extensions.test2);
           assert.isTrue(
-            genSpy1.calledWithExactly("test1", "assertion", extOpt1),
+            genSpy1.calledWithExactly(
+              "test1",
+              "assertion",
+              extOpt1,
+            ),
           );
           assert.isTrue(
-            genSpy2.calledWithExactly("test2", "assertion", extOpt2),
+            genSpy2.calledWithExactly(
+              "test2",
+              "assertion",
+              extOpt2,
+            ),
           );
         });
     });
@@ -584,10 +607,18 @@ describe("Webauthn extensions", function () {
           assert.strictEqual(opts.extensions.test1, extVal1);
           assert.isFalse(opts.extensions.test2);
           assert.isTrue(
-            genSpy1.calledWithExactly("test1", "assertion", extOpt1),
+            genSpy1.calledWithExactly(
+              "test1",
+              "assertion",
+              extOpt1,
+            ),
           );
           assert.isTrue(
-            genSpy2.calledWithExactly("test2", "assertion", extOpt2),
+            genSpy2.calledWithExactly(
+              "test2",
+              "assertion",
+              extOpt2,
+            ),
           );
         });
     });

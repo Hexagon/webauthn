@@ -14,8 +14,8 @@ import {
   pemToBase64,
   strToAb,
   /* jsObjectToB64, */
-} from "../../dist/webauthn.js";
-import * as h from "../helpers/fido2-helpers.js";
+} from "./helpers/lib-or-dist.js";
+import * as h from "./helpers/fido2-helpers.js";
 const assert = chai.assert;
 
 describe("utils", function () {
@@ -72,12 +72,16 @@ describe("utils", function () {
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
 
+    /*
+
+    ToDo: Convert to Deno-friendly
+
     it("coerce Buffer to base64url", () => {
       assert.strictEqual(
         coerceToBase64Url(Buffer.from("testing!"), "test"),
         "dGVzdGluZyE",
       );
-    });
+    });*/
 
     it("coerce Array to base64url", () => {
       const arr = [
@@ -199,13 +203,6 @@ describe("utils", function () {
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4/+A==");
     });
 
-    it("coerce Buffer to base64", () => {
-      assert.strictEqual(
-        coerceToBase64(Buffer.from("testing!"), "test"),
-        Buffer.from("testing!").toString("base64"),
-      );
-    });
-
     it("coerce Array to base64", () => {
       const arr = [
         0x00,
@@ -300,7 +297,10 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      assert.isTrue(abEqual(res, expectedAb), "got expected ArrayBuffer value");
+      assert.isTrue(
+        abEqual(res, expectedAb),
+        "got expected ArrayBuffer value",
+      );
     });
 
     it("coerce base64 to ArrayBuffer", () => {
@@ -325,7 +325,10 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      assert.isTrue(abEqual(res, expectedAb), "got expected ArrayBuffer value");
+      assert.isTrue(
+        abEqual(res, expectedAb),
+        "got expected ArrayBuffer value",
+      );
     });
 
     it("coerce Array to ArrayBuffer", () => {
@@ -367,7 +370,10 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      assert.isTrue(abEqual(res, expectedAb), "got expected ArrayBuffer value");
+      assert.isTrue(
+        abEqual(res, expectedAb),
+        "got expected ArrayBuffer value",
+      );
     });
 
     it("coerce Buffer to ArrayBuffer");
@@ -411,7 +417,10 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      assert.isTrue(abEqual(res, expectedAb), "got expected ArrayBuffer value");
+      assert.isTrue(
+        abEqual(res, expectedAb),
+        "got expected ArrayBuffer value",
+      );
     });
 
     it("coerce ArrayBuffer to ArrayBuffer", () => {
@@ -453,7 +462,10 @@ describe("utils", function () {
         0x3F,
         0xF8,
       ]).buffer;
-      assert.isTrue(abEqual(res, expectedAb), "got expected ArrayBuffer value");
+      assert.isTrue(
+        abEqual(res, expectedAb),
+        "got expected ArrayBuffer value",
+      );
     });
 
     it("throws on incompatible: number", () => {
@@ -512,7 +524,10 @@ describe("utils", function () {
         0x33,
       ]).buffer;
 
-      assert.isTrue(abEqual(ab, expectedAb), "expected result from strToAb");
+      assert.isTrue(
+        abEqual(ab, expectedAb),
+        "expected result from strToAb",
+      );
     });
   });
 
@@ -527,7 +542,7 @@ describe("utils", function () {
 	}); */
 
   describe("abEqual", function () {
-    it("compare Buffer with Buffer", function () {
+    /*it("compare Buffer with Buffer", function () {
       const ab = new ArrayBuffer(Buffer.from(strToAb("ciao")));
 
       const expectedAb = new ArrayBuffer(Buffer.from("ciao"));
@@ -541,7 +556,7 @@ describe("utils", function () {
       const expectedAb = Buffer.from("ciao");
 
       assert.isFalse(abEqual(ab, expectedAb), "expected result from abEqual");
-    });
+    });*/
   });
 
   describe("isPem", function () {
@@ -553,7 +568,10 @@ describe("utils", function () {
     });
 
     it("detects mdsRootCrl", function () {
-      assert.isTrue(isPem(h.mds.mdsRootCrl), "correctly detects mdsRootCrl");
+      assert.isTrue(
+        isPem(h.mds.mdsRootCrl),
+        "correctly detects mdsRootCrl",
+      );
     });
 
     it("detects assnPublicKey", function () {
@@ -636,7 +654,10 @@ describe("utils", function () {
 
   describe("isBase64Url", function () {
     it("returns true for base64url string", () => {
-      assert.isTrue(isBase64Url("dGVzdGluZyE"), "true on base64url string");
+      assert.isTrue(
+        isBase64Url("dGVzdGluZyE"),
+        "true on base64url string",
+      );
     });
 
     it("returns false for base64 string");

@@ -1,20 +1,23 @@
 {
     "lint": {
       "files": {
-        "include": ["lib/","test/"],
-        "exclude": ["test/node/"]
+        "include": ["lib/","test/"]
       }
     },
     "fmt": {
       "files": {
         "include": ["lib/","test/","*.md"]
+      },
+      "options": {
+        "lineWidth": 130
       }
     },
     "importMap": "import_map.json",
     "tasks": {
-      "test": "deno test test/deno",
-      "coverage": "deno test --coverage=coverage test/deno && deno coverage --exclude=dist --exclude=test coverage",
-      "bundle": "deno bundle lib/webauthn.js dist/webauthn.js",
-      "build": "deno lint && deno task test && deno task bundle && deno fmt && npm run typings && npm run test"
+      "test": "deno test --allow-env --allow-read --allow-net test",
+      "test:dist": "export TEST_TARGET=dist || set TEST_TARGET=dist&& deno test --allow-env --allow-read --allow-net test ",
+      "coverage": "deno test --coverage=coverage test && deno coverage --exclude=dist --exclude=test coverage",
+      "bundle": "deno bundle ./lib/webauthn.js ./dist/webauthn.js",
+      "build": "deno lint && deno task test && npm run test && deno task bundle && deno fmt && npm run typings && deno task test:dist && npm run test:dist"
     }
   }

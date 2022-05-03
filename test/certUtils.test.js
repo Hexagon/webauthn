@@ -1,18 +1,16 @@
 // Testing lib
-import { afterEach, assert, describe, it } from "./common/deps.js";
+import * as chai from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
 
-// Test subject
-import {
-  abEqual,
-  Certificate,
-  CertManager,
-  CRL,
-  helpers,
-} from "../../lib/webauthn.js";
-const { resolveOid } = helpers;
+import { abEqual, Certificate, CertManager, CRL, helpers as certHelpers } from "./helpers/lib-or-dist.js";
+import * as h from "./helpers/fido2-helpers.js";
+
+chai.use(chaiAsPromised.default);
+const assert = chai.assert;
+
+const { resolveOid } = certHelpers;
 
 describe("cert utils", function () {
   afterEach(function () {
@@ -61,7 +59,7 @@ describe("cert utils", function () {
         );
       });
 
-      //it("can create from PEM");
+      it("can create from PEM");
     });
 
     describe("verify", function () {
@@ -141,7 +139,10 @@ describe("cert utils", function () {
       it("returns correct serial for root", function () {
         const cert = new Certificate(h.certs.yubicoRoot);
         const serial = cert.getSerial();
-        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+        assert.strictEqual(
+          serial,
+          "Yubico U2F Root CA Serial 457200631",
+        );
       });
     });
 
@@ -149,13 +150,19 @@ describe("cert utils", function () {
       it("returns correct issuer for attestation", function () {
         const cert = new Certificate(h.certs.yubiKeyAttestation);
         const serial = cert.getIssuer();
-        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+        assert.strictEqual(
+          serial,
+          "Yubico U2F Root CA Serial 457200631",
+        );
       });
 
       it("returns correct issuer for root", function () {
         const cert = new Certificate(h.certs.yubicoRoot);
         const serial = cert.getIssuer();
-        assert.strictEqual(serial, "Yubico U2F Root CA Serial 457200631");
+        assert.strictEqual(
+          serial,
+          "Yubico U2F Root CA Serial 457200631",
+        );
       });
     });
 
@@ -226,10 +233,15 @@ describe("cert utils", function () {
         assert.strictEqual(subjectKeyId.byteLength, 20);
 
         // authority-key-identifier
-        const authorityKeyId = extensions.get("authority-key-identifier");
+        const authorityKeyId = extensions.get(
+          "authority-key-identifier",
+        );
         assert.instanceOf(authorityKeyId, Map);
         assert.strictEqual(authorityKeyId.size, 1);
-        assert.instanceOf(authorityKeyId.get("key-identifier"), ArrayBuffer);
+        assert.instanceOf(
+          authorityKeyId.get("key-identifier"),
+          ArrayBuffer,
+        );
 
         // basic-constraints
         const basicConstraints = extensions.get("basic-constraints");
@@ -266,7 +278,10 @@ describe("cert utils", function () {
           0x41,
           0x32,
         ]).buffer;
-        assert.isTrue(abEqual(aaguid, expectedAaguid), "correct aaguid value");
+        assert.isTrue(
+          abEqual(aaguid, expectedAaguid),
+          "correct aaguid value",
+        );
       });
 
       it("returns correct extensions for TPM attestation", function () {
@@ -320,8 +335,14 @@ describe("cert utils", function () {
         const generalNames = subjAltName.directoryName;
         assert.instanceOf(generalNames, Map);
         assert.strictEqual(generalNames.size, 3);
-        assert.strictEqual(generalNames.get("tcg-at-tpm-version"), "id:13");
-        assert.strictEqual(generalNames.get("tcg-at-tpm-model"), "NPCT6xx");
+        assert.strictEqual(
+          generalNames.get("tcg-at-tpm-version"),
+          "id:13",
+        );
+        assert.strictEqual(
+          generalNames.get("tcg-at-tpm-model"),
+          "NPCT6xx",
+        );
         assert.strictEqual(
           generalNames.get("tcg-at-tpm-manufacturer"),
           "id:4E544300",
@@ -438,7 +459,10 @@ describe("cert utils", function () {
           subject.get("organizational-unit-name"),
           "Authenticator Attestation",
         );
-        assert.strictEqual(subject.get("common-name"), "FT BioPass FIDO2 USB");
+        assert.strictEqual(
+          subject.get("common-name"),
+          "FT BioPass FIDO2 USB",
+        );
       });
     });
   });
@@ -510,7 +534,7 @@ describe("cert utils", function () {
         assert.isTrue(ret.value.has("usb-internal"));
       });
 
-      //it("decodes YubiKey Nano device type");
+      it("decodes YubiKey Nano device type");
     });
   });
 
@@ -570,9 +594,9 @@ describe("cert utils", function () {
       });
     });
 
-    /*describe("removeAll", function () {
+    describe("removeAll", function () {
       it("can clear all"); // if this didn't work, afterEach would fail...
-    });*/
+    });
 
     describe("verifyCertChain", function () {
       it("rejects on empty arguments", function () {
@@ -606,7 +630,7 @@ describe("cert utils", function () {
         return ret;
       });
 
-      //it("works for TPM");
+      it("works for TPM");
 
       it("will create certs from input arrays", function () {
         const certs = [
@@ -631,9 +655,9 @@ describe("cert utils", function () {
         return ret;
       });
 
-      /*it("rejects on bad value in certs");
+      it("rejects on bad value in certs");
       it("rejects on bad value in roots");
-      it("rejects on bad value in CRLs");*/
+      it("rejects on bad value in CRLs");
     });
   });
 });

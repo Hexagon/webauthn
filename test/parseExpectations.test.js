@@ -4,17 +4,10 @@ import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
 
-import { abEqual, coerceToArrayBuffer } from "../../dist/webauthn.js";
+import { abEqual, coerceToArrayBuffer } from "./helpers/lib-or-dist.js";
 
 // Test subject
-import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { parseExpectations } from "./helpers/lib-or-dist.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -22,8 +15,7 @@ describe("parseExpectations", function () {
   it("returns Map on good expectations", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
@@ -35,8 +27,7 @@ describe("parseExpectations", function () {
   it("doesn't add extra items to Map", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
       foo: "bar",
       beer: true,
     };
@@ -50,8 +41,7 @@ describe("parseExpectations", function () {
   it("throws on invalid origin", function () {
     const exp = {
       origin: "asdf",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     assert.throws(
       () => {
@@ -65,8 +55,7 @@ describe("parseExpectations", function () {
   it("throws if expected origin is https:443", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee:443",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     assert.throws(
       () => {
@@ -81,8 +70,7 @@ describe("parseExpectations", function () {
     const exp = {
       rpId: 23,
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     assert.throws(
       () => {
@@ -97,8 +85,7 @@ describe("parseExpectations", function () {
     const exp = {
       rpId: "foobar",
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     assert.throws(
       () => {
@@ -113,8 +100,7 @@ describe("parseExpectations", function () {
     const exp = {
       rpId: "google.com",
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg",
     };
     const ret = parseExpectations(exp);
     assert.strictEqual(ret.get("rpId"), "google.com");
@@ -191,8 +177,7 @@ describe("parseExpectations", function () {
         0x16,
       ],
     };
-    const base64UrlChallenge =
-      "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
+    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
@@ -270,8 +255,7 @@ describe("parseExpectations", function () {
         0x16,
       ]),
     };
-    const base64UrlChallenge =
-      "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
+    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
@@ -349,8 +333,7 @@ describe("parseExpectations", function () {
         0x16,
       ]).buffer,
     };
-    const base64UrlChallenge =
-      "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
+    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
@@ -361,11 +344,9 @@ describe("parseExpectations", function () {
   it("coerces base64 challenge to base64url", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
     };
-    const base64UrlChallenge =
-      "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg";
+    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg";
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);
@@ -383,8 +364,7 @@ describe("parseExpectations", function () {
   it("adds flags to map when they exist", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       flags: new Set(["UP", "AT"]),
     };
     const ret = parseExpectations(exp);
@@ -400,8 +380,7 @@ describe("parseExpectations", function () {
   it("converts Array of flags to Set", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       flags: ["UP", "AT"],
     };
     const ret = parseExpectations(exp);
@@ -417,8 +396,7 @@ describe("parseExpectations", function () {
   it("throws if flags is something other than Array or Set", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       flags: "foo",
     };
     assert.throws(
@@ -433,8 +411,7 @@ describe("parseExpectations", function () {
   it("adds prevCount to map when it exists", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 666,
     };
     const ret = parseExpectations(exp);
@@ -448,8 +425,7 @@ describe("parseExpectations", function () {
   it("adds prevCount to map when it's zero", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
     const ret = parseExpectations(exp);
@@ -463,8 +439,7 @@ describe("parseExpectations", function () {
   it("throws when prevCount is not a number", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: "string",
     };
     assert.throws(
@@ -479,8 +454,7 @@ describe("parseExpectations", function () {
   it("adds publicKey to map when it exists", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       publicKey: "-----BEGIN PUBLIC KEY-----\n" +
         "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERez9aO2wBAWO54MuGbEqSdWahSnG\n" +
         "MAg35BCNkaE3j8Q+O/ZhhKqTeIKm7El70EG6ejt4sg1ZaoQ5ELg8k3ywTg==\n" +
@@ -503,8 +477,7 @@ describe("parseExpectations", function () {
   it("throws when publicKey is not a string", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       publicKey: {},
     };
     assert.throws(
@@ -519,8 +492,7 @@ describe("parseExpectations", function () {
   it("adds userHandle to map when it exists", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
       userHandle: "YWs",
     };
@@ -544,8 +516,7 @@ describe("parseExpectations", function () {
   it("adds userHandle to map when null", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
       userHandle: null,
     };
@@ -558,8 +529,7 @@ describe("parseExpectations", function () {
   it("adds userHandle to map when empty string", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
       userHandle: "",
     };
@@ -574,8 +544,7 @@ describe("parseExpectations", function () {
   it("adds allowCredentials to map when it exists", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       allowCredentials: [{
         id: "dGVzdA==",
         transports: ["usb"],
@@ -606,8 +575,7 @@ describe("parseExpectations", function () {
   it("adds allowCredentials to map when null", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
       allowCredentials: null,
     };
@@ -620,8 +588,7 @@ describe("parseExpectations", function () {
   it("works when allowCredentials is undefined", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
 
@@ -633,8 +600,7 @@ describe("parseExpectations", function () {
   it("works when userHandle is undefined", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       prevCounter: 0,
     };
 
@@ -646,8 +612,7 @@ describe("parseExpectations", function () {
   it("throws when allowCredentials is not a array", function () {
     const exp = {
       origin: "https://webauthn.bin.coffee",
-      challenge:
-        "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
+      challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
       publicKey:
         "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESe3kuy9dZzFYR/uw+exFJxKLt6E+\n3Sp0RamB8J63CxYnbRhv6SF6MwQx/LNHJHw7rrN2xioEu88ArEDdk0jHAQ==\n-----END PUBLIC KEY-----\n",
       allowCredentials: {},
@@ -663,8 +628,7 @@ describe("parseExpectations", function () {
 
   it("works with typical attestation expectations", function () {
     const exp = {
-      challenge:
-        "HcsOvH431SaLt1hc7mpkqohMaub+oTO5ao/hzJOkUwQEdTWDhOYTdp4ejQcOCsIYdB64c1fkeqiblg6EkygpUA==",
+      challenge: "HcsOvH431SaLt1hc7mpkqohMaub+oTO5ao/hzJOkUwQEdTWDhOYTdp4ejQcOCsIYdB64c1fkeqiblg6EkygpUA==",
       origin: "https://localhost:8443",
       publicKey:
         "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESe3kuy9dZzFYR/uw+exFJxKLt6E+\n3Sp0RamB8J63CxYnbRhv6SF6MwQx/LNHJHw7rrN2xioEu88ArEDdk0jHAQ==\n-----END PUBLIC KEY-----\n",

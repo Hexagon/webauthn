@@ -2,7 +2,7 @@
 import * as chai from "chai";
 
 // Helpers
-import { tools } from "../../dist/webauthn.js";
+import { tools } from "./helpers/lib-or-dist.js";
 const assert = chai.assert;
 const {
   checkOrigin,
@@ -240,12 +240,16 @@ describe("toolbox", function () {
     });
 
     it("should allow http when specified in rules", () => {
-      const ret = checkUrl("http://www.test.com", "test", { allowHttp: true });
+      const ret = checkUrl("http://www.test.com", "test", {
+        allowHttp: true,
+      });
       assert.strictEqual(ret, "http://www.test.com");
     });
 
     it("should allow path when specified in rules", () => {
-      let ret = checkUrl("https://www.test.com/", "test", { allowPath: true });
+      let ret = checkUrl("https://www.test.com/", "test", {
+        allowPath: true,
+      });
       assert.strictEqual(ret, "https://www.test.com/");
 
       ret = checkUrl("https://www.test.com/foo/bar", "test", {

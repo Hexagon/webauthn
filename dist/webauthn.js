@@ -49408,12 +49408,12 @@ async function verifySignature(publicKeyPem, expectedSignature, data, hashName) 
         const importedKey = await publicKey.fromPem(publicKeyPem);
         let uSignature = new Uint8Array(expectedSignature);
         const alg = importedKey.algorithm;
-        if (!alg.hash) {
+        if (!alg.hash || hashName) {
             alg.hash = {
                 name: hashName || "SHA-256"
             };
         }
-        if (typeof alg !== "undefined" && alg.name === "ECDSA") {
+        if (alg.name === "ECDSA") {
             uSignature = await derToRaw(uSignature);
         }
         return await webauthnCrypto.subtle.verify(alg, publicKey.getKey(), new Uint8Array(uSignature), new Uint8Array(data));
@@ -50201,17 +50201,23 @@ class Key {
             throw new Error("Supplied key ber was empty (0 bytes)");
         }
         this._keyInfo = getKeyInfo(ber);
+        const algorithm = {};
+        if (this._keyInfo.algorithm.algorithmId === "1.2.840.10045.2.1") {
+            algorithm.name = "ECDSA";
+            if (this._keyInfo.parsedKey.namedCurve === "1.2.840.10045.3.1.7") {
+                algorithm.namedCurve = "P-256";
+            }
+        } else if (this._keyInfo.algorithm.algorithmId === "1.2.840.113549.1.1.1") {
+            algorithm.name = "RSASSA-PKCS1-v1_5";
+            algorithm.hash = "SHA-256";
+        }
         let importSPKIResult;
         try {
-            importSPKIResult = await mod3.importSPKI(pem, "ES256");
+            importSPKIResult = await mod3.webcrypto.subtle.importKey("spki", ber, algorithm, true, [
+                "verify"
+            ]);
         } catch (_e1) {
-            if (!importSPKIResult) {
-                try {
-                    importSPKIResult = await mod3.importSPKI(pem, "RS256");
-                } catch (_e2) {
-                    throw new Error("Unsupported key format", _e1, _e2);
-                }
-            }
+            throw new Error("Unsupported key format", _e1, _e2);
         }
         this._original_pem = pem;
         this._key = importSPKIResult;
@@ -50253,7 +50259,9 @@ class Key {
                 continue;
             }
             const name = coseLabels[key].name;
-            if (coseLabels[key].values[value]) value = coseLabels[key].values[value];
+            if (coseLabels[key].values[value]) {
+                value = coseLabels[key].values[value];
+            }
             retKey[name] = value;
         }
         const keyParams = keyParamList[retKey.kty];
@@ -52611,7 +52619,6 @@ async function validateAssertionSignature() {
     let rawClientData = this.clientData.get("rawClientDataJson");
     let clientDataHashBuf = await mod3.hashDigest(rawClientData);
     let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
-    console.log("Ver", publicKey, expectedSignature);
     let res = await mod3.verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData, clientDataHash));
     if (!res) {
         throw new Error("signature validation failed");

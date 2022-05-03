@@ -3,19 +3,13 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
-import { abEqual } from "../../dist/webauthn.js";
+import { abEqual } from "./helpers/lib-or-dist.js";
 
 // Test subject
-import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
+
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -1069,8 +1063,14 @@ runs.forEach(function (run) {
         0xAC,
       ]).buffer;
 
-      assert.isTrue(abEqual(x5c[0], expectedX5c0), "x5c[0] has correct value");
-      assert.isTrue(abEqual(x5c[1], expectedX5c1), "x5c[1] has correct value");
+      assert.isTrue(
+        abEqual(x5c[0], expectedX5c0),
+        "x5c[0] has correct value",
+      );
+      assert.isTrue(
+        abEqual(x5c[1], expectedX5c1),
+        "x5c[1] has correct value",
+      );
     });
 
     it("has attCert", function () {
@@ -2169,7 +2169,10 @@ runs.forEach(function (run) {
         0xB0,
       ]).buffer;
       assert.isTrue(
-        abEqual(credentialPublicKeyCose, expectedCredentialPublicKeyCose),
+        abEqual(
+          credentialPublicKeyCose,
+          expectedCredentialPublicKeyCose,
+        ),
         "credentialPublicKeyCose has correct value",
       );
     });

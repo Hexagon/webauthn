@@ -150,12 +150,14 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 | Command  | Description                              |
 |-------|------------------------------------------|
 | `deno task test` | Run deno tests |
+| `deno task test:dist` | Run deno tests against distributable |
 | `deno task coverage` | Run deno tests and display coverage |
 | `deno lint` | Lint code base |
 | `npm run typings` | Build typings (using tsc) |
 | `npm run docs` | Build docs (using jsdoc) |
-| `npm run test` | Run node tests (against distributable) |
-| `deno task build` | Run all sorts of checks, then builds the bundle and tests the bundle using node |
+| `npm run test:dist` | Run node tests (against distributable) |
+| `npm run test` | Run node tests (against against pure library, special case as dist is used normally) |
+| `deno task build` | Run all sorts of checks, both node and deno, then builds the bundle |
 
 ### File structure
 
@@ -163,17 +165,14 @@ See [Contribution Guide](/CONTRIBUTING.md) for general guidelines.
 |-------|------------------------------------------|
 | `/lib` | Source code base folder |
 | `/lib/attestation/` | Attestation plug-ins |
-| `/lib/webauthn.js` | Deno entrypoint |
-| `/lib/toolbox.js` | Deno external dependencies and shims |
-| `/test/node` | Node tests |
-| `/test/deno` | Deno tests |
+| `/lib/webauthn.js` | Entrypoint |
+| `/lib/toolbox.js` | External dependencies |
+| `/test` | Tests (supporting both Node and Deno) |
 | `/docs` | Documentation |
 
 ### Dependencies
 
-All dependencies are bundled in distributable (`dist/webauthn.js`)
-
-For details, see [/import_map.json](/import_map.json)
+For current dependencies, see [/import_map.json](/import_map.json) (used by Deno) or [/package.json](/package.json) (used by Node)
 
 ### Contributors
 

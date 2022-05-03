@@ -2,20 +2,12 @@
 import * as chai from "chai";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
-import { appendBuffer, tools } from "../../dist/webauthn.js";
+import { appendBuffer, tools } from "./helpers/lib-or-dist.js";
 
 // Test subject
-import {
-  abEqual,
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { abEqual, parseAuthnrAssertionResponse } from "./helpers/lib-or-dist.js";
 const assert = chai.assert;
 
 describe("parseAuthnrAssertionResponse", function () {

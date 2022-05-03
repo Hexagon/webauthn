@@ -3,19 +3,12 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import { abEqual, tools } from "../../dist/webauthn.js";
+import { abEqual, tools } from "./helpers/lib-or-dist.js";
 
 // Test subject
-import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
 
-import { packedSelfAttestationResponse } from "../fixtures/packedSelfAttestationData.js";
+import { packedSelfAttestationResponse } from "./fixtures/packedSelfAttestationData.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -50,7 +43,9 @@ runs.forEach(function (run) {
     });
 
     const ret = run.functionName == "parseAuthnrAttestationResponse"
-      ? await parser[run.functionName](parsedPackedSelfAttestationResponse)
+      ? await parser[run.functionName](
+        parsedPackedSelfAttestationResponse,
+      )
       : await parser[run.functionName](
         parsedPackedSelfAttestationResponse.response.attestationObject,
       );
@@ -639,7 +634,10 @@ runs.forEach(function (run) {
         0x97,
       ]).buffer;
       assert.isTrue(
-        abEqual(credentialPublicKeyCose, expectedCredentialPublicKeyCose),
+        abEqual(
+          credentialPublicKeyCose,
+          expectedCredentialPublicKeyCose,
+        ),
         "credentialPublicKeyCose has correct value",
       );
     });

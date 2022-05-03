@@ -1,10 +1,11 @@
 // Testing lib
-import { afterEach, assert, beforeEach, describe, it } from "./common/deps.js";
+import * as chai from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
-// Test subject
+// Testing subject
 import {
   attach,
   coerceToArrayBuffer,
@@ -12,7 +13,10 @@ import {
   parseAuthnrAssertionResponse,
   parseAuthnrAttestationResponse,
   parseClientResponse,
-} from "../../lib/webauthn.js";
+} from "./helpers/lib-or-dist.js";
+
+chai.use(chaiAsPromised.default);
+const assert = chai.assert;
 
 const parser = {
   parseAuthnrAttestationResponse,
@@ -58,7 +62,8 @@ describe("attestation validation", function () {
               h.lib.makeCredentialAttestationNoneResponse,
             )
             : await parser[run.functionName](
-              h.lib.makeCredentialAttestationNoneResponse.response
+              h.lib.makeCredentialAttestationNoneResponse
+                .response
                 .attestationObject,
             ),
         };
@@ -67,11 +72,13 @@ describe("attestation validation", function () {
         );
         testReq.rawId = h.lib.makeCredentialAttestationNoneResponse.rawId;
         testReq.response.clientDataJSON = h.lib
-          .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(
+          .makeCredentialAttestationNoneResponse.response
+          .clientDataJSON.slice(
             0,
           );
         testReq.response.attestationObject = h.lib
-          .makeCredentialAttestationNoneResponse.response.attestationObject
+          .makeCredentialAttestationNoneResponse.response
+          .attestationObject
           .slice(0);
         attResp.request = testReq;
 
@@ -222,7 +229,10 @@ describe("attestation validation", function () {
         });
 
         it("throws on unknown flag", function () {
-          attResp.expectations.set("flags", new Set(["foo", "UP", "AT"]));
+          attResp.expectations.set(
+            "flags",
+            new Set(["foo", "UP", "AT"]),
+          );
           return assert.isRejected(
             attResp.validateExpectations(),
             Error,
@@ -231,7 +241,10 @@ describe("attestation validation", function () {
         });
 
         it("throws on undefined flag", function () {
-          attResp.expectations.set("flags", new Set([undefined, "UP", "AT"]));
+          attResp.expectations.set(
+            "flags",
+            new Set([undefined, "UP", "AT"]),
+          );
           return assert.isRejected(
             attResp.validateExpectations(),
             Error,
@@ -560,7 +573,9 @@ describe("attestation validation", function () {
         it("returns true if ArrayBuffer", async function () {
           const ret = await attResp.validateRawClientDataJson();
           assert.isTrue(ret);
-          assert.isTrue(attResp.audit.journal.has("rawClientDataJson"));
+          assert.isTrue(
+            attResp.audit.journal.has("rawClientDataJson"),
+          );
         });
 
         it("throws if missing", function () {
@@ -648,7 +663,10 @@ describe("attestation validation", function () {
             "origin",
             "https://webauthn.bin.coffee:8080",
           );
-          attResp.clientData.set("origin", "https://webauthn.bin.coffee:8080");
+          attResp.clientData.set(
+            "origin",
+            "https://webauthn.bin.coffee:8080",
+          );
           const ret = await attResp.validateOrigin();
           assert.isTrue(ret);
           assert.isTrue(attResp.audit.journal.has("origin"));
@@ -659,7 +677,10 @@ describe("attestation validation", function () {
             "origin",
             "https://webauthn.bin.coffee:8080",
           );
-          attResp.clientData.set("origin", "https://webauthn.bin.coffee:8443");
+          attResp.clientData.set(
+            "origin",
+            "https://webauthn.bin.coffee:8443",
+          );
           return assert.isRejected(
             attResp.validateOrigin(),
             Error,
@@ -681,8 +702,14 @@ describe("attestation validation", function () {
         });
 
         it("throws on protocol mismatch", function () {
-          attResp.expectations.set("origin", "http://webauthn.bin.coffee:8080");
-          attResp.clientData.set("origin", "https://webauthn.bin.coffee:8080");
+          attResp.expectations.set(
+            "origin",
+            "http://webauthn.bin.coffee:8080",
+          );
+          attResp.clientData.set(
+            "origin",
+            "https://webauthn.bin.coffee:8080",
+          );
           return assert.isRejected(
             attResp.validateOrigin(),
             Error,
@@ -990,7 +1017,10 @@ describe("attestation validation", function () {
         });
 
         it("throws when length mismatches", function () {
-          attResp.authnrData.set("rpIdHash", new Uint8Array([1, 2, 3]).buffer);
+          attResp.authnrData.set(
+            "rpIdHash",
+            new Uint8Array([1, 2, 3]).buffer,
+          );
           return assert.isRejected(
             attResp.validateRpIdHash(),
             Error,
@@ -1007,7 +1037,10 @@ describe("attestation validation", function () {
         });
 
         it("throws if too short", function () {
-          attResp.authnrData.set("aaguid", new Uint8Array([1, 2, 3]).buffer);
+          attResp.authnrData.set(
+            "aaguid",
+            new Uint8Array([1, 2, 3]).buffer,
+          );
           return assert.isRejected(
             attResp.validateAaguid(),
             Error,
@@ -1071,9 +1104,15 @@ describe("attestation validation", function () {
         it("returns true on validation", async function () {
           const ret = await attResp.validatePublicKey();
           assert.isTrue(ret);
-          assert.isTrue(attResp.audit.journal.has("credentialPublicKeyCose"));
-          assert.isTrue(attResp.audit.journal.has("credentialPublicKeyJwk"));
-          assert.isTrue(attResp.audit.journal.has("credentialPublicKeyPem"));
+          assert.isTrue(
+            attResp.audit.journal.has("credentialPublicKeyCose"),
+          );
+          assert.isTrue(
+            attResp.audit.journal.has("credentialPublicKeyJwk"),
+          );
+          assert.isTrue(
+            attResp.audit.journal.has("credentialPublicKeyPem"),
+          );
         });
       });
 
@@ -1280,7 +1319,9 @@ describe("assertion validation", function () {
       ]),
       clientData: parser.parseClientResponse(assertionResponseCopy),
       authnrData: new Map([
-        ...await parser.parseAuthnrAssertionResponse(assertionResponseCopy),
+        ...await parser.parseAuthnrAssertionResponse(
+          assertionResponseCopy,
+        ),
       ]),
     };
     const testReq = assertionResponseCopy;
@@ -1395,7 +1436,10 @@ describe("assertion validation", function () {
         type: "public-key",
         id: coerceToArrayBuffer("dGVz", "tes"),
       }]);
-      assnResp.clientData.set("rawId", coerceToArrayBuffer("Y2lhbw==", "ciao"));
+      assnResp.clientData.set(
+        "rawId",
+        coerceToArrayBuffer("Y2lhbw==", "ciao"),
+      );
       return assert.isRejected(
         assnResp.validateId(),
         Error,

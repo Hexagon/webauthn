@@ -3,17 +3,11 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Test subject
-import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
+
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -41,7 +35,8 @@ describe("parse attestation (android-safetynet)", function () {
             h.lib.makeCredentialAttestationSafetyNetResponse,
           )
           : await parser[run.functionName](
-            h.lib.makeCredentialAttestationSafetyNetResponse.response
+            h.lib.makeCredentialAttestationSafetyNetResponse
+              .response
               .attestationObject,
           );
       });

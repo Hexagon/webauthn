@@ -3,19 +3,13 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
-import { abEqual, coerceToBase64 } from "../../dist/webauthn.js";
+import { abEqual, coerceToBase64 } from "./helpers/lib-or-dist.js";
 
 // Test subject
-import {
-  parseAttestationObject,
-  parseAuthenticatorData,
-  parseAuthnrAssertionResponse,
-  parseAuthnrAttestationResponse,
-  parseClientResponse,
-  parseExpectations,
-} from "../../dist/webauthn.js";
+import { parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
+
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -42,7 +36,8 @@ runs.forEach(function (run) {
           h.lib.makeCredentialAttestationTpmResponse,
         )
         : await parser[run.functionName](
-          h.lib.makeCredentialAttestationTpmResponse.response.attestationObject,
+          h.lib.makeCredentialAttestationTpmResponse.response
+            .attestationObject,
         );
       // console.log("ret", ret);
     });
@@ -570,13 +565,18 @@ runs.forEach(function (run) {
       });
 
       it("parses qualifiedSigner", function () {
-        const qualifiedSignerHashType = certInfo.get("qualifiedSignerHashType");
+        const qualifiedSignerHashType = certInfo.get(
+          "qualifiedSignerHashType",
+        );
         assert.strictEqual(qualifiedSignerHashType, "TPM_ALG_SHA256");
 
         let qualifiedSigner = certInfo.get("qualifiedSigner");
         assert.instanceOf(qualifiedSigner, ArrayBuffer);
         assert.strictEqual(qualifiedSigner.byteLength, 32);
-        qualifiedSigner = coerceToBase64(qualifiedSigner, "qualifiedSigner");
+        qualifiedSigner = coerceToBase64(
+          qualifiedSigner,
+          "qualifiedSigner",
+        );
         assert.strictEqual(
           qualifiedSigner,
           "vFn039mmpC3DuGav8t8NGYJrvwFLZ6sK1uuxdjBrgAc=",
@@ -636,7 +636,9 @@ runs.forEach(function (run) {
       });
 
       it("parses qualifiedNameHashType", function () {
-        const qualifiedNameHashType = certInfo.get("qualifiedNameHashType");
+        const qualifiedNameHashType = certInfo.get(
+          "qualifiedNameHashType",
+        );
         assert.strictEqual(qualifiedNameHashType, "TPM_ALG_SHA256");
 
         const qualifiedName = certInfo.get("qualifiedName");

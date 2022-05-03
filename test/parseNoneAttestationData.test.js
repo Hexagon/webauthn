@@ -3,15 +3,10 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Test subject
-import {
-  abEqual,
-  noneAttestation,
-  parseAttestationObject,
-  parseAuthnrAttestationResponse,
-} from "../../dist/webauthn.js";
+import { abEqual, noneAttestation, parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 

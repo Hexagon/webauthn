@@ -3,10 +3,10 @@ import * as chai from "chai";
 
 // Helpers
 
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Test subject
-import { parseClientResponse } from "../../dist/webauthn.js";
+import { parseClientResponse } from "./helpers/lib-or-dist.js";
 const { assert } = chai;
 
 describe("parseClientData", function () {

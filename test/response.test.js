@@ -2,14 +2,10 @@
 import * as chai from "chai";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Testing subject
-import {
-  Fido2AssertionResult,
-  Fido2AttestationResult,
-  Fido2Result,
-} from "../../dist/webauthn.js";
+import { Fido2AssertionResult, Fido2AttestationResult, Fido2Result } from "./helpers/lib-or-dist.js";
 const assert = chai.assert;
 
 describe("Fido2Result", function () {
@@ -35,9 +31,11 @@ describe("Fido2AttestationResult", function () {
       h.lib.makeCredentialAttestationNoneResponse,
     );
     testReq.response.clientDataJSON = h.lib
-      .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
+      .makeCredentialAttestationNoneResponse.response.clientDataJSON
+      .slice(0);
     testReq.response.attestationObject = h.lib
-      .makeCredentialAttestationNoneResponse.response.attestationObject.slice(
+      .makeCredentialAttestationNoneResponse.response.attestationObject
+      .slice(
         0,
       );
   });
@@ -61,8 +59,7 @@ describe("Fido2AttestationResult", function () {
       h.lib.makeCredentialAttestationNoneResponse,
       {
         origin: "https://localhost:8443",
-        challenge:
-          "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
+        challenge: "33EHav-jZ1v9qwH783aU-j0ARx6r5o-YHh-wd7C6jPbd7Wh6ytbIZosIIACehwf9-s6hXhySHO-HHUjEwZS29w",
         flags: ["UP", "AT"],
       },
     );
@@ -218,9 +215,11 @@ describe("Fido2AssertionResult", function () {
       h.lib.makeCredentialAttestationNoneResponse,
     );
     testReq.response.clientDataJSON = h.lib
-      .makeCredentialAttestationNoneResponse.response.clientDataJSON.slice(0);
+      .makeCredentialAttestationNoneResponse.response.clientDataJSON
+      .slice(0);
     testReq.response.attestationObject = h.lib
-      .makeCredentialAttestationNoneResponse.response.attestationObject.slice(
+      .makeCredentialAttestationNoneResponse.response.attestationObject
+      .slice(
         0,
       );
   });
@@ -242,8 +241,7 @@ describe("Fido2AssertionResult", function () {
   it("returns Fido2AssertionResult object on success", async function () {
     const ret = await Fido2AssertionResult.create(h.lib.assertionResponse, {
       origin: "https://localhost:8443",
-      challenge:
-        "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
+      challenge: "eaTyUNnyPDDdK8SNEgTEUvz1Q8dylkjjTimYd5X7QAo-F8_Z1lsJi3BilUpFZHkICNDWY8r9ivnTgW7-XZC3qQ",
       flags: ["UP"],
       prevCounter: 362,
       publicKey: h.lib.assnPublicKey,
@@ -257,8 +255,7 @@ describe("Fido2AssertionResult", function () {
       h.lib.assertionResponseWindowsHello,
       {
         origin: "https://webauthn.org",
-        challenge:
-          "m7ZU0Z-_IiwviFnF1JXeJjFhVBincW69E1Ctj8AQ-Ybb1uc41bMHtItg6JACh1sOj_ZXjonw2acj_JD2i-axEQ",
+        challenge: "m7ZU0Z-_IiwviFnF1JXeJjFhVBincW69E1Ctj8AQ-Ybb1uc41bMHtItg6JACh1sOj_ZXjonw2acj_JD2i-axEQ",
         flags: ["UP"],
         prevCounter: 0,
         publicKey: h.lib.assnPublicKeyWindowsHello,

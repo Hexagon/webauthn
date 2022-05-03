@@ -3,14 +3,10 @@ import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 
 // Helpers
-import * as h from "../helpers/fido2-helpers.js";
+import * as h from "./helpers/fido2-helpers.js";
 
 // Test subject
-import {
-  abEqual,
-  parseAttestationObject,
-  parseAuthnrAttestationResponse,
-} from "../../dist/webauthn.js";
+import { abEqual, parseAttestationObject, parseAuthnrAttestationResponse } from "./helpers/lib-or-dist.js";
 chai.use(chaiAsPromised.default);
 const { assert } = chai;
 
@@ -35,7 +31,8 @@ runs.forEach(function (run) {
         h.lib.makeCredentialAttestationU2fResponse,
       )
       : await parser[run.functionName](
-        h.lib.makeCredentialAttestationU2fResponse.response.attestationObject,
+        h.lib.makeCredentialAttestationU2fResponse.response
+          .attestationObject,
       );
     it("parser returns Map with correct size", function () {
       assert.instanceOf(ret, Map);
@@ -1217,7 +1214,8 @@ runs.forEach(function (run) {
           h.lib.makeCredentialAttestationU2fResponse,
         )
         : await parser[run.functionName](
-          h.lib.makeCredentialAttestationU2fResponse.response.attestationObject,
+          h.lib.makeCredentialAttestationU2fResponse.response
+            .attestationObject,
         );
       assert.instanceOf(ret, Map);
       assert.strictEqual(ret.size, 15);
