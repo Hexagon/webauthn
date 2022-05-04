@@ -5,7 +5,8 @@ export class Certificate {
     info: Map<any, any>;
     getCommonName(): string;
     verify(): any;
-    getPublicKey(): any;
+    getPublicKey(): Promise<any>;
+    getPublicKeyJwk(): Promise<any>;
     getIssuer(): any;
     getSerial(): any;
     getVersion(): any;

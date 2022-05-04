@@ -94,39 +94,33 @@ describe("cert utils", function () {
     });
 
     describe("getPublicKey", function () {
-      it("can extract public key of attestation", function () {
+      it("can extract public key of attestation", async function () {
         const cert = new Certificate(h.certs.yubiKeyAttestation);
-        const p = cert.getPublicKey();
-        assert.instanceOf(p, Promise);
-        return p.then((jwk) => {
-          assert.isObject(jwk);
-          assert.strictEqual(jwk.kty, "EC");
-          assert.strictEqual(jwk.crv, "P-256");
-          assert.strictEqual(
-            jwk.x,
-            "SzMfdz2BRLmZXL5FhVF-F1g6pHYjaVy-haxILIAZ8sk",
-          );
-          assert.strictEqual(
-            jwk.y,
-            "uUZ64EWw5m8TGy6jJDyR_aYC4xjz_F2NKnq65yvRQwk",
-          );
-        });
+        const jwk = await cert.getPublicKeyJwk();
+        assert.isObject(jwk);
+        assert.strictEqual(jwk.kty, "EC");
+        assert.strictEqual(jwk.crv, "P-256");
+        assert.strictEqual(
+          jwk.x,
+          "SzMfdz2BRLmZXL5FhVF-F1g6pHYjaVy-haxILIAZ8sk",
+        );
+        assert.strictEqual(
+          jwk.y,
+          "uUZ64EWw5m8TGy6jJDyR_aYC4xjz_F2NKnq65yvRQwk",
+        );
       });
 
-      it("can extract public key of root", function () {
+      it("can extract public key of root", async function () {
         const cert = new Certificate(h.certs.yubicoRoot);
-        const p = cert.getPublicKey();
-        assert.instanceOf(p, Promise);
-        return p.then((jwk) => {
-          assert.isObject(jwk);
-          assert.strictEqual(jwk.kty, "RSA");
-          assert.strictEqual(jwk.alg, "RS256");
-          assert.strictEqual(jwk.e, "AQAB");
-          assert.strictEqual(
-            jwk.n,
-            "v48GLoQVZamomFhDLK1hYrICfj7TPdXkq6SOEyu1Od5sAiGsEgx8vL1JpOTdigI_Wm70_TT-UjEtYUIt7rMaGBqJ10IHzumV8lAPWvigJKnRZwZ5croEngjnqfBHWRX7GkRbTI5MM-RnM9j8uLyGLwnTBz7cGs9G1bs53rniBM-k50IxOt0Xbds28J3m8ExuWcm3lksG88vgSd-GR3FITwGPPciUF7hNCMzGRXBAWzzUW1hAkSoI6v_6k_Z5gzhVZUkQrdsIqj0s5bsJ_r_rLkBAbFI0xjBHdubSl105DVttcCFm8XkslKE18C7xkusZcEEoDaZNql2MH_Il4O1VmQ",
-          );
-        });
+        const publicKeyJwk = await cert.getPublicKeyJwk();
+        assert.isObject(publicKeyJwk);
+        assert.strictEqual(publicKeyJwk.kty, "RSA");
+        assert.strictEqual(publicKeyJwk.alg, "RS256");
+        assert.strictEqual(publicKeyJwk.e, "AQAB");
+        assert.strictEqual(
+          publicKeyJwk.n,
+          "v48GLoQVZamomFhDLK1hYrICfj7TPdXkq6SOEyu1Od5sAiGsEgx8vL1JpOTdigI_Wm70_TT-UjEtYUIt7rMaGBqJ10IHzumV8lAPWvigJKnRZwZ5croEngjnqfBHWRX7GkRbTI5MM-RnM9j8uLyGLwnTBz7cGs9G1bs53rniBM-k50IxOt0Xbds28J3m8ExuWcm3lksG88vgSd-GR3FITwGPPciUF7hNCMzGRXBAWzzUW1hAkSoI6v_6k_Z5gzhVZUkQrdsIqj0s5bsJ_r_rLkBAbFI0xjBHdubSl105DVttcCFm8XkslKE18C7xkusZcEEoDaZNql2MH_Il4O1VmQ",
+        );
       });
     });
 

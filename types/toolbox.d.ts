@@ -24,7 +24,7 @@ export namespace pkijs {
     export { PublicKeyInfo };
 }
 export function randomValues(n: any): Uint8Array;
-export function verifySignature(publicKeyPem: any, expectedSignature: any, data: any, hashName: any): Promise<any>;
+export function verifySignature(publicKey: any, expectedSignature: any, data: any, hashName: any): Promise<any>;
 export const webcrypto: any;
 import { encode } from "cbor-x";
 import { decode } from "cbor-x";

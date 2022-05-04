@@ -49402,21 +49402,34 @@ function checkRpId(rpId) {
     if (isLocalhost) return rpId;
     return checkDomainOrUrl(rpId, "rpId");
 }
-async function verifySignature(publicKeyPem, expectedSignature, data, hashName) {
+async function verifySignature(publicKey, expectedSignature, data, hashName) {
+    let publicKeyInst;
+    if (publicKey instanceof Key) {
+        publicKeyInst = publicKey;
+    } else if (publicKey && publicKey.type === "public") {
+        publicKeyInst = new Key(publicKey);
+    } else {
+        publicKeyInst = new Key();
+        await publicKeyInst.fromPem(publicKey);
+    }
+    const alg = publicKeyInst.getAlgorithm();
+    if (typeof alg === "undefined") {
+        throw new Error("verifySignature: Algoritm missing.");
+    }
+    if (hashName) {
+        alg.hash = {
+            name: hashName
+        };
+    }
+    if (!alg.hash) {
+        throw new Error("verifySignature: Hash name missing.");
+    }
     try {
-        const publicKey = new Key();
-        const importedKey = await publicKey.fromPem(publicKeyPem);
         let uSignature = new Uint8Array(expectedSignature);
-        const alg = importedKey.algorithm;
-        if (!alg.hash || hashName) {
-            alg.hash = {
-                name: hashName || "SHA-256"
-            };
-        }
         if (alg.name === "ECDSA") {
             uSignature = await derToRaw(uSignature);
         }
-        return await webauthnCrypto.subtle.verify(alg, publicKey.getKey(), new Uint8Array(uSignature), new Uint8Array(data));
+        return await webauthnCrypto.subtle.verify(alg, publicKeyInst.getKey(), uSignature, new Uint8Array(data));
     } catch (_e) {
         console.error(_e);
     }
@@ -49437,20 +49450,20 @@ function getHostname1(urlIn) {
     return new _url(urlIn).hostname;
 }
 async function getEmbeddedJwk(jwsHeader, alg) {
-    let publicKey;
+    let publicKeyJwk;
     if (jwsHeader.jwk) {
-        publicKey = jwsHeader.jwk;
+        publicKeyJwk = jwsHeader.jwk;
     } else if (jwsHeader.x5c) {
         const x5c0 = jwsHeader.x5c[0];
         const cert = new Certificate1(x5c0);
-        publicKey = await cert.getPublicKey();
-        publicKey.kid = publicKey.kid || cert.getCommonName();
+        publicKeyJwk = await cert.getPublicKeyJwk();
+        publicKeyJwk.kid = publicKeyJwk.kid || cert.getCommonName();
     }
-    if (!publicKey) {
+    if (!publicKeyJwk) {
         throw new Error("getEmbeddedJwk: JWK not found in JWS.");
     }
-    publicKey.alg = publicKey.alg || jwsHeader.alg || alg;
-    return publicKey;
+    publicKeyJwk.alg = publicKeyJwk.alg || jwsHeader.alg || alg;
+    return publicKeyJwk;
 }
 const mod3 = {
     base64: base64,
@@ -49515,11 +49528,9 @@ function coerceToBase64Url(thing, name) {
 }
 function abEqual(b1, b2) {
     if (!(b1 instanceof ArrayBuffer) || !(b2 instanceof ArrayBuffer)) {
-        console.log("not array buffers");
         return false;
     }
     if (b1.byteLength !== b2.byteLength) {
-        console.log("not same length");
         return false;
     }
     b1 = new Uint8Array(b1);
@@ -49547,6 +49558,7 @@ function pemToBase64(pem) {
     if (!isPem(pem)) {
         throw new Error("expected PEM string as input");
     }
+    pem = pem.replace("\r", "");
     let pemArr = pem.split("\n");
     pemArr = pemArr.slice(1, pemArr.length - 2);
     return pemArr.join("");
@@ -49575,6 +49587,9 @@ class Certificate1 {
     constructor(cert){
         if (isPem(cert)) {
             cert = pemToBase64(cert);
+        }
+        if (typeof cert === "string" || cert instanceof String) {
+            cert = cert.replace(/\n|\r/g, "");
         }
         cert = coerceToArrayBuffer(cert, "certificate");
         if (cert.byteLength === 0) {
@@ -49614,12 +49629,14 @@ class Certificate1 {
             return Promise.reject(err);
         });
     }
-    getPublicKey() {
-        let key;
-        return this._cert.getPublicKey().then((k)=>{
-            key = k;
-            return mod3.webcrypto.subtle.exportKey("jwk", key);
-        });
+    async getPublicKey() {
+        const k = await this._cert.getPublicKey();
+        return k;
+    }
+    async getPublicKeyJwk() {
+        const publicKey = await this.getPublicKey();
+        const publicKeyJwk = await mod3.webcrypto.subtle.exportKey("jwk", publicKey);
+        return publicKeyJwk;
     }
     getIssuer() {
         return this._cert.issuer.typesAndValues[0].value.valueBlock.value;
@@ -50102,7 +50119,9 @@ const algHashes = {
 };
 const algMap = {
     "RSASSA-PKCS1-v1_5_w_SHA256": "RS256",
-    ECDSA_w_SHA256: "ES256"
+    "ECDSA_w_SHA256": "ES256",
+    "ECDSA_w_SHA384": "ES256",
+    "ECDSA_w_SHA512": "ES256"
 };
 function algToStr(alg) {
     if (typeof alg !== "number") {
@@ -50182,11 +50201,22 @@ const keyParamList = {
     }
 };
 class Key {
-    constructor(key){
+    constructor(key, alg){
         this._original_pem = undefined;
         this._original_jwk = undefined;
         this._original_cose = undefined;
+        if (key && (!key.type || key.type !== "public")) {
+            throw new TypeError("Invalid argument passed to Key constructor, should be instance of CryptoKey with type public");
+        }
+        if (key && !alg) {
+            if (key.algorithm) {
+                alg = key.algorithm;
+            } else {
+                throw new TypeError("Key cannot be supplied without algorithm");
+            }
+        }
         this._key = key;
+        this._alg = alg;
         this._keyinfo = undefined;
     }
     async fromPem(pem) {
@@ -50221,6 +50251,7 @@ class Key {
         }
         this._original_pem = pem;
         this._key = importSPKIResult;
+        this._alg = algorithm;
         return this._key;
     }
     async fromJWK(jwk, extractable) {
@@ -50315,6 +50346,9 @@ class Key {
         } else {
             throw new Error("Key data not available.");
         }
+    }
+    getAlgorithm() {
+        return this._alg;
     }
 }
 const fidoMdsRootCert = "-----BEGIN CERTIFICATE-----\n" + "MIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G\n" + "A1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjMxEzARBgNVBAoTCkdsb2JhbFNp\n" + "Z24xEzARBgNVBAMTCkdsb2JhbFNpZ24wHhcNMDkwMzE4MTAwMDAwWhcNMjkwMzE4\n" + "MTAwMDAwWjBMMSAwHgYDVQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEG\n" + "A1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbjCCASIwDQYJKoZI\n" + "hvcNAQEBBQADggEPADCCAQoCggEBAMwldpB5BngiFvXAg7aEyiie/QV2EcWtiHL8\n" + "RgJDx7KKnQRfJMsuS+FggkbhUqsMgUdwbN1k0ev1LKMPgj0MK66X17YUhhB5uzsT\n" + "gHeMCOFJ0mpiLx9e+pZo34knlTifBtc+ycsmWQ1z3rDI6SYOgxXG71uL0gRgykmm\n" + "KPZpO/bLyCiR5Z2KYVc3rHQU3HTgOu5yLy6c+9C7v/U9AOEGM+iCK65TpjoWc4zd\n" + "QQ4gOsC0p6Hpsk+QLjJg6VfLuQSSaGjlOCZgdbKfd/+RFO+uIEn8rUAVSNECMWEZ\n" + "XriX7613t2Saer9fwRPvm2L7DWzgVGkWqQPabumDk3F2xmmFghcCAwEAAaNCMEAw\n" + "DgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFI/wS3+o\n" + "LkUkrk1Q+mOai97i3Ru8MA0GCSqGSIb3DQEBCwUAA4IBAQBLQNvAUKr+yAzv95ZU\n" + "RUm7lgAJQayzE4aGKAczymvmdLm6AC2upArT9fHxD4q/c2dKg8dEe3jgr25sbwMp\n" + "jjM5RcOO5LlXbKr8EpbsU8Yt5CRsuZRj+9xTaGdWPoO4zzUhw8lo/s7awlOqzJCK\n" + "6fBdRoyV3XpYKBovHd7NADdBj+1EbddTKJd+82cEHhXXipa0095MJ6RMG3NzdvQX\n" + "mcIfeg7jLQitChws/zyrVQ4PkX4268NXSb7hLi18YIvDQVETI53O9zJrlAGomecs\n" + "Mx86OyXShkDOOyyGeMlhLxS67ttVb9+E7gUJTb0o2HLO02JQZR7rkpeDMdmztcpH\n" + "WD9f\n" + "-----END CERTIFICATE-----\n";
@@ -50716,6 +50750,13 @@ const algMap1 = new Map([
             algName: "ECDSA_w_SHA512",
             hashAlg: "SHA-512"
         }
+    ],
+    [
+        -257,
+        {
+            algName: "RSASSA-PKCS1-v1_5_w_SHA256",
+            hashAlg: "SHA-256"
+        }
     ], 
 ]);
 function packedParseFn(attStmt) {
@@ -50762,7 +50803,7 @@ async function packedValidateBasic() {
     if (algName === undefined) {
         throw new Error("packed attestation: unknown algorithm " + algName);
     }
-    const res = validateSignature(this.clientData.get("rawClientDataJson"), this.authnrData.get("rawAuthnrData"), this.authnrData.get("sig"), hashAlg, this.authnrData.get("attCert"));
+    const res = await validateSignature(this.clientData.get("rawClientDataJson"), this.authnrData.get("rawAuthnrData"), this.authnrData.get("sig"), hashAlg, this.authnrData.get("attCert"));
     if (!res) {
         throw new Error("packed attestation signature verification failed");
     }
@@ -50773,11 +50814,13 @@ async function packedValidateBasic() {
     this.audit.journal.add("fmt");
     return true;
 }
-function validateSignature(rawClientData, authenticatorData, sig, hashAlg, parsedAttCert) {
-    const hash = mod3.hashDigest(rawClientData);
+async function validateSignature(rawClientData, authenticatorData, sig, hashAlg, parsedAttCert) {
+    const hash = await mod3.hashDigest(rawClientData);
     const clientDataHash = new Uint8Array(hash).buffer;
     const attCertPem = abToPem("CERTIFICATE", parsedAttCert);
-    const verify1 = mod3.verifySignature(hashAlg, attCertPem, sig, appendBuffer(authenticatorData, clientDataHash));
+    const cert = new Certificate1(attCertPem);
+    const publicKey = await cert.getPublicKey();
+    const verify1 = await mod3.verifySignature(publicKey, sig, appendBuffer(authenticatorData, clientDataHash), hashAlg);
     return verify1;
 }
 async function validateCerts(parsedAttCert, aaguid, _x5c, audit) {
@@ -50835,7 +50878,7 @@ async function validateCerts(parsedAttCert, aaguid, _x5c, audit) {
 }
 async function validateSelfSignature(rawClientData, authenticatorData, sig, hashAlg, publicKeyPem) {
     const clientDataHash = await mod3.hashDigest(rawClientData, hashAlg);
-    const verify2 = mod3.verifySignature(publicKeyPem, sig, appendBuffer(authenticatorData, clientDataHash));
+    const verify2 = mod3.verifySignature(publicKeyPem, sig, appendBuffer(authenticatorData, clientDataHash), hashAlg);
     return verify2;
 }
 function packedValidateSurrogate() {
@@ -50942,7 +50985,7 @@ async function fidoU2fValidateFn() {
     ]);
     const sig = this.authnrData.get("sig");
     const attCertPem = abToPem("CERTIFICATE", parsedAttCert);
-    const res = await mod3.verifySignature(attCertPem, abToBuf(sig), abToBuf(verificationData));
+    const res = await mod3.verifySignature(attCertPem, abToBuf(sig), abToBuf(verificationData), "SHA-256");
     if (!res) {
         throw new Error("U2F attestation signature verification failed");
     }
@@ -52619,7 +52662,7 @@ async function validateAssertionSignature() {
     let rawClientData = this.clientData.get("rawClientDataJson");
     let clientDataHashBuf = await mod3.hashDigest(rawClientData);
     let clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
-    let res = await mod3.verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData, clientDataHash));
+    let res = await mod3.verifySignature(publicKey, expectedSignature, appendBuffer(rawAuthnrData, clientDataHash), "SHA-256");
     if (!res) {
         throw new Error("signature validation failed");
     }

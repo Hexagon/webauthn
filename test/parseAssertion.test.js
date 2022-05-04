@@ -198,12 +198,12 @@ describe("validate signature", function () {
     const pk = h.lib.assnPublicKey;
     const authnrData = h.lib.assertionResponse.response.authenticatorData;
     const clientData = h.lib.assertionResponse.response.clientDataJSON;
-
     const clientDataHashBuf = await tools.hashDigest(clientData);
     const verify = await tools.verifySignature(
       pk,
       sig,
       appendBuffer(authnrData, clientDataHashBuf),
+      "SHA-256",
     );
     assert.equal(verify, true);
   });
