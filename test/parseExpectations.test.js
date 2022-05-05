@@ -346,7 +346,7 @@ describe("parseExpectations", function () {
       origin: "https://webauthn.bin.coffee",
       challenge: "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg",
     };
-    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG/b66BuSQ+I2n34WsLFvy62fpIVFjrm32/tFRQixX9U8EBVTriTkreAp+1nDvYboRK9WFg";
+    const base64UrlChallenge = "4BS1YJKRCeCVoLdfG_b66BuSQ-I2n34WsLFvy62fpIVFjrm32_tFRQixX9U8EBVTriTkreAp-1nDvYboRK9WFg";
     const ret = parseExpectations(exp);
     assert.instanceOf(ret, Map);
     assert.strictEqual(ret.size, 2);

@@ -11,9 +11,9 @@ import {
   coerceToBase64Url,
   isBase64Url,
   isPem,
+  jsObjectToB64,
   pemToBase64,
   strToAb,
-  /* jsObjectToB64, */
 } from "./helpers/lib-or-dist.js";
 import * as h from "./helpers/fido2-helpers.js";
 const assert = chai.assert;
@@ -72,17 +72,6 @@ describe("utils", function () {
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
 
-    /*
-
-    ToDo: Convert to Deno-friendly
-
-    it("coerce Buffer to base64url", () => {
-      assert.strictEqual(
-        coerceToBase64Url(Buffer.from("testing!"), "test"),
-        "dGVzdGluZyE",
-      );
-    });*/
-
     it("coerce Array to base64url", () => {
       const arr = [
         0x00,
@@ -107,12 +96,12 @@ describe("utils", function () {
       assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
     });
 
-    /* it("coerce base64 to base64url", () => {
-			var b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
-			var res = coerceToBase64Url(b64, "test");
-			assert.isString(res);
-			assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
-		}); */
+    it("coerce base64 to base64url", () => {
+      const b64 = "AAECAwQFBgcJCgsMDQ4/+A==";
+      const res = coerceToBase64Url(b64, "test");
+      assert.isString(res);
+      assert.strictEqual(res, "AAECAwQFBgcJCgsMDQ4_-A");
+    });
 
     it("coerce base64url to base64url", () => {
       const b64url = "AAECAwQFBgcJCgsMDQ4_-A";
@@ -531,32 +520,51 @@ describe("utils", function () {
     });
   });
 
-  /* describe("jsObjectToB64", function() {
-		it("converts Object to base64 string", function() {
-			assert.strictEqual(jsObjectToB64({ test: true }), "eyJ0ZXN0Ijp0cnVlfQ==");
-		});
+  describe("jsObjectToB64", function () {
+    it("converts Object to base64 string", function () {
+      assert.strictEqual(jsObjectToB64({ test: true }), "eyJ0ZXN0Ijp0cnVlfQ==");
+    });
 
-		it("removes non UTF-8 characters", function() {
-			assert.strictEqual(jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK - Ð¾Ñ\x82 Hideez" } }), jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK -  Hideez" } }));
-		});
-	}); */
+    it("removes non UTF-8 characters", function () {
+      assert.strictEqual(
+        jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK - Ð¾Ñ\x82 Hideez" } }),
+        jsObjectToB64({ alternativeDescriptions: { "ru-RU": "FIDO2 Key SDK -  Hideez" } }),
+      );
+    });
+  });
 
   describe("abEqual", function () {
-    /*it("compare Buffer with Buffer", function () {
-      const ab = new ArrayBuffer(Buffer.from(strToAb("ciao")));
+    it("compare ArrayBuffer with equal ArrayBuffer", function () {
+      const ab = new Uint8Array([1, 2, 3, 4]).buffer;
 
-      const expectedAb = new ArrayBuffer(Buffer.from("ciao"));
+      const expectedAb = new Uint8Array([1, 2, 3, 4]).buffer;
 
       assert.isTrue(abEqual(ab, expectedAb), "expected result from abEqual");
     });
 
-    it("compare Buffer with ArrayBuffer", function () {
-      const ab = strToAb("ciao");
+    it("compare ArrayBuffer with non equal length ArrayBuffer", function () {
+      const ab = new Uint8Array([1, 2, 3, 4]).buffer;
 
-      const expectedAb = Buffer.from("ciao");
+      const expectedAb = new Uint8Array([1, 2, 3, 4, 5]).buffer;
 
       assert.isFalse(abEqual(ab, expectedAb), "expected result from abEqual");
-    });*/
+    });
+
+    it("compare ArrayBuffer with non equal ArrayBuffer", function () {
+      const ab = new Uint8Array([1, 2, 3, 4]).buffer;
+
+      const expectedAb = new Uint8Array([1, 2, 3, 5]).buffer;
+
+      assert.isFalse(abEqual(ab, expectedAb), "expected result from abEqual");
+    });
+
+    it("compare Uint8Array with ArrayBuffer", function () {
+      const ab = new Uint8Array([1, 2, 3, 4]);
+
+      const expectedAb = new Uint8Array([1, 2, 3, 4]).buffer;
+
+      assert.isFalse(abEqual(ab, expectedAb), "expected result from abEqual");
+    });
   });
 
   describe("isPem", function () {

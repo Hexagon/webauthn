@@ -85,7 +85,9 @@ describe("Webauthn extensions", function () {
 
   describe("generateExtensionOptions", function () {
     let mc;
-    //function fn() {}
+
+    function fn() {}
+
     beforeEach(function () {
       mc = new Webauthn();
     });
@@ -119,10 +121,6 @@ describe("Webauthn extensions", function () {
         "expected 'type' to be 'attestation' or 'assertion', got: foo",
       );
     });
-
-    /*
-
-    ToDo: Done not available in Deno shim
 
     it("can generate for attestation", function (done) {
       function generateFn(name, type, options) {
@@ -162,7 +160,7 @@ describe("Webauthn extensions", function () {
 
       Webauthn.addExtension("test", generateFn, fn, fn);
       mc.generateExtensionOptions("test", "assertion", opts);
-    });*/
+    });
   });
 
   describe("parseExtensionResult", function () {

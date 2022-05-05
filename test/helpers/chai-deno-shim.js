@@ -8,10 +8,18 @@ window.beforeEach = beforeEach;
 window.describe = describe;
 
 // Do nothing when b (fn) is undefined
+// Pass empty function as "done()" for now, tests are run in node anyways
 window.it = Object.assign(
   (a, b, c, d) => {
     if (typeof b !== "undefined") {
-      it(a, b, c, d);
+      it(
+        a,
+        async () => {
+          await b(() => {});
+        },
+        c,
+        d,
+      );
     }
   },
   {

@@ -952,7 +952,7 @@ describe("Webauthn", function () {
       );
     });
 
-    /*it("throws on non-string format", function () {
+    it("throws on non-string format", function () {
       assert.throws(
         () => {
           Webauthn.parseAttestation({}, { test: "yup" });
@@ -960,7 +960,7 @@ describe("Webauthn", function () {
         TypeError,
         "expected 'fmt' to be string, got: object",
       );
-    });*/
+    });
 
     it("throws on missing format", function () {
       assert.throws(

@@ -49438,7 +49438,7 @@ async function hashDigest(o25, alg) {
     if (typeof o25 === "string") {
         o25 = new TextEncoder().encode(o25);
     }
-    const result = await webauthnCrypto.subtle.digest(alg || "sha-256", o25);
+    const result = await webauthnCrypto.subtle.digest(alg || "SHA-256", o25);
     return result;
 }
 function randomValues(n16) {
@@ -49511,15 +49511,15 @@ function coerceToBase64Url(thing, name) {
     if (!name) {
         throw new TypeError("name not specified in coerceToBase64");
     }
+    if (typeof thing === "string") {
+        thing = thing.replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/g, "");
+    }
     if (typeof thing !== "string") {
         try {
             thing = mod3.base64.fromArrayBuffer(coerceToArrayBuffer(thing, name), true);
         } catch (_err) {
             throw new Error(`could not coerce '${name}' to string`);
         }
-    }
-    if (typeof thing !== "string") {
-        throw new Error(`could not coerce '${name}' to string`);
     }
     return thing;
 }
@@ -50888,7 +50888,7 @@ async function validateCerts(parsedAttCert, aaguid, _x5c, audit) {
 }
 async function validateSelfSignature(rawClientData, authenticatorData, sig, hashAlg, publicKeyPem) {
     const clientDataHash = await mod3.hashDigest(rawClientData, hashAlg);
-    const verify2 = mod3.verifySignature(publicKeyPem, sig, appendBuffer(authenticatorData, clientDataHash), hashAlg);
+    const verify2 = await mod3.verifySignature(publicKeyPem, sig, appendBuffer(authenticatorData, clientDataHash), hashAlg);
     return verify2;
 }
 function packedValidateSurrogate() {
@@ -50975,7 +50975,7 @@ async function fidoU2fValidateFn() {
     const rpIdHash = this.authnrData.get("rpIdHash");
     const credId = this.authnrData.get("credId");
     const rawClientData = this.clientData.get("rawClientDataJson");
-    const clientDataHash = abToBuf(mod3.hashDigest(abToBuf(rawClientData)));
+    const clientDataHash = abToBuf(await mod3.hashDigest(abToBuf(rawClientData)));
     const x = coerceToArrayBuffer(jwk.x, "U2F public key x component");
     if (x.byteLength !== 32) {
         throw new Error("U2F public key x component was wrong size");
@@ -50995,7 +50995,9 @@ async function fidoU2fValidateFn() {
     ]);
     const sig = this.authnrData.get("sig");
     const attCertPem = abToPem("CERTIFICATE", parsedAttCert);
-    const res = await mod3.verifySignature(attCertPem, abToBuf(sig), abToBuf(verificationData), "SHA-256");
+    const cert1 = new Certificate1(attCertPem);
+    const publicKey = await cert1.getPublicKey();
+    const res = await mod3.verifySignature(publicKey, abToBuf(sig), abToBuf(verificationData), "SHA-256");
     if (!res) {
         throw new Error("U2F attestation signature verification failed");
     }
@@ -51365,7 +51367,7 @@ async function tpmValidateFn() {
         throw new Error("tpm attestation: unknown algorithm: " + alg);
     }
     this.audit.journal.add("alg");
-    const extraDataHashBuf = mod3.hashDigest(appendBuffer(abToBuf(rawAuthnrData), clientDataHashBuf), alg.hashAlg);
+    const extraDataHashBuf = await mod3.hashDigest(appendBuffer(abToBuf(rawAuthnrData), clientDataHashBuf), alg.hashAlg);
     const generatedExtraDataHash = new Uint8Array(extraDataHashBuf).buffer;
     const extraData = certInfo.get("extraData");
     if (!abEqual(generatedExtraDataHash, extraData)) {
@@ -51373,7 +51375,7 @@ async function tpmValidateFn() {
     }
     const pubAreaName = certInfo.get("name");
     const pubAreaNameHashAlg = tpmHashToNpmHash(certInfo.get("nameHashType"));
-    const pubAreaNameHashBuf = mod3.hashDigest(abToBuf(pubArea.get("rawPubArea")), pubAreaNameHashAlg);
+    const pubAreaNameHashBuf = await mod3.hashDigest(abToBuf(pubArea.get("rawPubArea")), pubAreaNameHashAlg);
     const generatedPubAreaNameHash = new Uint8Array(pubAreaNameHashBuf).buffer;
     if (!abEqual(generatedPubAreaNameHash, pubAreaName)) {
         throw new Error("pubAreaName hash did not match hash of publicArea");
@@ -51382,7 +51384,9 @@ async function tpmValidateFn() {
     const sig = this.authnrData.get("sig");
     const rawCertInfo = certInfo.get("rawCertInfo");
     const attCertPem = abToPem("CERTIFICATE", parsedAttCert);
-    const res = await mod3.verifySignature(attCertPem, sig, abToBuf(rawCertInfo), alg.hashAlg);
+    const cert = new Certificate1(attCertPem);
+    const publicKey = await cert.getPublicKey();
+    const res = await mod3.verifySignature(publicKey, sig, abToBuf(rawCertInfo), alg.hashAlg);
     if (!res) {
         throw new Error("TPM attestation signature verification failed");
     }
@@ -51457,13 +51461,13 @@ async function tpmValidateFn() {
 function tpmHashToNpmHash(tpmHash) {
     switch(tpmHash){
         case "TPM_ALG_SHA1":
-            return "SHA1";
+            return "SHA-1";
         case "TPM_ALG_SHA256":
-            return "SHA256";
+            return "SHA-256";
         case "TPM_ALG_SHA384":
-            return "SHA384";
+            return "SHA-384";
         case "TPM_ALG_SHA512":
-            return "SHA512";
+            return "SHA-512";
         default:
             throw new TypeError("Unsupported hash type: " + tpmHash);
     }

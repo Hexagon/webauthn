@@ -413,7 +413,7 @@ describe("attestation validation", function () {
           assert.isTrue(attResp.audit.validExpectations);
         });
 
-        /*it("throws if counter is not a number");
+        it("throws if counter is not a number");
         it("throws if counter is negative");
         it("throws if publicKey is not a string");
         it("throws if publicKey doesn't match PEM regexp");
@@ -423,7 +423,7 @@ describe("attestation validation", function () {
         it("passes if requiredExpectations is Array");
         it("passes if requiredExpectations is Set");
         it("throws if requiredExpectations field is missing");
-        it("throws if more expectations were passed than requiredExpectations");*/
+        it("throws if more expectations were passed than requiredExpectations");
       });
 
       describe("validateCreateRequest", function () {

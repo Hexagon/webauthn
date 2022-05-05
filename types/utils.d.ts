@@ -16,7 +16,7 @@ export function appendBuffer(buffer1: ArrayBuffers, buffer2: ArrayBuffers): Arra
 export function b64ToJsObject(b64: any, desc: any): any;
 export function coerceToArrayBuffer(buf: any, name: any): ArrayBuffer;
 export function coerceToBase64(thing: any, name: any): any;
-export function coerceToBase64Url(thing: any, name: any): string;
+export function coerceToBase64Url(thing: any, name: any): any;
 export function isBase64Url(str: any): boolean;
 export function isPem(pem: any): boolean;
 export function isPositiveInteger(n: any): boolean;
