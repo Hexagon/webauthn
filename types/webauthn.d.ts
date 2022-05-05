@@ -1,3 +1,4 @@
+export { Key } from "./keyUtils.js";
 export { attach } from "./validator.js";
 export class Webauthn {
     static utils: typeof utils;

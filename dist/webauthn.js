@@ -49410,7 +49410,7 @@ async function verifySignature(publicKey, expectedSignature, data, hashName) {
         publicKeyInst = new Key(publicKey);
     } else {
         publicKeyInst = new Key();
-        await publicKeyInst.fromPem(publicKey);
+        await publicKeyInst.fromPem(publicKey, hashName);
     }
     const alg = publicKeyInst.getAlgorithm();
     if (typeof alg === "undefined") {
@@ -49496,9 +49496,6 @@ function coerceToBase64(thing, name) {
         } catch (_err) {
             throw new Error(`could not coerce '${name}' to string`);
         }
-    }
-    if (typeof thing !== "string") {
-        throw new Error(`could not coerce '${name}' to string`);
     }
     return thing;
 }
@@ -50200,6 +50197,19 @@ const keyParamList = {
         }
     }
 };
+function jwkToAlgorithm(jwk) {
+    const alg = {};
+    if (algMap[jwk.alg]) {
+        alg.name = algMap[jwk.alg];
+    }
+    if (algHashes[jwk.alg]) {
+        alg.hash = algHashes[jwk.alg];
+    }
+    if (jwk.crv) {
+        alg.namedCurve = jwk.crv;
+    }
+    return alg;
+}
 class Key {
     constructor(key, alg){
         this._original_pem = undefined;
@@ -50219,7 +50229,7 @@ class Key {
         this._alg = alg;
         this._keyinfo = undefined;
     }
-    async fromPem(pem) {
+    async fromPem(pem, hashName) {
         let base64ber, ber;
         if (isPem(pem)) {
             base64ber = pemToBase64(pem);
@@ -50239,7 +50249,7 @@ class Key {
             }
         } else if (this._keyInfo.algorithm.algorithmId === "1.2.840.113549.1.1.1") {
             algorithm.name = "RSASSA-PKCS1-v1_5";
-            algorithm.hash = "SHA-256";
+            algorithm.hash = hashName || "SHA-256";
         }
         let importSPKIResult;
         try {
@@ -50259,7 +50269,7 @@ class Key {
         if (typeof extractable !== "undefined" && typeof extractable === "boolean") {
             jwkCopy.ext = extractable;
         }
-        this._alg = jwkCopy.alg;
+        this._alg = jwkToAlgorithm(jwkCopy);
         this._original_jwk = jwk;
         const generatedKey = await mod3.importJWK(jwkCopy, algMap[jwkCopy.alg] || jwkCopy.alg);
         this._key = generatedKey;
@@ -50313,8 +50323,8 @@ class Key {
         await this.fromJWK(retKey, true);
         return this._key;
     }
-    async toPem() {
-        if (this._original_pem) {
+    async toPem(forcedExport) {
+        if (this._original_pem && !forcedExport) {
             return this._original_pem;
         } else if (this._key) {
             let pemResult = await mod3.exportSPKI(this._key);
@@ -50330,21 +50340,21 @@ class Key {
         if (this._original_jwk) {
             return this._original_jwk;
         } else {
-            throw new Error("No key information available");
+            throw new Error("No usable key information available");
         }
     }
     toCose() {
         if (this._original_cose) {
             return this._original_cose;
         } else {
-            throw new Error("Key to Cose is not implemented.");
+            throw new Error("No usable key information available");
         }
     }
     getKey() {
         if (this._key) {
             return this._key;
         } else {
-            throw new Error("Key data not available.");
+            throw new Error("Key data not available");
         }
     }
     getAlgorithm() {
@@ -52118,6 +52128,7 @@ function parseClientResponse(msg) {
 }
 export { parseAttestationObject as parseAttestationObject, parseAuthenticatorData as parseAuthenticatorData, parseAuthnrAssertionResponse as parseAuthnrAssertionResponse, parseAuthnrAttestationResponse as parseAuthnrAttestationResponse, parseClientResponse as parseClientResponse, parseExpectations as parseExpectations };
 export { Certificate1 as Certificate, CertManager as CertManager, CRL as CRL, helpers as helpers };
+export { Key as Key };
 class Fido2Result {
     constructor(sym){
         if (sym !== lockSym) {

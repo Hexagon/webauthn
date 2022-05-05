@@ -47,6 +47,7 @@ const {
   isPem,
   pemToBase64,
   attach,
+  Key,
   Webauthn,
 } = exported;
 export {
@@ -70,6 +71,7 @@ export {
   isBase64Url,
   isPem,
   jsObjectToB64,
+  Key,
   MdsCollection,
   MdsEntry,
   noneAttestation,

@@ -8,12 +8,12 @@ export class Key {
     _key: any;
     _alg: any;
     _keyinfo: any;
-    fromPem(pem: any): Promise<any>;
+    fromPem(pem: any, hashName: any): Promise<any>;
     _keyInfo: any;
     fromJWK(jwk: any, extractable: any): Promise<any>;
     fromCose(cose: any): Promise<any>;
     _cose: ArrayBuffer;
-    toPem(): Promise<any>;
+    toPem(forcedExport: any): Promise<any>;
     toJwk(): any;
     toCose(): any;
     getKey(): any;
