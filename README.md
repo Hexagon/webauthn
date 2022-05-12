@@ -1,3 +1,9 @@
+# Deprecated
+
+This library is deprecated as all changes are merged into [github.com/webauthn-open-source/fido2-lib](https://github.com/webauthn-open-source/fido2-lib) since 3.1.0
+
+Use fido2-lib instead
+
 # webauthn
 
 NPM: @hexagon\webauthn | Deno.land: webauthn
